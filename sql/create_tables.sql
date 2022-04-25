@@ -1,13 +1,14 @@
 -- must in order --
 drop table if exists seat_type;
+drop table if exists order_status;
+drop table if exists orders;
 drop table if exists city_train;
 drop table if exists station_tickets;
-drop table if exists station_info;
-drop table if exists orders;
-drop table if exists users;
-drop table if exists train;
-drop table if exists city;
+drop table if exists train_full_info;
 drop table if exists station_list;
+drop table if exists city;
+drop table if exists train;
+drop table if exists users;
 
 -- must in order --
 create table if not exists users (
@@ -49,23 +50,23 @@ create table if not exists station_list (
 	foreign key (s_station_city_id) references city (c_city_id)
 );
 
-create table if not exists station_info (
-	si_train_id      integer,
-	si_station_id    integer,
-	si_station_order integer       not null,
-	si_arrive_time   time          not null,
-	si_leave_time    time          not null,
-	si_distance      integer       not null,
-	si_price_yz      decimal(5, 1) not null default 0,
-	si_price_rz      decimal(5, 1) not null default 0,
-	si_price_yw_s    decimal(5, 1) not null default 0,
-	si_price_yw_z    decimal(5, 1) not null default 0,
-	si_price_yw_x    decimal(5, 1) not null default 0,
-	si_price_rw_s    decimal(5, 1) not null default 0,
-	si_price_rw_x    decimal(5, 1) not null default 0,
-	primary key (si_train_id, si_station_id),
-	foreign key (si_train_id) references train (t_train_id),
-	foreign key (si_station_id) references station_list (s_station_id)
+create table if not exists train_full_info (
+	tfi_train_id      integer,
+	tfi_station_id    integer,
+	tfi_station_order integer       not null,
+	tfi_arrive_time   time          not null,
+	tfi_leave_time    time          not null,
+	tfi_distance      integer       not null,
+	tfi_price_yz      decimal(5, 1) not null default 0,
+	tfi_price_rz      decimal(5, 1) not null default 0,
+	tfi_price_yw_s    decimal(5, 1) not null default 0,
+	tfi_price_yw_z    decimal(5, 1) not null default 0,
+	tfi_price_yw_x    decimal(5, 1) not null default 0,
+	tfi_price_rw_s    decimal(5, 1) not null default 0,
+	tfi_price_rw_x    decimal(5, 1) not null default 0,
+	primary key (tfi_train_id, tfi_station_id),
+	foreign key (tfi_train_id) references train (t_train_id),
+	foreign key (tfi_station_id) references station_list (s_station_id)
 );
 
 create table if not exists station_tickets (
@@ -82,29 +83,24 @@ create table if not exists station_tickets (
 	primary key (stt_station_id, stt_train_id),
 	foreign key (stt_station_id) references station_list (s_station_id),
 	foreign key (stt_train_id) references train (t_train_id),
-	foreign key (stt_station_id, stt_train_id) references station_info (si_station_id, si_train_id)
+	foreign key (stt_station_id, stt_train_id) references train_full_info (tfi_station_id, tfi_train_id)
 );
 
 create table if not exists orders (
 	o_oid           serial primary key,
-	o_uid           integer       not null,
+	-- allow uid to be null, only fill in when order confirm --
+	o_uid           integer,
 	o_train_id      integer       not null,
 	o_date          date          not null,
 	o_start_station integer       not null,
 	o_end_station   integer       not null,
 	o_price         decimal(5, 1) not null,
-	o_seat_type     integer       not null,
-	o_status        integer       not null,
-	o_effect_time   integer       not null,
+	o_seat_type     seat_type     not null,
+	o_seat_id       integer       not null,
+	o_status        order_status  not null,
+	o_effect_time   timestamp     not null,
 	foreign key (o_uid) references users (u_uid),
 	foreign key (o_train_id) references train (t_train_id),
 	foreign key (o_start_station) references station_list (s_station_id),
 	foreign key (o_end_station) references station_list (s_station_id)
-);
-
--- DEFINE --
--- enum vars, as table --
-create table if not exists seat_type (
-	st_type serial primary key,
-	st_name varchar(20) not null
 );
