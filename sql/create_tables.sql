@@ -1,15 +1,19 @@
 -- must in order --
-drop table if exists seat_type;
-drop table if exists order_status;
 drop table if exists orders;
-drop table if exists city_train;
-drop table if exists station_tickets;
-drop table if exists train_full_info;
-drop table if exists station_list;
-drop table if exists city;
-drop table if exists train;
-drop table if exists users;
 
+drop table if exists city_train;
+
+drop table if exists station_tickets;
+
+drop table if exists train_full_info;
+
+drop table if exists station_list;
+
+drop table if exists city;
+
+drop table if exists train;
+
+drop table if exists users;
 -- must in order --
 create table if not exists users (
 	u_uid       serial primary key,
@@ -53,17 +57,11 @@ create table if not exists station_list (
 create table if not exists train_full_info (
 	tfi_train_id      integer,
 	tfi_station_id    integer,
-	tfi_station_order integer       not null,
-	tfi_arrive_time   time          not null,
-	tfi_leave_time    time          not null,
-	tfi_distance      integer       not null,
-	tfi_price_yz      decimal(5, 1) not null default 0,
-	tfi_price_rz      decimal(5, 1) not null default 0,
-	tfi_price_yw_s    decimal(5, 1) not null default 0,
-	tfi_price_yw_z    decimal(5, 1) not null default 0,
-	tfi_price_yw_x    decimal(5, 1) not null default 0,
-	tfi_price_rw_s    decimal(5, 1) not null default 0,
-	tfi_price_rw_x    decimal(5, 1) not null default 0,
+	tfi_station_order integer          not null,
+	tfi_arrive_time   time             not null,
+	tfi_leave_time    time             not null,
+	tfi_distance      integer          not null,
+	tfi_price         decimal(5, 1)[7] not null default array [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 	primary key (tfi_train_id, tfi_station_id),
 	foreign key (tfi_train_id) references train (t_train_id),
 	foreign key (tfi_station_id) references station_list (s_station_id)
@@ -72,14 +70,8 @@ create table if not exists train_full_info (
 create table if not exists station_tickets (
 	stt_station_id integer,
 	stt_train_id   integer,
-	stt_date       date    not null,
-	stt_num_yz     integer not null default 0,
-	stt_num_rz     integer not null default 0,
-	stt_num_yw_s   integer not null default 0,
-	stt_num_yw_z   integer not null default 0,
-	stt_num_yw_x   integer not null default 0,
-	stt_num_rw_s   integer not null default 0,
-	stt_num_rw_x   integer not null default 0,
+	stt_date       date       not null,
+	stt_num        integer[7] not null default array [5, 5, 5, 5, 5, 5, 5],
 	primary key (stt_station_id, stt_train_id),
 	foreign key (stt_station_id) references station_list (s_station_id),
 	foreign key (stt_train_id) references train (t_train_id),
@@ -88,17 +80,16 @@ create table if not exists station_tickets (
 
 create table if not exists orders (
 	o_oid           serial primary key,
-	-- allow uid to be null, only fill in when order confirm --
 	o_uid           integer,
-	o_train_id      integer       not null,
-	o_date          date          not null,
-	o_start_station integer       not null,
-	o_end_station   integer       not null,
-	o_price         decimal(5, 1) not null,
-	o_seat_type     seat_type     not null,
-	o_seat_id       integer       not null,
-	o_status        order_status  not null,
-	o_effect_time   timestamp     not null,
+	o_train_id      integer      not null,
+	o_date          date         not null,
+	o_start_station integer      not null,
+	o_end_station   integer      not null,
+	-- o_price         decimal(5, 1) not null, # dependence --
+	o_seat_type     seat_type    not null,
+	o_seat_id       integer      not null,
+	o_status        order_status not null,
+	o_effect_time   timestamp    not null,
 	foreign key (o_uid) references users (u_uid),
 	foreign key (o_train_id) references train (t_train_id),
 	foreign key (o_start_station) references station_list (s_station_id),
