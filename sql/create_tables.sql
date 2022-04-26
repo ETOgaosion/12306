@@ -32,19 +32,21 @@ create table if not exists train (
 );
 
 create table if not exists city (
-	c_city_id   serial primary key,
-	c_city_name varchar(20) not null
+	c_city_id     integer primary key,
+	c_city_name   varchar(20) not null,
+	c_reach_table boolean[]
 );
 
 create table if not exists city_train (
 	ct_city_id      integer,
 	ct_train_id     integer,
-	ct_next_city_id integer,
-	ct_prior        integer not null,
+	-- ct_next_city_id integer, # dependence
+	-- ct_priority     integer not null, # dependence
 	primary key (ct_city_id, ct_train_id),
 	foreign key (ct_city_id) references city (c_city_id),
-	foreign key (ct_train_id) references train (t_train_id),
-	foreign key (ct_next_city_id) references city (c_city_id)
+	foreign key (ct_train_id) references train (t_train_id)
+	-- ,
+	--  foreign key (ct_next_city_id) references city (c_city_id)
 );
 
 create table if not exists station_list (
@@ -77,7 +79,7 @@ create table if not exists station_tickets (
 	foreign key (stt_train_id) references train (t_train_id),
 	foreign key (stt_station_id, stt_train_id) references train_full_info (tfi_station_id, tfi_train_id)
 );
-
+-- we make a rule that a user can only buy one ticket of a train on a ride --
 create table if not exists orders (
 	o_oid           serial primary key,
 	o_uid           integer,

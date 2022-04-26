@@ -3,13 +3,44 @@
  * function is always inside a TRANSACTION
  * so use lock in outside
  * TODO: there will be a file provide such interfaces
+
+ * naming rules: directly get info from table use query
+ *               use multiple table to form query result use get
+ * TODO: rename function name to clarify and be unique
+ *             : query func use query_(target)[_from_param]__[table for short]__
  */
+-- rewrite library functions --
+create function array_set(
+	p_input anyarray, p_index int, p_new_value anyelement
+)
+	returns anyarray
+as
+$$
+begin
+	if p_input is not null then
+		p_input[p_index] := p_new_value;
+	end if;
+	return p_input;
+end;
+$$ language plpgsql immutable;
+
+
+create or replace function array_remove_elem(
+	anyarray, int
+)
+	returns anyarray
+as $$
+begin
+	select $1[:$2 - 1] || $1[$2 + 1:];
+end
+$$ language plpgsql immutable;
+
 -- train --
 /* @table: train */
 /* @param: train_name */
 /* @return: train_id */
 /* @note: train_name -> train_id */
-create or replace function query_train_id(
+create or replace function query_train_id_from_name__t___(
 	in train_name varchar(10),
 	out train_id integer
 )
@@ -22,11 +53,28 @@ begin
 end;
 $$ language plpgsql;
 
+/* @table: train */
+/* @param: train_id */
+/* @return: train_name */
+/* @note: train_id -> train_name */
+create or replace function query_train_name_from_id__t___(
+	in train_id integer,
+	out train_name varchar(10)
+)
+as $$
+begin
+	select t_train_name
+		into train_name
+		from train
+		where t_train_id = train_id;
+end;
+$$ language plpgsql;
+
 -- city --
 /* @table: city */
 /* @param: city_name */
 /* @return: city_id */
-create or replace function query_city_id(
+create or replace function query_city_id_from_name__c___(
 	in city_name varchar(20),
 	out city_id integer
 )
@@ -39,12 +87,59 @@ begin
 end;
 $$ language plpgsql;
 
--- station info --
-/* @table: station_info */
+-- city train --
+/* @table: city_train */
+/* @param: city_id */
+/* @return: train_id_list */
+create or replace function query_train_id_list_from_cid__ct__(
+	in city_id integer
+)
+	returns table (
+		train_id integer
+	)
+	language plpgsql
+as $$
+begin
+	return query select ct_train_id as train_id from city_train where ct_city_id = city_id;
+end;
+$$;
+
+-- station list --
+/* @table: station_list */
+/* @param: station_id */
+/* @return: station_name */
+create or replace function query_station_name_from_id__s___(
+	in station_id integer,
+	out station_name varchar(20)
+)
+as $$
+begin
+	select s_station_name
+		into station_name
+		from station_list
+		where s_station_id = station_id;
+end;
+$$ language plpgsql;
+
+/* @table: station_list */
+/* @param: station_id */
+/* @return: city_id */
+create or replace function query_city_id_from_sid__s___(
+	in station_id integer,
+	out city_id integer
+)
+as $$
+begin
+	select s_station_city_id into city_id from station_list where s_station_id = station_id;
+end;
+$$ language plpgsql;
+
+-- train full info --
+/* @table: train_full_info */
 /* @param: train_id */
 /* @return: leave_time */
 /* @note: train_id in station -> leave time */
-create or replace function get_start_time(
+create or replace function query_start_time_from_id__tfi__(
 	in train_id integer,
 	out leave_time time
 )
@@ -58,12 +153,11 @@ begin
 end;
 $$ language plpgsql;
 
--- train full info --
 /* @table: train_full_info */
 /* @param: train_id */
 /*       : station_id */
 /* @return: station_order */
-create or replace function query_station_order(
+create or replace function query_station_order_from_tid_sid__tfi__(
 	in train_id integer,
 	in station_id integer,
 	out station_order integer
@@ -80,9 +174,32 @@ $$ language plpgsql;
 
 /* @table: train_full_info */
 /* @param: train_id */
+/*       : station_id */
+/* @return: all info */
+create or replace function query_train_all_info_from_tid_sid__tfi__(
+	in train_id integer,
+	in station_id integer,
+	out station_order integer,
+	out arrive_time time,
+	out leave_time time,
+	out distance integer,
+	out price decimal
+)
+as $$
+begin
+	select tfi_station_order, tfi_arrive_time, tfi_leave_time, tfi_distance, tfi_price
+		into station_order, arrive_time, leave_time, distance, price
+		from train_full_info
+		where tfi_train_id = train_id
+		  and tfi_station_id = station_id;
+end;
+$$ language plpgsql;
+
+/* @table: train_full_info */
+/* @param: train_id */
 /*       : station_order */
 /* @return: station_id */
-create or replace function query_station_id(
+create or replace function query_station_id_from_tid_so__tfi__(
 	in train_id integer,
 	in station_order integer,
 	out station_id integer
@@ -97,37 +214,131 @@ begin
 end;
 $$ language plpgsql;
 
+/* @table: train_full_info */
+/* @param: train_id */
+/*       : station_id */
+/* @return: next_station_id */
+create or replace function get_next_station_id(
+	in train_id integer,
+	in station_id integer,
+	out next_station_id integer
+)
+as $$
+declare
+	station_order integer;
+begin
+	select tfi_station_order
+		into station_order
+		from train_full_info
+		where tfi_train_id = train_id
+		  and tfi_station_id = station_id;
+	station_order := station_order + 1;
+	select tfi_station_id
+		into next_station_id
+		from train_full_info
+		where tfi_train_id = train_id
+		  and tfi_station_order = station_order;
+end;
+$$ language plpgsql;
+
 -- station tickets --
 /* @table: station_tickets */
 /* @param: train_id */
+/*       : query_date */
 /*       : station_id */
 /*       : seat_type_list */
 /* @return: table of remain_seat num */
-create or replace function query_remain_seats(
+create or replace function query_remain_seats__st__(
 	in train_id integer,
+	in query_date date,
 	in station_id integer,
 	in seat_type_list seat_type[]
 )
 	returns table (
+		in_order integer,
 		seat_num integer
 	)
 as $$
 declare
 	seat_type seat_type;
-	seat_numbs integer[7];
+	seat_nums_tmp integer[7];
+	ptr integer := 1;
 begin
 	foreach seat_type in array seat_type_list
 		loop
 			select stt_num
-				into seat_numbs
+				into seat_nums_tmp
 				from station_tickets
 				where stt_station_id = station_id
-				  and stt_train_id = train_id;
-			seat_num := seat_numbs[seat_type];
+				  and stt_train_id = train_id
+				  and stt_date = query_date;
+			in_order := ptr;
+			seat_num := seat_nums_tmp[seat_type];
+			ptr := ptr + 1;
 			return next;
 		end loop;
+	return;
 end;
 $$ language plpgsql;
+
+/* @table: station_tickets */
+/* @param: train_id */
+/*       : query_date */
+/*       : station_from_id */
+/*       : station_to_id */
+/*       : seat_type_list */
+/* @return: min_seats */
+/* @note: get min seats num between start city and end */
+create or replace function get_min_seats(
+	in train_id integer,
+	in query_date date,
+	in station_from_id integer,
+	in station_to_id integer,
+	in seat_type_list seat_type[]
+)
+	returns table (
+		in_order integer,
+		seat_num integer
+	)
+as $$
+declare
+	station_start_order int;
+	station_order_ptr int;
+	station_end_order int;
+	station_id_ptr int := station_from_id;
+	station_seat_left integer[7];
+	seat_type seat_type;
+	min_seat_nums integer[7] := array [5, 5, 5, 5, 5, 5, 5];
+	ptr int := 1;
+begin
+	select query_station_order_from_tid_sid__tfi__(train_id, station_from_id) into station_start_order;
+	station_order_ptr := station_start_order;
+	select query_station_order_from_tid_sid__tfi__(train_id, station_to_id) into station_end_order;
+	select query_remain_seats__st__(train_id, query_date, station_id_ptr, seat_type_list) into station_seat_left;
+	while station_order_ptr != station_end_order
+		loop
+			foreach seat_type in array seat_type_list
+				loop
+					if station_seat_left[seat_type] < min_seat_nums[seat_type] then
+						select array_set(min_seat_nums, seat_type, station_seat_left[seat_type]) into min_seat_nums;
+					end if;
+				end loop;
+			station_order_ptr := station_order_ptr + 1;
+			select query_station_id_from_tid_so__tfi__(train_id, station_order_ptr) into station_id_ptr;
+			select query_remain_seats__st__(train_id, query_date, station_id_ptr, seat_type_list)
+				into station_seat_left;
+		end loop;
+	foreach seat_type in array seat_type_list
+		loop
+			in_order := ptr;
+			seat_num := min_seat_nums[seat_type];
+			ptr := ptr + 1;
+			return next;
+		end loop;
+	return;
+end;
+$$ language plpgsql;
+
 
 /* @table: station_tickets */
 /* @param: train_id */
@@ -140,6 +351,7 @@ $$ language plpgsql;
 /*        : actual left_seat if failed */
 create or replace function try_occupy_seats(
 	in train_id integer,
+	in order_date date,
 	in station_from_id integer,
 	in station_to_id integer,
 	in seat_type seat_type,
@@ -149,26 +361,20 @@ create or replace function try_occupy_seats(
 )
 as $$
 declare
-	station_start_order int := query_station_order(train_id, station_from_id);
-	station_order_ptr int := station_start_order;
-	station_end_order int := query_station_order(train_id, station_to_id);
+	station_start_order int;
+	station_order_ptr int;
+	station_end_order int;
 	station_id_ptr int := station_from_id;
-	station_seat_left int := query_remain_seats(train_id, station_id_ptr, array [seat_type]);
-	min_seat int := 0;
+	min_seat int := 5;
 begin
-	-- first loop, only find min_seat --
-	while station_order_ptr != station_end_order
-		loop
-			if station_seat_left < min_seat then
-				min_seat := station_seat_left;
-			end if;
-			station_order_ptr := station_order_ptr + 1;
-			station_id_ptr := query_station_id(train_id, station_order_ptr);
-			station_seat_left := query_remain_seats(train_id, station_id_ptr, array [seat_type]);
-		end loop;
-	-- reset ptr --
-	station_order_ptr := station_start_order;
-	station_id_ptr := station_from_id;
+	select query_station_order_from_tid_sid__tfi__(train_id, station_from_id) into station_start_order;
+	station_order_ptr = station_start_order;
+	select query_station_order_from_tid_sid__tfi__(train_id, station_to_id) into station_end_order;
+	-- find min_seat --
+	select get_min_seat.seat_num
+		into min_seat
+		from get_min_seats(train_id, order_date, station_from_id, station_to_id, array [seat_type]) get_min_seat
+		where in_order = 1;
 	-- check satisfiability --
 	if min_seat < seat_num then
 		succeed := false;
@@ -180,17 +386,12 @@ begin
 		while station_order_ptr != station_end_order
 			loop
 				update station_tickets
-				set stt_num_yz   = case when seat_type = 'YZ' then stt_num_yz - seat_num else stt_num_yz end,
-				    stt_num_rz   = case when seat_type = 'RZ' then stt_num_rz - seat_num else stt_num_rz end,
-				    stt_num_yw_s = case when seat_type = 'YW_S' then stt_num_yw_s - seat_num else stt_num_yw_s end,
-				    stt_num_yw_z = case when seat_type = 'YW_Z' then stt_num_yw_z - seat_num else stt_num_yw_z end,
-				    stt_num_yw_x = case when seat_type = 'YW_X' then stt_num_yw_x - seat_num else stt_num_yw_x end,
-				    stt_num_rw_s = case when seat_type = 'RW_S' then stt_num_rw_s - seat_num else stt_num_rw_s end,
-				    stt_num_rw_x = case when seat_type = 'RW_X' then stt_num_rw_x - seat_num else stt_num_rw_x end
+				set stt_num = (select array_set(stt_num, seat_type, stt_num[seat_type] - seat_num))
 					where stt_train_id = train_id
-					  and stt_station_id = station_id_ptr;
+					  and stt_station_id = station_id_ptr
+					  and stt_date = order_date;
 				station_order_ptr := station_order_ptr + 1;
-				station_id_ptr := query_station_id(train_id, station_order_ptr);
+				select query_station_id_from_tid_so__tfi__(train_id, station_order_ptr) into station_id_ptr;
 			end loop;
 	end if;
 end;
@@ -198,6 +399,7 @@ $$ language plpgsql;
 
 /* @table: station_tickets */
 /* @param: train_id */
+/*       : order_date */
 /*       : station_from_id */
 /*       : station_to_id */
 /*       : seat_type */
@@ -205,37 +407,114 @@ $$ language plpgsql;
 /* @return: succeed or not */
 /*        : 0 left_seat if succeed */
 /*        : actual left_seat if failed */
-create or replace function recover_seats(
+create or replace function release_seats(
 	in train_id integer,
+	in order_date date,
 	in station_from_id integer,
 	in station_to_id integer,
 	in seat_type seat_type,
 	in seat_num integer
 )
+	returns void
 as $$
 declare
-	station_start_order int := query_station_order(train_id, station_from_id);
-	station_order_ptr int := station_start_order;
-	station_end_order int := query_station_order(train_id, station_to_id);
+	station_start_order int;
+	station_order_ptr int;
+	station_end_order int;
 	station_id_ptr int := station_from_id;
 begin
+	select query_station_order_from_tid_sid__tfi__(train_id, station_from_id) into station_start_order;
+	station_order_ptr := station_start_order;
+	select query_station_order_from_tid_sid__tfi__(train_id, station_to_id) into station_end_order;
 	while station_order_ptr != station_end_order
 		loop
 			update station_tickets
-			set stt_num_yz   = case when seat_type = 'YZ' then stt_num_yz + seat_num else stt_num_yz end,
-			    stt_num_rz   = case when seat_type = 'RZ' then stt_num_rz + seat_num else stt_num_rz end,
-			    stt_num_yw_s = case when seat_type = 'YW_S' then stt_num_yw_z + seat_num else stt_num_yw_s end,
-			    stt_num_yw_z = case when seat_type = 'YW_Z' then stt_num_yw_z + seat_num else stt_num_yw_z end,
-			    stt_num_yw_x = case when seat_type = 'YW_X' then stt_num_yw_x + seat_num else stt_num_yw_x end,
-			    stt_num_rw_s = case when seat_type = 'RW_S' then stt_num_rw_s + seat_num else stt_num_rw_s end,
-			    stt_num_rw_x = case when seat_type = 'RW_X' then stt_num_rw_x + seat_num else stt_num_rw_x end
+			set stt_num = (select array_set(stt_num, seat_type, stt_num[seat_type] + seat_num))
 				where stt_train_id = train_id
-				  and stt_station_id = station_id_ptr;
+				  and stt_station_id = station_id_ptr
+				  and stt_date = order_date;
 			station_order_ptr := station_order_ptr + 1;
-			station_id_ptr := query_station_id(train_id, station_order_ptr);
+			select query_station_id_from_tid_so__tfi__(train_id, station_order_ptr) into station_id_ptr;
 		end loop;
 end;
 $$ language plpgsql;
+
+-- mixed --
+/* @tables: station_list, train_full_info */
+/* @param: city_id */
+/*       : train_id */
+/* @return: station_id */
+/* @note: find which station the train stops when arriving the city */
+/*      : column is in station list, so we put function here */
+/*      : but actually info */
+create or replace function get_station_id_from_cid_tid(
+	in city_id integer,
+	in train_id integer,
+	out station_id integer
+)
+as $$
+begin
+	select s_station_id
+		into station_id
+		from train_full_info
+			     left join station_list on station_list.s_station_id = train_full_info.tfi_station_id
+		where s_station_city_id = city_id
+		  and tfi_train_id = train_id;
+end;
+$$ language plpgsql;
+
+/* @tables: city_train, train_full_info, station_list */
+/* @param: city_id */
+/*       : train_id */
+/* @return: priority */
+/* @note: find city priority in this train line */
+create or replace function get_ct_priority(
+	in city_id integer,
+	in train_id integer,
+	out priority integer
+)
+as $$
+begin
+	select tfi_station_order
+		into priority
+		from train_full_info
+		where tfi_train_id = train_id
+		  and tfi_station_id = (select get_station_id_from_cid_tid(city_id, train_id));
+end;
+$$ language plpgsql;
+
+/* @tables: city_train, train_full_info, station_list */
+/* @param: city_id */
+/*       : train_id */
+/* @return: next_city_list */
+/* @note: find one  */
+create or replace function get_ct_next_city_list(
+	in city_id integer,
+	in train_id_list integer[]
+)
+	returns table (
+		in_order     integer,
+		next_city_id integer
+	)
+	language plpgsql
+as $$
+declare
+	train_idi integer;
+	station_id integer;
+	ptr integer := 1;
+begin
+	foreach train_idi in array train_id_list
+		loop
+			in_order := ptr;
+			select get_station_id_from_cid_tid(city_id, train_idi) into station_id;
+			select query_city_id_from_sid__s___(
+						       (select get_next_station_id(train_idi, station_id))
+				       )
+				into next_city_id;
+			return next;
+		end loop;
+end
+$$;
 
 -- outside --
 /* @param: days_interval */
@@ -247,8 +526,7 @@ create or replace function get_date_from_now(
 )
 as $$
 begin
-	select now() + (days_interval || 'days')::interval
-		into date_then;
+	select now() + (days_interval || 'days')::interval into date_then;
 end;
 $$ language plpgsql;
 
@@ -256,36 +534,39 @@ $$ language plpgsql;
 /* @note: query specific train */
 /*      : we return id also, to help later function */
 /* @TODO: can add param train type and seat type to filter result */
-create or replace function query_train_info(
+create or replace function get_train_info(
 	in train_name varchar(10),
 	in q_date date default get_date_from_now(1)
 )
 	returns table (
-		station     varchar(20),
-		station_id  integer,
-		city        varchar(20),
-		city_id     integer,
-		arrive_time time,
-		leave_time  time,
-		stay_time   interval,
-		durance     interval,
-		distance    integer,
-		seat_price  decimal(5, 1)[7],
-		seat_num    integer[7]
+		station_order integer,
+		station       varchar(20),
+		station_id    integer,
+		city          varchar(20),
+		city_id       integer,
+		arrive_time   time,
+		leave_time    time,
+		stay_time     interval,
+		durance       interval,
+		distance      integer,
+		seat_price    decimal(5, 1)[7],
+		seat_num      integer[7]
 	)
 	language plpgsql
 as $$
 declare
-	train_id integer := query_train_id(train_name);
+	train_id integer;
 begin
-	return query select s_station_name as station,
+	select query_train_id_from_name__t___(train_name) into train_id;
+	return query select tfi_station_order as station_order,
+	                    s_station_name as station,
 	                    s_station_id as station_id,
 	                    c_city_name as city_name,
 	                    c_city_id as city_id,
 	                    tfi_arrive_time as arrive_time,
 	                    tfi_leave_time as leave_time,
 	                    tfi_leave_time - tfi_arrive_time as stay_time,
-	                    tfi_arrive_time - get_start_time(train_id) as durance,
+	                    tfi_arrive_time - (select query_start_time_from_id__tfi__(train_id)) as durance,
 	                    tfi_distance as distance,
 	                    tfi_price as seat_price,
 	                    stt_num as seat_num
@@ -303,33 +584,165 @@ $$;
 /* @note: query train between 2 cities */
 /*      : we return id also, to help later function */
 /* @TODO: can add param train type and seat type to filter result */
-create or replace function query_train_bt_places(
-	in city_1 varchar(20),
-	in city_2 varchar(20),
-	in q_date date,
-	in q_time date,
-	in train_type varchar(1),
-	in allow_switch boolean
+-- currently found effective way to return is through [setof] --
+drop table if exists train_info;
+
+create table if not exists train_info (
+	train_name        varchar(10),
+	train_id          integer,
+	station_from_name varchar(20),
+	station_from_id   integer,
+	station_to_name   varchar(20),
+	station_to_id     integer,
+	leave_time        time,
+	arrive_time       time,
+	durance           interval,
+	distance          integer,
+	seat_prices       decimal(5, 1)[7],
+	seat_nums         integer[7],
+	transfer_first    boolean,
+	transfer_late     boolean
+);
+
+-- check reach table --
+create or replace function check_reach_table(
+	in city_from_id integer,
+	in city_to_id integer,
+	out reachable boolean
 )
-	returns table (
-		train_name     varchar(10),
-		train_id       integer,
-		station_leave  varchar(20),
-		station_id     integer,
-		station_arrive varchar(20),
-		leave_time     time,
-		arrive_time    time,
-		durance        interval,
-		distance       integer,
-		seat_prices    decimal(5, 1)[7],
-		seat_numbs     integer[7]
-	)
-	language plpgsql
 as $$
 declare
+	reach_table boolean[];
 begin
+	select c_reach_table into reach_table from city where c_city_id = city_from_id;
+	reachable := reach_table[city_to_id];
 end;
-$$;
+$$ language plpgsql;
+
+create or replace function query_train_bt_places(
+	in city_from varchar(20),
+	in city_to varchar(20),
+	in q_date date,
+	in q_time date,
+	-- TODO: in train_type varchar(1),
+	in allow_transfer boolean
+)
+	returns setof train_info
+as $$
+declare
+	--
+	from_city_id integer;
+	to_city_id integer;
+	city_reachable boolean;
+	src_city integer[] := array [from_city_id];
+	neighbour_city integer[];
+    passing_trains integer [];
+	current_level_city_num integer := 0;
+	city_i integer := 1;
+	--
+	train_id_list integer[];
+	train_idi integer;
+	train_namei varchar(10);
+	--
+	station_leave_id integer;
+	station_leave_name varchar(20);
+	station_leave_distance integer;
+	station_leave_time time;
+	station_leave_price decimal(5, 1)[7];
+	--
+	station_mid_id integer;
+	station_mid_name varchar(20);
+	station_mid_arrive_time time;
+	station_mid_leave_time time;
+	station_mid_arrive_distance integer;
+	station_mid_leave_distance integer;
+	station_mid_arrive_price decimal(5, 1)[7];
+	pre_res_price decimal(5, 1)[7];
+	station_mid_leave_price decimal(5, 1)[7];
+	--
+	station_arrive_id integer;
+	station_arrive_name varchar(20);
+	station_arrive_time time;
+	station_arrive_distance integer;
+	station_arrive_price decimal(5, 1)[7];
+	res_price decimal(5, 1)[7];
+	--
+	--
+	seat_nums integer[7];
+	seat_i integer := 1;
+	r train_info%rowtype;
+begin
+	select query_city_id_from_name__c___(city_from) into from_city_id;
+	select query_city_id_from_name__c___(city_to) into to_city_id;
+	select check_reach_table(from_city_id, to_city_id) into city_reachable;
+	if city_reachable then
+		train_id_list := array(
+				select from_city_train.ct_train_id
+					from city_train from_city_train
+						     join city_train to_city_train on from_city_train.ct_train_id = to_city_train.ct_train_id
+					where (select get_ct_priority(from_city_id, from_city_train.ct_train_id)) <
+					      (select get_ct_priority(to_city_id, to_city_train.ct_train_id))
+			);
+		foreach train_idi in array train_id_list
+			loop
+				-- 2 ways of accomplishment --
+				select get_station_id_from_cid_tid(from_city_id, train_idi) into station_leave_id;
+				select query_station_name_from_id__s___(station_leave_id) into station_leave_name;
+				select get_station_id_from_cid_tid(to_city_id, train_idi) into station_arrive_id;
+				select query_station_name_from_id__s___(station_arrive_id) into station_arrive_name;
+				select query_train_name_from_id__t___(train_idi) into train_namei;
+				select q_all_info_leave.leave_time, q_all_info_leave.distance, q_all_info_leave.price
+					into station_leave_time, station_leave_distance, station_arrive_price
+					from query_train_all_info_from_tid_sid__tfi__(train_idi, station_leave_id) q_all_info_leave;
+				select q_all_info_arrive.leave_time, q_all_info_arrive.distance, q_all_info_arrive.price
+					into station_arrive_time, station_arrive_distance, station_leave_price
+					from query_train_all_info_from_tid_sid__tfi__(train_idi, station_arrive_id) q_all_info_arrive;
+				for seat_i in 1..7
+					loop
+						select array_set(station_arrive_price, station_arrive_price[seat_i],
+						                 station_arrive_price[seat_i] - station_leave_price[seat_i])
+							into res_price;
+					end loop;
+				select get_min_seat.seat_num
+					into seat_nums
+					from get_min_seats(train_idi, q_date, station_leave_id, station_arrive_id,
+					                   array ['YZ', 'RZ', 'YW_S', 'YW_Z', 'YW_X', 'RW_S', 'RW_X']) get_min_seat;
+				for r in
+					select train_namei as train_name,
+					       train_idi as train_id,
+					       station_leave_name as station_from_name,
+					       station_leave_id as station_from_id,
+					       station_arrive_name as station_to_name,
+					       station_arrive_id as station_to_id,
+					       station_leave_time as leave_time,
+					       station_arrive_time as arrive_time,
+					       station_arrive_time - station_leave_time as durance,
+					       station_arrive_distance - station_leave_distance as distance,
+					       res_price as seat_price,
+					       seat_nums as seat_nums,
+					       false as transfer_first,
+					       false as transfer_late
+					loop
+						return next r;
+					end loop;
+			end loop;
+		if allow_transfer then
+			while (select array_position(src_city, to_city_id)) is not null
+				loop
+					select array_length(src_city, 1) into current_level_city_num;
+					for city_i in 1..current_level_city_num
+					loop
+					    passing_trains := array(select query_train_id_list_from_cid__ct__(src_city[1]));
+						neighbour_city := array(select get_ct_next_city_list(src_city[1], passing_trains));
+						src_city := array(select array_cat(src_city, neighbour_city));
+						src_city := array(select array_remove_elem(src_city, 1));
+					end loop;
+				end loop;
+		end if;
+	end if;
+	return;
+end;
+$$ language plpgsql;
 
 -- Requirement 7 --
 /* @param: we use data from previous queries, it's php's mission to get and maintain */
@@ -360,7 +773,7 @@ declare
 begin
 	select succeed, left_seat
 		into succeed, seat_id
-		from try_occupy_seats(train_id, station_from_id, station_to_id, seat_type, seat_num);
+		from try_occupy_seats(train_id, order_date, station_from_id, station_to_id, seat_type, seat_num);
 	if succeed then
 		insert into orders (o_train_id, o_date, o_start_station, o_end_station, o_seat_type, o_seat_id,
 		                    o_status, o_effect_time)
@@ -372,7 +785,7 @@ begin
 		       seat_id,
 		       'PRE_ORDERED',
 		       now();
-		order_id := currval(pg_get_serial_sequence('orders', 'o_oid'));
+		select currval(pg_get_serial_sequence('orders', 'o_oid')) into order_id;
 	else
 		order_id := 0;
 	end if;
@@ -400,6 +813,7 @@ create or replace function user_query_order(
 	in end_query_date date
 )
 	returns table (
+		order_id       integer,
 		train_name     varchar(10),
 		train_id       integer,
 		station_leave  varchar(20),
@@ -416,7 +830,8 @@ create or replace function user_query_order(
 	)
 as $$
 begin
-	return query select t_train_name as train_name,
+	return query select o_oid as order_id,
+	                    t_train_name as train_name,
 	                    o_train_id as train_id,
 	                    s_start.s_station_name as station_leave,
 	                    o_start_station as station_id,
@@ -444,9 +859,25 @@ end;
 $$ language plpgsql;
 
 create or replace function user_delete_order(
+	in order_id integer,
+	out succeed boolean
 )
 as $$
+declare
+	train_id integer;
+	order_date integer;
+	start_station integer;
+	end_station integer;
+	seat_type seat_type;
 begin
+	select o_train_id, o_date, o_start_station, o_end_station, o_seat_type
+		into train_id, order_date, start_station, end_station, seat_type
+		from orders
+		where o_oid = order_id;
+	select release_seats(train_id, order_date, start_station, end_station, seat_type, 1);
+	update orders
+	set o_status = 'CANCELED'
+		where o_oid = order_id;
 end;
 $$ language plpgsql;
 
@@ -472,16 +903,17 @@ create or replace function admin_query_orders(
 )
 as $$
 begin
-	select count(*) as total_order_num,
-	       sum(tfi_end.tfi_price[o_seat_type] - tfi_start.tfi_price[o_seat_type] + 5) as hot_trains
+	select count(*),
+	       sum(tfi_end.tfi_price[o_seat_type] - tfi_start.tfi_price[o_seat_type] + 5)
+		into total_order_num, hot_trains
 		from orders
 			     left join train_full_info tfi_start on o_start_station = tfi_start.tfi_station_id
 			and orders.o_train_id = tfi_start.tfi_train_id
 			     left join train_full_info tfi_end on o_end_station = tfi_end.tfi_station_id
 			and orders.o_train_id = tfi_end.tfi_train_id;
 	hot_trains := array(select t_train_name
-		                    from train
-			                         left join top_10_train_ids on train.t_train_id = top_10_train_ids.train_id);
+		             from train
+			                  left join top_10_train_ids on train.t_train_id = top_10_train_ids.train_id);
 end;
 $$ language plpgsql;
 
