@@ -780,14 +780,14 @@ begin
 												                                   interval '1' hour))
 											loop
 												if r.station_to_id = j.station_from_id then
-													if j.arrive_time - r.leave_time >= interval '1' hour and
-													   j.arrive_time - r.leave_time <= interval '4' hour then
+													if j.leave_time - r.arrive_time >= interval '1' hour and
+													   j.leave_time - r.arrive_time <= interval '4' hour then
 														return next r;
 														return next j;
 													end if;
 												else
-													if j.arrive_time - r.leave_time >= interval '2' hour and
-													   j.arrive_time - r.leave_time <= interval '4' hour then
+													if j.leave_time - r.arrive_time >= interval '2' hour and
+													   j.leave_time - r.arrive_time <= interval '4' hour then
 														return next r;
 														return next j;
 													end if;
