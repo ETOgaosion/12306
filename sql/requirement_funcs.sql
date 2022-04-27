@@ -313,7 +313,7 @@ begin
 			-- first set of transfer trains must be ones passing from city --
 			-- so outside loop --
 			passing_trains := array(select query_train_id_list_from_cid__ct__(from_city_id));
-			while (select array_position(src_city, to_city_id)) is not null
+			while (select array_length(src_city, 1)) > 0 and (select array_position(src_city, to_city_id)) is not null
 				loop
 					select array_length(src_city, 1) into current_level_city_num;
 					for city_i in 1..current_level_city_num
