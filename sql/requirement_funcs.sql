@@ -534,12 +534,9 @@ as $$
 begin
 	delete
 		from orders
-		where (now() > orders.o_effect_time
-			and now() - orders.o_effect_time > interval '30 minutes')
-		   or (
-					now() < orders.o_effect_time
-				and interval '24 hours' + now() - orders.o_effect_time > interval '30 minutes'
-			);
+		where (select * from get_actual_interval_bt_time(orders.o_effect_time, now(), 0))
+		          > interval '30 minutes'
+		    and orders.o_status = 'PRE_ORDERED';
 end;
 $$ language plpgsql;
 
