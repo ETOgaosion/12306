@@ -210,8 +210,8 @@ begin
 		<<scan_train_list>>
 		foreach train_idi in array train_id_list
 			loop
-			-- 2 ways of accomplishment --
-			-- leave station --
+				-- 2 ways of accomplishment --
+				-- leave station --
 				select get_station_id_from_cid_tid(from_city_id, train_idi) into station_leave_id;
 				select query_station_name_from_id__s__(station_leave_id) into station_leave_name;
 				select q_all_info_leave.leave_time,
