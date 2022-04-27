@@ -777,17 +777,17 @@ begin
 											(select *
 												 from get_train_bt_cities_directly(src_city[1], to_city_id, q_date,
 												                                   q_time + r.durance +
-												                                   interval '1' hour))
+												                                   interval '1 hour'))
 											loop
 												if r.station_to_id = j.station_from_id then
-													if j.leave_time - r.arrive_time >= interval '1' hour and
-													   j.leave_time - r.arrive_time <= interval '4' hour then
+													if j.leave_time - r.arrive_time >= interval '1 hour' and
+													   j.leave_time - r.arrive_time <= interval '4 hours' then
 														return next r;
 														return next j;
 													end if;
 												else
-													if j.leave_time - r.arrive_time >= interval '2' hour and
-													   j.leave_time - r.arrive_time <= interval '4' hour then
+													if j.leave_time - r.arrive_time >= interval '2 hours' and
+													   j.leave_time - r.arrive_time <= interval '4 hours' then
 														return next r;
 														return next j;
 													end if;
