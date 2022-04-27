@@ -45,3 +45,9 @@ Thumbs.db
 .vscode
 .idea
 .texpadtmp
+
+# LaTeX
+*.aux
+*.log
+*.synctex.gz
+
