@@ -859,7 +859,7 @@ create or replace function order_train_seats(
 as $$
 begin
 	update orders
-	set (o_uid, o_status) = 'ORDERED'
+	set (o_uid, o_status) = (uid, 'ORDERED')
 		where o_oid = order_id;
 end;
 $$ language plpgsql;
