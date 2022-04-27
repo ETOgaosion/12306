@@ -14,13 +14,15 @@
  *     : formalize the declaration of integer/int, boolean/bool, array
  *             : query func use query_(target)[_from_param]__[table for short]__
  */
-
 -- Requirement Function Section --
 ----------------------------------
 -- Requirement 3 --
 /* @note: relevant check and encrypt done outside by php */
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
+
+drop function if exists user_register;
+
 create or replace function user_register(
 	in user_name varchar(20),
 	in user_password varchar(20),
@@ -33,6 +35,8 @@ begin
 	select * into uid from insert_all_info_into__u__(user_name, user_password, phone_num, user_email);
 end;
 $$ language plpgsql;
+
+drop function if exists user_login;
 
 create or replace function user_login(
 	in user_name varchar(20),
@@ -52,6 +56,9 @@ $$ language plpgsql;
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
 /* @TODO: can add param train type and seat type to filter result */
+
+drop function if exists get_train_info;
+
 create or replace function get_train_info(
 	in train_name varchar(10),
 	in q_date date default get_date_from_now(1)
@@ -74,8 +81,10 @@ create or replace function get_train_info(
 as $$
 declare
 	train_id integer;
+	start_time time;
 begin
 	select query_train_id_from_name__t__(train_name) into train_id;
+	select query_start_time_from_id__tfi__(train_id) into start_time;
 	return query select tfi_station_order as station_order,
 	                    s_station_name as station,
 	                    s_station_id as station_id,
@@ -83,16 +92,21 @@ begin
 	                    c_city_id as city_id,
 	                    tfi_arrive_time as arrive_time,
 	                    tfi_leave_time as leave_time,
-	                    tfi_leave_time - tfi_arrive_time as stay_time,
-	                    tfi_arrive_time - (select query_start_time_from_id__tfi__(train_id)) as durance,
+	                    (case
+		                     when tfi_leave_time < tfi_arrive_time
+			                     then interval '24 hours' - tfi_arrive_time + tfi_leave_time
+		                     else tfi_leave_time - tfi_arrive_time
+		                    end) as stay_time,
+	                    (select query_day_from_departure_from_id__tfi__(train_id, tfi_station_id) || 'days')::interval
+		                    + tfi_arrive_time - start_time as durance,
 	                    tfi_distance as distance,
 	                    tfi_price as seat_price,
 	                    stt_num as seat_num
-		             from train_full_info si
-			                  left join station_list s on si.tfi_station_id = s.s_station_id
+		             from train_full_info tfi
+			                  left join station_list s on tfi.tfi_station_id = s.s_station_id
 			                  left join city c on s.s_station_city_id = c.c_city_id
-			                  left join train t on si.tfi_train_id = t.t_train_id
-			                  left join station_tickets stt on si.tfi_station_id = stt.stt_station_id
+			                  left join train t on tfi.tfi_train_id = t.t_train_id
+			                  left join station_tickets stt on tfi.tfi_station_id = stt.stt_station_id
 		             where t_train_id = train_id
 			           and stt.stt_date = q_date;
 end;
@@ -125,8 +139,9 @@ create table if not exists train_info (
 	transfer_first    boolean,
 	transfer_late     boolean
 );
-
 -- check reach table --
+drop function if exists check_reach_table;
+
 create or replace function check_reach_table(
 	in city_from_id integer,
 	in city_to_id integer,
@@ -143,6 +158,9 @@ $$ language plpgsql;
 
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
+
+drop function if exists get_train_bt_cities_directly;
+
 create or replace function get_train_bt_cities_directly(
 	in from_city_id integer,
 	in to_city_id integer,
@@ -163,6 +181,7 @@ declare
 	--
 	station_leave_id integer;
 	station_leave_name varchar(20);
+	station_leave_day integer;
 	station_leave_distance integer;
 	station_leave_time time;
 	station_leave_price decimal(5, 1)[7];
@@ -170,6 +189,7 @@ declare
 	station_arrive_id integer;
 	station_arrive_name varchar(20);
 	station_arrive_time time;
+	station_arrive_day integer;
 	station_arrive_distance integer;
 	station_arrive_price decimal(5, 1)[7];
 	res_price decimal(5, 1)[7];
@@ -194,8 +214,8 @@ begin
 			-- leave station --
 				select get_station_id_from_cid_tid(from_city_id, train_idi) into station_leave_id;
 				select query_station_name_from_id__s__(station_leave_id) into station_leave_name;
-				select q_all_info_leave.leave_time, q_all_info_leave.distance, q_all_info_leave.price
-					into station_leave_time, station_leave_distance, station_arrive_price
+				select q_all_info_leave.leave_time, q_all_info_leave.day_from_departure, q_all_info_leave.distance, q_all_info_leave.price
+					into station_leave_time, station_leave_day, station_leave_distance, station_arrive_price
 					from query_train_all_info_from_tid_sid__tfi__(train_idi, station_leave_id) q_all_info_leave;
 				-- check time --
 				if station_leave_time < q_time then
@@ -205,8 +225,8 @@ begin
 				-- arrive station --
 				select get_station_id_from_cid_tid(to_city_id, train_idi) into station_arrive_id;
 				select query_station_name_from_id__s__(station_arrive_id) into station_arrive_name;
-				select q_all_info_arrive.leave_time, q_all_info_arrive.distance, q_all_info_arrive.price
-					into station_arrive_time, station_arrive_distance, station_leave_price
+				select q_all_info_arrive.leave_time, q_all_info_arrive.day_from_departure, q_all_info_arrive.distance, q_all_info_arrive.price
+					into station_arrive_time, station_arrive_day, station_arrive_distance, station_leave_price
 					from query_train_all_info_from_tid_sid__tfi__(train_idi, station_arrive_id) q_all_info_arrive;
 				-- seats and price calculation --
 				for seat_i in 1..7
@@ -229,7 +249,7 @@ begin
 					       station_arrive_id as station_to_id,
 					       station_leave_time as leave_time,
 					       station_arrive_time as arrive_time,
-					       station_arrive_time - station_leave_time as durance,
+					       (station_arrive_day - station_leave_day || 'days')::interval + station_arrive_time - station_leave_time as durance,
 					       station_arrive_distance - station_leave_distance as distance,
 					       res_price as seat_price,
 					       seat_nums as seat_nums,
@@ -246,6 +266,9 @@ $$ language plpgsql;
 
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
+
+drop function if exists get_train_bt_cities;
+
 create or replace function get_train_bt_cities(
 	in city_from varchar(20),
 	in city_to varchar(20),
@@ -343,6 +366,9 @@ $$ language plpgsql;
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
 /* TODO: add account balance function, so there is a new order status: ORDERED, or TO_BE_BOUGHT */
+
+drop function if exists pre_order_train;
+
 create or replace function pre_order_train(
 	in train_id integer,
 	in station_from_id integer,
@@ -378,6 +404,8 @@ begin
 end;
 $$ language plpgsql;
 
+drop function if exists order_train_seats;
+
 create or replace function order_train_seats(
 	in order_id integer,
 	in uid integer,
@@ -395,6 +423,9 @@ $$ language plpgsql;
 -- all used after identity check --
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
+
+drop function if exists user_query_order;
+
 create or replace function user_query_order(
 	in uid integer,
 	in start_query_date date,
@@ -448,6 +479,9 @@ $$ language plpgsql;
 
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
+
+drop function if exists user_cancel_order;
+
 create or replace function user_cancel_order(
 	in order_id integer,
 	out succeed boolean
@@ -463,7 +497,8 @@ begin
 	select o_train_id, o_date, o_start_station, o_end_station, o_seat_type
 		into train_id, order_date, start_station, end_station, seat_type
 		from orders
-		where o_oid = order_id and o_status = 'PRE_ORDERED';
+		where o_oid = order_id
+		  and o_status = 'PRE_ORDERED';
 	select release_seats(train_id, order_date, start_station, end_station, seat_type, 1);
 	update orders
 	set o_status = 'CANCELED'
@@ -473,7 +508,11 @@ $$ language plpgsql;
 
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
-create or replace function remove_outdated_order()
+
+drop function if exists remove_outdated_order;
+
+create or replace function remove_outdated_order(
+)
 as $$
 begin
 	delete from orders where now() - orders.o_effect_time > interval '30 minutes';
@@ -497,6 +536,9 @@ select train_id
 
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
+
+drop function if exists admin_query_orders;
+
 create or replace function admin_query_orders(
 	out total_order_num integer,
 	out total_price integer,
@@ -520,6 +562,9 @@ $$ language plpgsql;
 
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
+
+drop function if exists admin_query_users;
+
 create or replace function admin_query_users(
 )
 	returns table (
@@ -534,6 +579,7 @@ begin
 	                    array(
 			                    select o_oid from orders where o_uid = p_pid
 		                    ) as orders
-		             from passengers left join users u on passengers.p_pid = u.u_uid;
+		             from passengers
+			                  left join users u on passengers.p_pid = u.u_uid;
 end;
 $$ language plpgsql

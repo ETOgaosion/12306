@@ -23,6 +23,8 @@
 /* @return: uid */
 /*        : error_type */
 /* @note: user login query */
+drop function if exists query_uid_from_uname_password__u__;
+
 create or replace function query_uid_from_uname_password__u__(
 	in user_name varchar(20),
 	in user_password varchar(20),
@@ -54,6 +56,8 @@ $$ language plpgsql;
 /* @return: uid */
 /*        : error_type */
 /* @note: insert into user table */
+drop function if exists insert_all_info_into__u__;
+
 create or replace function insert_all_info_into__u__(
 	in user_name varchar(20),
 	in user_password varchar(20),
@@ -87,6 +91,8 @@ $$ language plpgsql;
 /* @param: train_name */
 /* @return: train_id */
 /* @note: train_name -> train_id */
+drop function if exists query_train_id_from_name__t__;
+
 create or replace function query_train_id_from_name__t__(
 	in train_name varchar(10),
 	out train_id integer
@@ -104,6 +110,8 @@ $$ language plpgsql;
 /* @param: train_id */
 /* @return: train_name */
 /* @note: train_id -> train_name */
+drop function if exists query_train_name_from_id__t__;
+
 create or replace function query_train_name_from_id__t__(
 	in train_id integer,
 	out train_name varchar(10)
@@ -121,6 +129,8 @@ $$ language plpgsql;
 /* @table: city */
 /* @param: city_name */
 /* @return: city_id */
+drop function if exists query_city_id_from_name__c__;
+
 create or replace function query_city_id_from_name__c__(
 	in city_name varchar(20),
 	out city_id integer
@@ -138,6 +148,8 @@ $$ language plpgsql;
 /* @table: city_train */
 /* @param: city_id */
 /* @return: train_id_list */
+drop function if exists query_train_id_list_from_cid__ct__;
+
 create or replace function query_train_id_list_from_cid__ct__(
 	in city_id integer
 )
@@ -155,6 +167,8 @@ $$;
 /* @table: station_list */
 /* @param: station_id */
 /* @return: station_name */
+drop function if exists query_station_name_from_id__s__;
+
 create or replace function query_station_name_from_id__s__(
 	in station_id integer,
 	out station_name varchar(20)
@@ -171,6 +185,8 @@ $$ language plpgsql;
 /* @table: station_list */
 /* @param: station_id */
 /* @return: city_id */
+drop function if exists query_city_id_from_sid__s__;
+
 create or replace function query_city_id_from_sid__s__(
 	in station_id integer,
 	out city_id integer
@@ -182,10 +198,14 @@ end;
 $$ language plpgsql;
 
 -- train full info --
+-- start <-> leave --
+-- end <-> arrive --
 /* @table: train_full_info */
 /* @param: train_id */
 /* @return: leave_time */
 /* @note: train_id in station -> leave time */
+drop function if exists query_start_time_from_id__tfi__;
+
 create or replace function query_start_time_from_id__tfi__(
 	in train_id integer,
 	out leave_time time
@@ -203,7 +223,31 @@ $$ language plpgsql;
 /* @table: train_full_info */
 /* @param: train_id */
 /*       : station_id */
+/* @return: day_from_departure */
+/* @note: train_id in station -> day_from_departure */
+drop function if exists query_day_from_departure_from_id__tfi__;
+
+create or replace function query_day_from_departure_from_id__tfi__(
+	in train_id integer,
+	in station_id integer,
+	out day_from_departure time
+)
+as $$
+begin
+	select tfi_day_from_departure
+		into day_from_departure
+		from train_full_info
+		where tfi_train_id = train_id
+		  and tfi_station_id = station_id;
+end;
+$$ language plpgsql;
+
+/* @table: train_full_info */
+/* @param: train_id */
+/*       : station_id */
 /* @return: station_order */
+drop function if exists query_station_order_from_tid_sid__tfi__;
+
 create or replace function query_station_order_from_tid_sid__tfi__(
 	in train_id integer,
 	in station_id integer,
@@ -223,19 +267,22 @@ $$ language plpgsql;
 /* @param: train_id */
 /*       : station_id */
 /* @return: all info */
+drop function if exists query_train_all_info_from_tid_sid__tfi__;
+
 create or replace function query_train_all_info_from_tid_sid__tfi__(
 	in train_id integer,
 	in station_id integer,
 	out station_order integer,
 	out arrive_time time,
 	out leave_time time,
+	out day_from_departure integer,
 	out distance integer,
 	out price decimal
 )
 as $$
 begin
-	select tfi_station_order, tfi_arrive_time, tfi_leave_time, tfi_distance, tfi_price
-		into station_order, arrive_time, leave_time, distance, price
+	select tfi_station_order, tfi_arrive_time, tfi_leave_time, tfi_day_from_departure, tfi_distance, tfi_price
+		into station_order, arrive_time, leave_time, day_from_departure, distance, price
 		from train_full_info
 		where tfi_train_id = train_id
 		  and tfi_station_id = station_id;
@@ -246,6 +293,8 @@ $$ language plpgsql;
 /* @param: train_id */
 /*       : station_order */
 /* @return: station_id */
+drop function if exists query_station_id_from_tid_so__tfi__;
+
 create or replace function query_station_id_from_tid_so__tfi__(
 	in train_id integer,
 	in station_order integer,
@@ -265,6 +314,8 @@ $$ language plpgsql;
 /* @param: train_id */
 /*       : station_id */
 /* @return: next_station_id */
+drop function if exists get_next_station_id;
+
 create or replace function get_next_station_id(
 	in train_id integer,
 	in station_id integer,
@@ -297,6 +348,8 @@ $$ language plpgsql;
 /* @return: table of remain_seat num */
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
+drop function if exists query_remain_seats__st__;
+
 create or replace function query_remain_seats__st__(
 	in train_id integer,
 	in query_date date,
@@ -340,6 +393,8 @@ $$ language plpgsql;
 /* @note: get min seats num between start city and end */
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
+drop function if exists get_min_seats;
+
 create or replace function get_min_seats(
 	in train_id integer,
 	in query_date date,
@@ -401,6 +456,8 @@ $$ language plpgsql;
 /*        : actual left_seat if failed */
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
+drop function if exists try_occupy_seats;
+
 create or replace function try_occupy_seats(
 	in train_id integer,
 	in order_date date,
@@ -461,6 +518,8 @@ $$ language plpgsql;
 /*        : actual left_seat if failed */
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
+drop function if exists release_seats;
+
 create or replace function release_seats(
 	in train_id integer,
 	in order_date date,
@@ -505,6 +564,8 @@ $$ language plpgsql;
 /*       : is_admin */
 /* @return: uid */
 /* @note: insert into user table */
+drop function if exists insert_all_info_into__up__;
+
 create or replace function insert_all_info_into__up__(
 	in user_name varchar(20),
 	in user_password varchar(20),
@@ -531,6 +592,8 @@ $$ language plpgsql;
 /* @return: pid */
 /*        : error_type */
 /* @note: admin login query */
+drop function if exists query_p_uid_from_uname_password__up__;
+
 create or replace function query_p_uid_from_uname_password__up__(
 	in user_name varchar(20),
 	in user_password varchar(20),
@@ -553,6 +616,8 @@ $$ language plpgsql;
 /*       : u_tel_num */
 /* @return: aid */
 /* @note: insert into admin table */
+drop function if exists insert_all_info_into__ua__;
+
 create or replace function insert_all_info_into__ua__(
 	in user_name varchar(20),
 	in user_password varchar(20),
@@ -581,6 +646,8 @@ $$ language plpgsql;
 /*       : u_authority */
 /* @return: aid */
 /* @note: insert into admin table */
+drop function if exists insert_passengers_into__ua__;
+
 create or replace function insert_passengers_into__ua__(
 	in user_name varchar(20),
 	in user_password varchar(20),
@@ -611,6 +678,8 @@ $$ language plpgsql;
 /* @return: aid */
 /*        : error_type */
 /* @note: admin login query */
+drop function if exists query_aid_from_uname_password_auth__ua__;
+
 create or replace function query_aid_from_uname_password_auth__ua__(
 	in user_name varchar(20),
 	in user_password varchar(20),
@@ -637,6 +706,8 @@ $$ language plpgsql;
 /* @note: find which station the train stops when arriving the city */
 /*      : column is in station list, so we put function here */
 /*      : but actually info */
+drop function if exists get_station_id_from_cid_tid;
+
 create or replace function get_station_id_from_cid_tid(
 	in city_id integer,
 	in train_id integer,
@@ -658,6 +729,8 @@ $$ language plpgsql;
 /*       : train_id */
 /* @return: priority */
 /* @note: find city priority in this train line */
+drop function if exists get_ct_priority;
+
 create or replace function get_ct_priority(
 	in city_id integer,
 	in train_id integer,
@@ -678,6 +751,8 @@ $$ language plpgsql;
 /*       : train_id */
 /* @return: next_city_list */
 /* @note: find one  */
+drop function if exists get_ct_next_city_list;
+
 create or replace function get_ct_next_city_list(
 	in city_id integer,
 	in train_id_list integer[]
@@ -705,17 +780,3 @@ begin
 		end loop;
 end
 $$;
-
--- outside --
-/* @param: days_interval */
-/* @return: date_then */
-/* @note: NOW + day_interval -> date_then */
-create or replace function get_date_from_now(
-	in days_interval integer,
-	out date_then date
-)
-as $$
-begin
-	select now() + (days_interval || 'days')::interval into date_then;
-end;
-$$ language plpgsql;

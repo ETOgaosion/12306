@@ -28,16 +28,16 @@ create table if not exists users (
 );
 
 create table if not exists passengers (
-    p_pid   integer not null,
+	p_pid       integer     not null,
 	p_real_name varchar(20) not null,
 	primary key (p_pid),
 	foreign key (p_pid) references users (u_uid)
 );
 
 create table if not exists admin (
-	a_aid            integer not null,
-	a_authentication varchar(20) not null ,
-	a_authority      admin_authority not null ,
+	a_aid            integer         not null,
+	a_authentication varchar(20)     not null,
+	a_authority      admin_authority not null,
 	primary key (a_aid),
 	foreign key (a_aid) references users (u_uid)
 );
@@ -62,13 +62,14 @@ create table if not exists station_list (
 );
 
 create table if not exists train_full_info (
-	tfi_train_id      integer,
-	tfi_station_id    integer,
-	tfi_station_order integer          not null,
-	tfi_arrive_time   time             not null,
-	tfi_leave_time    time             not null,
-	tfi_distance      integer          not null,
-	tfi_price         decimal(5, 1)[7] not null default array [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+	tfi_train_id           integer,
+	tfi_station_id         integer,
+	tfi_station_order      integer          not null,
+	tfi_arrive_time        time             not null,
+	tfi_leave_time         time             not null,
+	tfi_day_from_departure integer          not null,
+	tfi_distance           integer          not null,
+	tfi_price              decimal(5, 1)[7] not null default array [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 	primary key (tfi_train_id, tfi_station_id),
 	foreign key (tfi_train_id) references train (t_train_id),
 	foreign key (tfi_station_id) references station_list (s_station_id)
@@ -104,13 +105,14 @@ create table if not exists orders (
 );
 
 -- city train --
-create or replace view city_train (
-	ct_city_id,
-	ct_train_id
-)
+create or replace view city_train
+			(
+			 ct_city_id,
+			 ct_train_id
+				)
 as
-    select c.c_city_id as ct_city_id,
-           tfi.tfi_train_id as ct_train_id
+select c.c_city_id as ct_city_id,
+       tfi.tfi_train_id as ct_train_id
 	from station_list sl
-		left join city c on sl.s_station_city_id = c.c_city_id
-		left join train_full_info tfi on sl.s_station_id = tfi.tfi_station_id;
+		     left join city c on sl.s_station_city_id = c.c_city_id
+		     left join train_full_info tfi on sl.s_station_id = tfi.tfi_station_id;
