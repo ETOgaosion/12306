@@ -1,7 +1,7 @@
 -- ENUMS --
 drop table if exists orders;
 
-drop table if exists city_train;
+drop view if exists city_train;
 
 drop table if exists station_tickets;
 

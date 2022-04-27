@@ -1,7 +1,7 @@
 -- must in order --
 drop table if exists orders;
 
-drop table if exists city_train;
+drop view if exists city_train;
 
 drop table if exists station_tickets;
 
@@ -54,18 +54,6 @@ create table if not exists city (
 	c_reach_table boolean[]
 );
 
-create table if not exists city_train (
-	ct_city_id  integer,
-	ct_train_id integer,
-	-- ct_next_city_id integer, # dependence
-	-- ct_priority     integer not null, # dependence
-	primary key (ct_city_id, ct_train_id),
-	foreign key (ct_city_id) references city (c_city_id),
-	foreign key (ct_train_id) references train (t_train_id)
-	-- ,
-	--  foreign key (ct_next_city_id) references city (c_city_id)
-);
-
 create table if not exists station_list (
 	s_station_id      serial primary key,
 	s_station_name    varchar(20) not null,
@@ -91,7 +79,7 @@ create table if not exists station_tickets (
 	stt_train_id   integer,
 	stt_date       date       not null,
 	stt_num        integer[7] not null default array [5, 5, 5, 5, 5, 5, 5],
-	primary key (stt_station_id, stt_train_id),
+	primary key (stt_station_id, stt_train_id, stt_date),
 	foreign key (stt_station_id) references station_list (s_station_id),
 	foreign key (stt_train_id) references train (t_train_id),
 	foreign key (stt_station_id, stt_train_id) references train_full_info (tfi_station_id, tfi_train_id)
@@ -114,3 +102,15 @@ create table if not exists orders (
 	foreign key (o_start_station) references station_list (s_station_id),
 	foreign key (o_end_station) references station_list (s_station_id)
 );
+
+-- city train --
+create or replace view city_train (
+	ct_city_id,
+	ct_train_id
+)
+as
+    select c.c_city_id as ct_city_id,
+           tfi.tfi_train_id as ct_train_id
+	from station_list sl
+		left join city c on sl.s_station_city_id = c.c_city_id
+		left join train_full_info tfi on sl.s_station_id = tfi.tfi_station_id;
