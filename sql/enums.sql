@@ -13,6 +13,10 @@ drop table if exists city;
 
 drop table if exists train;
 
+drop table if exists admin;
+
+drop table if exists passengers;
+
 drop table if exists users;
 
 drop type if exists seat_type;
@@ -32,5 +36,11 @@ drop type if exists error_type__u__;
 create type error_type__u__ as enum ('NO_ERROR',
 	'ERROR_DUPLICATE_UNAME',
 	'ERROR_DUPLICATE_U_TEL_NUM',
+	'ERROR_DUPLICATE_AID',
 	'ERROR_NOT_FOUND_UNAME',
-	'ERROR_NOT_CORRECT_PASSWORD');
+	'ERROR_NOT_CORRECT_PASSWORD',
+    'ERROR_NOT_CORRECT_AUTH');
+
+drop type if exists admin_authority;
+
+create type admin_authority as enum ('ALL');

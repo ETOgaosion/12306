@@ -1,0 +1,193 @@
+\documentclass[UTF-8,twoside,c5size]{ctexart}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage[svgnames]{xcolor}
+\usepackage{fontspec}
+\usepackage{fontawesome5 }
+\usepackage{setspace}
+\usepackage{xeCJK}
+\usepackage{ulem}
+\usepackage{pstricks}
+\usepackage{pstricks-add}
+\usepackage{bm}
+\usepackage{mathtools}
+\usepackage{breqn}
+\usepackage{mathrsfs}
+\usepackage{esint}
+\usepackage{textcomp}
+\usepackage{upgreek}
+\usepackage{pifont}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{caption}
+\usepackage{changepage}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{pgfplots}
+\usepackage{multirow}
+\usepackage{pgfplotstable}
+\usepackage{mhchem}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{scrextend}
+\usepackage{tikz}
+\usepackage[cache=false,outputdir=.texpadtmp]{minted}
+\usemintedstyle{manni}
+\usepackage{lipsum}
+
+\def\inlinecode#1{\colorbox{WhiteSmoke}{{\fontencoding{T1}\fontfamily{zi4}\fontsize{9pt}{9pt}\selectfont #1}}}
+
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\geometry{a4paper,centering,top=1.27cm,bottom=2.54cm,left=2cm,right=2cm}
+\graphicspath{{figures/}}
+\pagestyle{plain}
+\captionsetup{font=small}
+
+%\CTEXsetup[name={,.}]{section}
+\CTEXsetup[format={\raggedright\heiti\noindent\zihao{-3}},numberformat={\bfseries}]{section}
+\CTEXsetup[format={\raggedright\heiti\zihao{4}},numberformat={\bfseries}]{subsection}
+\CTEXsetup[format={\raggedright\heiti\quad\zihao{-4}},numberformat={\bfseries}]{subsubsection}
+\CTEXsetup[format={\raggedright\heiti\quad},numberformat={\bfseries}]{paragraph}
+\CTEXsetup[beforeskip=1.0ex plus 0.2ex minus .2ex, afterskip=1.0ex plus 0.2ex minus .2ex]{paragraph}
+\def\hfparagraph#1{\paragraph{#1} \hfill}
+
+\CTEXsetup[format={\raggedright\heiti\quad},numberformat={\bfseries},name={\bfseries(,)}]{subparagraph}
+\CTEXsetup[beforeskip=1.0ex plus 0.2ex minus .2ex, afterskip=1.0ex plus 0.2ex minus .2ex]{subparagraph}
+\def\hfsubparagraph#1{\subparagraph{#1} \hfill}
+
+\renewcommand\thefootnote{\ding{\numexpr171+\value{footnote}}}
+
+\setstretch{1.5}
+
+\setCJKfamilyfont{boldsong}[AutoFakeBold = {2.17}]{SimSun}
+\newcommand*{\boldsong}{\CJKfamily{boldsong}}
+%\DeclareMathOperator\dif{d\!}
+\newcommand*{\me}{\mathop{}\!\mathrm{e}}
+\newcommand*{\mpar}{\mathop{}\!\partial}
+\newcommand*{\dif}{\mathop{}\!\mathrm{d}}
+\newcommand*{\tab}{\indent}
+\newcommand*{\mcelsius}{\mathop{}\!{^\circ}\mathrm{C}}
+\renewcommand*{\Im}{\mathrm{Im}\,}
+\setcounter{secnumdepth}{5}
+
+\renewcommand\arraystretch{1.5}
+\renewcommand\thesubparagraph{\arabic{subparagraph}}
+
+% root: parent = \FTroot
+% normal dir: (parentID, currentID, label)
+% file:       (parentID, label)
+% ++(0,-0.5em)                additional space if neded
+\newcommand{\FTroot}{}
+\def\FTroot{tmp.west}
+
+\newcommand{\FTfile}{}
+\def\FTfile(#1,#2){%
+  node(tmp){}
+  (#1|-tmp)++(0.6em,0)
+  node(tmp)[anchor=west,black]{\tt #2}
+  (#1)|-(tmp.west)
+  ++(0,-1.2em) 
+}
+
+\newcommand{\FTdir}{}
+\def\FTdir(#1,#2,#3){
+  \FTfile(#1,{{\color{black!40!white}\faFolderOpen}\hspace{0.2em}#3})
+  (tmp.west)++(0.8em,-0.4em)node(#2){}
+  (tmp.west)++(1.5em,0)
+  ++(0,-1.3em) 
+}
+
+\newenvironment{code}[1]
+{\VerbatimEnvironment
+ \setstretch{1.2}
+ \begin{minted}[frame=single, obeytabs=false, linenos, breaklines=true, numbersep=-10pt]{#1}}
+{\end{minted}
+ \vspace{-0.3cm}}
+
+\begin{document}
+	\begin{center}
+		\heiti\zihao{-2} 火车订票系统数据库设计文档
+	\end{center}
+
+	\begin{table*}[!h]
+		\raggedleft
+		\zihao{-4}
+		\begin{tabular}{cc}
+			{\heiti 学号} & {\heiti 姓名} \\
+			2019K8009929026 & 高梓源 \\
+			& 桂庭辉 \\
+			& 肖展琪
+		\end{tabular}
+	\end{table*}
+	
+	\section{总体设计分析}
+	
+	\subsection{ER图设计解释}
+	
+	\subsection{复杂关系模式}
+	
+	\subsection{范式细化分析}
+	
+	\section{需求实现}
+	
+	\subsection{数据表的建立}
+	
+	\subsection{需求3：记录乘客信息}
+	
+	\subsubsection{乘客注册}
+	
+%	\hfparagraph{加解密}
+	
+	\subsubsection{乘客登陆}
+	
+	\subsection{需求4：查询具体车次}
+	
+	\subsection{需求5：查询两地之间车次}
+	
+	\subsubsection{直达车次搜索}
+	
+	\hfparagraph{结果排序}
+	
+	\subsubsection{换乘车次处理}
+	
+	\subsection{需求6：查询返程}
+	
+%	直接使用需求5查询接口，查询调用的操作及参数传递由php调用
+
+	\subsection{需求7：预订车次座位}
+	
+	\subsubsection{预订单}
+
+	\subsubsection{已付款确认订单}
+	
+	\subsubsection{定时清除过期订单}
+	
+	\subsection{需求8：乘客订单操作}
+	
+	\subsubsection{查询历史订单}
+	
+	\subsubsection{取消未出行订单}
+	
+	\subsection{需求9：管理员顶层操作}
+	
+	\subsubsection{管理员登陆验证}
+	
+	\subsubsection{订单概览}
+	
+	\hfparagraph{总订单数查询}
+	
+	\hfparagraph{总金额查询}
+	
+	\hfparagraph{热点车次排序}
+	
+	\subsubsection{用户概览}
+	
+	\hfparagraph{注册用户列表}
+	
+	\hfparagraph{查询用户订单}
+		
+	\section{Appendix}
+
+	
+\end{document}

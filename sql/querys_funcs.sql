@@ -4,12 +4,14 @@
  * so use lock in outside
  * TODO: there will be a file provide such interfaces
 
- * naming rules: directly get info from table use query
+ * naming rules: directly get info from table use query [users table is an exception]
  *               use multiple table to form query result use get
  *               if query can be done by add, delete, update, select directly on a table,
                         declare function in table function section
                         call it at requirement accomplishment section
  * TODO: rename function name to clarify and be unique
+ *     : error code more scientific
+ *     : formalize the declaration of integer/int, boolean/bool, array
  *             : query func use query_(target)[_from_param]__[table for short]__
  */
 -- Library Function Section --
@@ -42,33 +44,6 @@ $$ language plpgsql immutable;
 
 -- Table Function Section --
 ----------------------------
--- user --
-/* @table: user */
-/* @param: user_name */
-/*       : user_password */
-/*       : name */
-/*       : phone_num */
-/*       : user_email */
-/*       : is_admin */
-/* @return: uid */
-/* @note: insert into user table */
-create or replace function insert_all_info_into__u__(
-	in user_name varchar(20),
-	in user_password varchar(20),
-	in name varchar(20),
-	in phone_num integer[11],
-	in user_email varchar(20),
-	in is_admin boolean,
-	out uid integer
-)
-as $$
-begin
-	insert into users (u_user_name, u_password, u_real_name, u_email, u_tel_num, u_admin)
-		values (user_name, user_password, name, user_email, phone_num, is_admin);
-	select currval(pg_get_serial_sequence('users', 'u_uid')) into uid;
-end;
-$$ language plpgsql;
-
 /* @table: user */
 /* @param: user_name */
 /*       : user_password */
@@ -87,7 +62,8 @@ begin
 		uid := 0;
 		error := 'ERROR_NOT_FOUND_UNAME';
 	else
-		if (select u_uid from users where u_user_name = user_name and u_password = user_password) is null then
+		select u_uid into uid from users where u_user_name = user_name and u_password = user_password;
+		if uid is null then
 			uid := 0;
 			error := 'ERROR_NOT_CORRECT_PASSWORD';
 		else
@@ -97,6 +73,42 @@ begin
 end;
 $$ language plpgsql;
 
+/* @table: user */
+/* @param: user_name */
+/*       : user_password */
+/*       : phone_num */
+/*       : user_email */
+/* @return: uid */
+/*        : error_type */
+/* @note: insert into user table */
+create or replace function insert_all_info_into__u__(
+	in user_name varchar(20),
+	in user_password varchar(20),
+	in phone_num integer[11],
+	in user_email varchar(20),
+	out uid integer,
+	out err error_type__u__
+)
+as $$
+begin
+	if (select * from users where u_user_name = user_name) is not null then
+		uid := 0;
+		err := 'ERROR_DUPLICATE_UNAME';
+	else
+		if (select * from users where u_tel_num = phone_num) is not null then
+			uid := 0;
+			err := 'ERROR_DUPLICATE_U_TEL_NUM';
+		else
+			insert into users (u_user_name, u_password, u_email, u_tel_num)
+				values (user_name, user_password, user_email, phone_num);
+			select currval(pg_get_serial_sequence('users', 'u_uid')) into uid;
+			err := 'NO_ERROR';
+		end if;
+	end if;
+end;
+$$ language plpgsql;
+
+-- admin --
 -- train --
 /* @table: train */
 /* @param: train_name */
@@ -405,7 +417,6 @@ begin
 end;
 $$ language plpgsql;
 
-
 /* @table: station_tickets */
 /* @param: train_id */
 /*       : station_from_id */
@@ -510,6 +521,142 @@ end;
 $$ language plpgsql;
 
 -- mixed --
+-- user passengers --
+/* @table: user */
+/*       : passengers */
+/* @param: user_name */
+/*       : user_password */
+/*       : name */
+/*       : phone_num */
+/*       : user_email */
+/*       : is_admin */
+/* @return: uid */
+/* @note: insert into user table */
+create or replace function insert_all_info_into__up__(
+	in user_name varchar(20),
+	in user_password varchar(20),
+	in name varchar(20),
+	in phone_num integer[11],
+	in user_email varchar(20),
+	out pid integer,
+	out err error_type__u__
+)
+as $$
+begin
+	select * into pid, err from insert_all_info_into__u__(user_name, user_password, phone_num, user_email);
+	if err = 'NO_ERROR' then
+		insert into passengers (p_pid, p_real_name)
+			values (pid, name);
+	end if;
+end;
+$$ language plpgsql;
+
+/* @table: users */
+/*       : passengers */
+/* @param: user_name */
+/*       : user_password */
+/* @return: pid */
+/*        : error_type */
+/* @note: admin login query */
+create or replace function query_p_uid_from_uname_password__up__(
+	in user_name varchar(20),
+	in user_password varchar(20),
+	out pid integer,
+	out error error_type__u__
+)
+as $$
+begin
+	select * into pid, error from query_uid_from_uname_password__u__(user_name, user_password);
+end;
+$$ language plpgsql;
+
+/* @table: users */
+/*       : admin */
+/* @param: user_name */
+/*       : user_password */
+/*       : u_authentication */
+/*       : u_authority */
+/*       : user_email */
+/*       : u_tel_num */
+/* @return: aid */
+/* @note: insert into admin table */
+create or replace function insert_all_info_into__ua__(
+	in user_name varchar(20),
+	in user_password varchar(20),
+	in authentication varchar(20),
+	in authority admin_authority,
+	in phone_num integer[11],
+	in user_email varchar(20),
+	out aid integer,
+	out err error_type__u__
+)
+as $$
+begin
+	select * into aid, err from insert_all_info_into__u__(user_name, user_password, phone_num, user_email);
+	if err = 'NO_ERROR' then
+		insert into admin (a_aid, a_authentication, a_authority)
+			values (aid, authentication, authority);
+	end if;
+end;
+$$ language plpgsql;
+
+/* @table: users */
+/*       : admin */
+/* @param: user_name */
+/*       : user_password */
+/*       : u_authentication */
+/*       : u_authority */
+/* @return: aid */
+/* @note: insert into admin table */
+create or replace function insert_passengers_into__ua__(
+	in user_name varchar(20),
+	in user_password varchar(20),
+	in authentication varchar(20),
+	in authority admin_authority,
+	out aid integer,
+	out err error_type__u__
+)
+as $$
+begin
+	select * into aid, err from query_uid_from_uname_password__u__(user_name, user_password);
+	if err = 'NO_ERROR' then
+		if (select * from admin where a_aid = aid) is not null then
+			err := 'ERROR_DUPLICATE_AID';
+		else
+			insert into admin (a_aid, a_authentication, a_authority)
+				values (aid, authentication, authority);
+		end if;
+	end if;
+end;
+$$ language plpgsql;
+
+/* @table: users */
+/*       : admin */
+/* @param: user_name */
+/*       : user_password */
+/*       : authentication */
+/* @return: aid */
+/*        : error_type */
+/* @note: admin login query */
+create or replace function query_aid_from_uname_password_auth__ua__(
+	in user_name varchar(20),
+	in user_password varchar(20),
+	in authentication varchar(20),
+	out aid integer,
+	out error error_type__u__
+)
+as $$
+begin
+	select * into aid, error from query_uid_from_uname_password__u__(user_name, user_password);
+	if error = 'NO_ERROR' then
+		if (select * from admin where a_aid = aid and a_authentication = authentication) is null then
+			error := 'ERROR_NOT_CORRECT_AUTH';
+			aid := 0;
+		end if;
+	end if;
+end;
+$$ language plpgsql;
+
 /* @tables: station_list, train_full_info */
 /* @param: city_id */
 /*       : train_id */
@@ -609,15 +756,13 @@ $$ language plpgsql;
 create or replace function user_register(
 	in user_name varchar(20),
 	in user_password varchar(20),
-	in name varchar(20),
 	in phone_num integer[11],
 	in user_email varchar(20),
-	in is_admin boolean,
 	out uid integer
 )
 as $$
 begin
-	select * into uid from insert_all_info_into__u__(user_name, user_password, name, phone_num, user_email, is_admin);
+	select * into uid from insert_all_info_into__u__(user_name, user_password, phone_num, user_email);
 end;
 $$ language plpgsql;
 
@@ -628,9 +773,9 @@ create or replace function user_login(
 	out error error_type__u__
 )
 as $$
-    begin
-	    select * from query_uid_from_uname_password__u__(user_name, user_password) into uid, error;
-    end;
+begin
+	select * from query_uid_from_uname_password__u__(user_name, user_password) into uid, error;
+end;
 $$ language plpgsql;
 
 -- Requirement 4 --
@@ -689,6 +834,7 @@ $$;
 /* @note: query train between 2 cities */
 /*      : we return id also, to help later function */
 /*      : we ONLY search for tickets that trains can go today */
+/*      : result ordered outside */
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
 /* @TODO: can add param train type and seat type to filter result */
@@ -1034,7 +1180,7 @@ $$ language plpgsql;
 
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
-create or replace function user_delete_order(
+create or replace function user_cancel_order(
 	in order_id integer,
 	out succeed boolean
 )
@@ -1049,11 +1195,20 @@ begin
 	select o_train_id, o_date, o_start_station, o_end_station, o_seat_type
 		into train_id, order_date, start_station, end_station, seat_type
 		from orders
-		where o_oid = order_id;
+		where o_oid = order_id and o_status = 'PRE_ORDERED';
 	select release_seats(train_id, order_date, start_station, end_station, seat_type, 1);
 	update orders
 	set o_status = 'CANCELED'
 		where o_oid = order_id;
+end;
+$$ language plpgsql;
+
+/* @caller-constraints: use lock outside */
+/*                    : lock type - TO_FILL */
+create or replace function remove_outdated_order()
+as $$
+begin
+	delete from orders where now() - orders.o_effect_time > interval '30 minutes';
 end;
 $$ language plpgsql;
 
@@ -1106,11 +1261,11 @@ create or replace function admin_query_users(
 	)
 as $$
 begin
-	return query select u_uid as uid,
+	return query select p_pid as uid,
 	                    u_user_name as uname,
 	                    array(
-			                    select o_oid from orders where o_uid = u_uid
-		                    )
-		             from users;
+			                    select o_oid from orders where o_uid = p_pid
+		                    ) as orders
+		             from passengers left join users u on passengers.p_pid = u.u_uid;
 end;
 $$ language plpgsql

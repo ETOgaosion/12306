@@ -13,16 +13,33 @@ drop table if exists city;
 
 drop table if exists train;
 
+drop table if exists admin;
+
+drop table if exists passengers;
+
 drop table if exists users;
 -- must in order --
 create table if not exists users (
 	u_uid       serial primary key,
 	u_user_name varchar(20) unique,
 	u_password  varchar(20) not null,
-	u_real_name varchar(20) not null,
-	u_email     varchar(20) unique,
-	u_tel_num   integer[11] unique,
-	u_admin     boolean     not null
+	u_email     varchar(20) not null,
+	u_tel_num   integer[11] unique
+);
+
+create table if not exists passengers (
+    p_pid   integer not null,
+	p_real_name varchar(20) not null,
+	primary key (p_pid),
+	foreign key (p_pid) references users (u_uid)
+);
+
+create table if not exists admin (
+	a_aid            integer not null,
+	a_authentication varchar(20) not null ,
+	a_authority      admin_authority not null ,
+	primary key (a_aid),
+	foreign key (a_aid) references users (u_uid)
 );
 
 create table if not exists train (
