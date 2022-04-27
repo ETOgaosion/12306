@@ -210,8 +210,8 @@ begin
 		<<scan_train_list>>
 		foreach train_idi in array train_id_list
 			loop
-				-- 2 ways of accomplishment --
-				-- leave station --
+			-- 2 ways of accomplishment --
+			-- leave station --
 				select get_station_id_from_cid_tid(from_city_id, train_idi) into station_leave_id;
 				select query_station_name_from_id__s__(station_leave_id) into station_leave_name;
 				select q_all_info_leave.leave_time,
@@ -282,7 +282,7 @@ create or replace function get_train_bt_cities(
 	in q_date date,
 	in q_time date,
 	-- TODO: in train_type varchar(1),
-	in allow_transfer boolean
+	in query_transfer boolean
 )
 	returns setof train_info
 as $$
@@ -303,12 +303,13 @@ begin
 	select query_city_id_from_name__c__(city_to) into to_city_id;
 	select check_reach_table(from_city_id, to_city_id) into city_reachable;
 	if city_reachable then
-		for r in
-			select * from get_train_bt_cities_directly(from_city_id, to_city_id, q_date, q_time)
-			loop
-				return next r;
-			end loop;
-		if allow_transfer then
+		if not query_transfer then
+			for r in
+				select * from get_train_bt_cities_directly(from_city_id, to_city_id, q_date, q_time)
+				loop
+					return next r;
+				end loop;
+		else
 			-- first set of transfer trains must be ones passing from city --
 			-- so outside loop --
 			passing_trains := array(select query_train_id_list_from_cid__ct__(from_city_id));
