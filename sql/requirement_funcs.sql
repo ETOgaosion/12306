@@ -92,13 +92,10 @@ begin
 	                    c_city_id as city_id,
 	                    tfi_arrive_time as arrive_time,
 	                    tfi_leave_time as leave_time,
-	                    (case
-		                     when tfi_leave_time < tfi_arrive_time
-			                     then interval '24 hours' - tfi_arrive_time + tfi_leave_time
-		                     else tfi_leave_time - tfi_arrive_time
-		                    end) as stay_time,
-	                    (select query_day_from_departure_from_id__tfi__(train_id, tfi_station_id) || 'days')::interval
-		                    + tfi_arrive_time - start_time as durance,
+	                    (select * from get_actual_interval_bt_time(tfi_arrive_time, tfi_leave_time, 0)) as stay_time,
+	                    (select *
+		                     from get_actual_interval_bt_time(start_time, tfi_arrive_time,
+		                                                      (select query_day_from_departure_from_id__tfi__(train_id, tfi_station_id)))) as durance,
 	                    tfi_distance as distance,
 	                    tfi_price as seat_price,
 	                    stt_num as seat_num
@@ -255,8 +252,9 @@ begin
 					       station_arrive_id as station_to_id,
 					       station_leave_time as leave_time,
 					       station_arrive_time as arrive_time,
-					       (station_arrive_day - station_leave_day || 'days')::interval + station_arrive_time -
-					       station_leave_time as durance,
+					       (select *
+						        from get_actual_interval_bt_time(station_leave_time, station_arrive_time,
+						                                         station_arrive_day - station_leave_day)) as durance,
 					       station_arrive_distance - station_leave_distance as distance,
 					       res_price as seat_price,
 					       seat_nums as seat_nums,
@@ -295,6 +293,7 @@ declare
 	neighbour_city integer[];
 	passing_trains integer[];
 	current_level_city_num integer := 0;
+	transfer_interval interval;
 	city_i integer := 1;
 	r train_info%rowtype;
 	j train_info%rowtype;
@@ -340,27 +339,19 @@ begin
 												                                   interval '1 hour'))
 											loop
 												if r.station_to_id = j.station_from_id then
-													if (j.leave_time > r.arrive_time
-														and j.leave_time - r.arrive_time >= interval '1 hour'
-														and j.leave_time - r.arrive_time <= interval '4 hours') or
-													   (j.leave_time < r.arrive_time
-														   and interval '24 hours' - r.arrive_time + j.leave_time >=
-														       interval '1 hour'
-														   and interval '24 hours' - r.arrive_time + j.leave_time <=
-														       interval '4 hours')
+													select *
+														from get_actual_interval_bt_time(r.arrive_time, j.leave_time, 0)
+														into transfer_interval;
+													if transfer_interval >= interval '1 hour'
+														and transfer_interval <= interval '4 hours'
 													then
 														return next r;
 														return next j;
 													end if;
 												else
-													if (j.leave_time > r.arrive_time
-														and j.leave_time - r.arrive_time >= interval '2 hours'
-														and j.leave_time - r.arrive_time <= interval '4 hours') or
-													   (j.leave_time < r.arrive_time
-														   and interval '24 hours' - r.arrive_time + j.leave_time >=
-														       interval '2 hours'
-														   and interval '24 hours' - r.arrive_time + j.leave_time <=
-														       interval '4 hours') then
+													if transfer_interval >= interval '2 hours'
+														and transfer_interval <= interval '4 hours'
+													then
 														return next r;
 														return next j;
 													end if;
@@ -482,9 +473,8 @@ begin
 	                    s_arrive.s_station_name as station_arrive,
 	                    tfi_start.tfi_leave_time as start_time,
 	                    tfi_end.tfi_arrive_time as arrive_time,
-	                    (tfi_start.tfi_day_from_departure - tfi_end.tfi_day_from_departure || 'days')::interval +
-	                    tfi_end.tfi_arrive_time -
-	                    tfi_start.tfi_leave_time as durance,
+	                    (select * from get_actual_interval_bt_time(tfi_start.tfi_leave_time, tfi_end.tfi_arrive_time,
+	                        tfi_start.tfi_day_from_departure - tfi_end.tfi_day_from_departure)) as durance,
 	                    tfi_end.tfi_distance - tfi_start.tfi_distance as distance,
 	                    o_seat_type as seat_type,
 	                    o_seat_id as seat_id,
@@ -525,7 +515,7 @@ begin
 		into train_id, order_date, start_station, end_station, seat_type
 		from orders
 		where o_oid = order_id
-		  and o_status = 'PRE_ORDERED';
+		  and o_status = 'COMPLETE';
 	select release_seats(train_id, order_date, start_station, end_station, seat_type, 1);
 	update orders
 	set o_status = 'CANCELED'
