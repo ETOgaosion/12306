@@ -583,6 +583,7 @@ $$;
 -- Requirement 5 --
 /* @note: query train between 2 cities */
 /*      : we return id also, to help later function */
+/*      : we ONLY search for tickets that trains can go today */
 /* @TODO: can add param train type and seat type to filter result */
 -- currently found effective way to return is through [setof] --
 drop table if exists train_info;
@@ -619,26 +620,19 @@ begin
 end;
 $$ language plpgsql;
 
-create or replace function query_train_bt_places(
-	in city_from varchar(20),
-	in city_to varchar(20),
+create or replace function get_train_bt_cities_directly(
+	in from_city_id integer,
+	in to_city_id integer,
 	in q_date date,
-	in q_time date,
-	-- TODO: in train_type varchar(1),
-	in allow_transfer boolean
+	in q_time time
+	--,
+	-- TODO: in train_type varchar(1)
 )
 	returns setof train_info
 as $$
 declare
 	--
-	from_city_id integer;
-	to_city_id integer;
 	city_reachable boolean;
-	src_city integer[] := array [from_city_id];
-	neighbour_city integer[];
-    passing_trains integer [];
-	current_level_city_num integer := 0;
-	city_i integer := 1;
 	--
 	train_id_list integer[];
 	train_idi integer;
@@ -650,16 +644,6 @@ declare
 	station_leave_time time;
 	station_leave_price decimal(5, 1)[7];
 	--
-	station_mid_id integer;
-	station_mid_name varchar(20);
-	station_mid_arrive_time time;
-	station_mid_leave_time time;
-	station_mid_arrive_distance integer;
-	station_mid_leave_distance integer;
-	station_mid_arrive_price decimal(5, 1)[7];
-	pre_res_price decimal(5, 1)[7];
-	station_mid_leave_price decimal(5, 1)[7];
-	--
 	station_arrive_id integer;
 	station_arrive_name varchar(20);
 	station_arrive_time time;
@@ -667,13 +651,10 @@ declare
 	station_arrive_price decimal(5, 1)[7];
 	res_price decimal(5, 1)[7];
 	--
-	--
 	seat_nums integer[7];
 	seat_i integer := 1;
 	r train_info%rowtype;
 begin
-	select query_city_id_from_name__c___(city_from) into from_city_id;
-	select query_city_id_from_name__c___(city_to) into to_city_id;
 	select check_reach_table(from_city_id, to_city_id) into city_reachable;
 	if city_reachable then
 		train_id_list := array(
@@ -683,20 +664,28 @@ begin
 					where (select get_ct_priority(from_city_id, from_city_train.ct_train_id)) <
 					      (select get_ct_priority(to_city_id, to_city_train.ct_train_id))
 			);
+		<<scan_train_list>>
 		foreach train_idi in array train_id_list
 			loop
-				-- 2 ways of accomplishment --
+			-- 2 ways of accomplishment --
+			-- leave station --
 				select get_station_id_from_cid_tid(from_city_id, train_idi) into station_leave_id;
 				select query_station_name_from_id__s___(station_leave_id) into station_leave_name;
-				select get_station_id_from_cid_tid(to_city_id, train_idi) into station_arrive_id;
-				select query_station_name_from_id__s___(station_arrive_id) into station_arrive_name;
-				select query_train_name_from_id__t___(train_idi) into train_namei;
 				select q_all_info_leave.leave_time, q_all_info_leave.distance, q_all_info_leave.price
 					into station_leave_time, station_leave_distance, station_arrive_price
 					from query_train_all_info_from_tid_sid__tfi__(train_idi, station_leave_id) q_all_info_leave;
+				-- check time --
+				if station_leave_time < q_time then
+					continue scan_train_list;
+				end if;
+				select query_train_name_from_id__t___(train_idi) into train_namei;
+				-- arrive station --
+				select get_station_id_from_cid_tid(to_city_id, train_idi) into station_arrive_id;
+				select query_station_name_from_id__s___(station_arrive_id) into station_arrive_name;
 				select q_all_info_arrive.leave_time, q_all_info_arrive.distance, q_all_info_arrive.price
 					into station_arrive_time, station_arrive_distance, station_leave_price
 					from query_train_all_info_from_tid_sid__tfi__(train_idi, station_arrive_id) q_all_info_arrive;
+				-- seats and price calculation --
 				for seat_i in 1..7
 					loop
 						select array_set(station_arrive_price, station_arrive_price[seat_i],
@@ -707,6 +696,7 @@ begin
 					into seat_nums
 					from get_min_seats(train_idi, q_date, station_leave_id, station_arrive_id,
 					                   array ['YZ', 'RZ', 'YW_S', 'YW_Z', 'YW_X', 'RW_S', 'RW_X']) get_min_seat;
+				-- return row --
 				for r in
 					select train_namei as train_name,
 					       train_idi as train_id,
@@ -726,21 +716,90 @@ begin
 						return next r;
 					end loop;
 			end loop;
+	end if;
+	return;
+end;
+$$ language plpgsql;
+
+create or replace function get_train_bt_cities(
+	in city_from varchar(20),
+	in city_to varchar(20),
+	in q_date date,
+	in q_time date,
+	-- TODO: in train_type varchar(1),
+	in allow_transfer boolean
+)
+	returns setof train_info
+as $$
+declare
+	--
+	from_city_id integer;
+	to_city_id integer;
+	city_reachable boolean;
+	src_city integer[] := array [from_city_id];
+	neighbour_city integer[];
+	passing_trains integer[];
+	current_level_city_num integer := 0;
+	city_i integer := 1;
+	r train_info%rowtype;
+	j train_info%rowtype;
+begin
+	select query_city_id_from_name__c___(city_from) into from_city_id;
+	select query_city_id_from_name__c___(city_to) into to_city_id;
+	select check_reach_table(from_city_id, to_city_id) into city_reachable;
+	if city_reachable then
+		for r in
+			select * from get_train_bt_cities_directly(from_city_id, to_city_id, q_date, q_time)
+			loop
+				return next r;
+			end loop;
 		if allow_transfer then
+			-- first set of transfer trains must be ones passing from city --
+			-- so outside loop --
+			passing_trains := array(select query_train_id_list_from_cid__ct__(from_city_id));
 			while (select array_position(src_city, to_city_id)) is not null
 				loop
 					select array_length(src_city, 1) into current_level_city_num;
 					for city_i in 1..current_level_city_num
-					loop
-					    passing_trains := array(select query_train_id_list_from_cid__ct__(src_city[1]));
-						neighbour_city := array(select get_ct_next_city_list(src_city[1], passing_trains));
-						src_city := array(select array_cat(src_city, neighbour_city));
-						src_city := array(select array_remove_elem(src_city, 1));
-					end loop;
+						loop
+							neighbour_city := array(select get_ct_next_city_list(src_city[1], passing_trains));
+							src_city := array(select array_cat(src_city, neighbour_city));
+							-- initially from_city_id was in src_city --
+							-- so remove it first because we have dealt with it --
+							src_city := array(select array_remove_elem(src_city, 1));
+							-- then src_city[1] is middle city to transfer --
+							if (select array_length(src_city, 1)) > 1 then
+								for r in
+									(select *
+										 from get_train_bt_cities_directly(from_city_id, src_city[1], q_date, q_time))
+									loop
+										for j in
+											(select *
+												 from get_train_bt_cities_directly(src_city[1], to_city_id, q_date,
+												                                   q_time + r.durance +
+												                                   interval '1' hour))
+											loop
+												if r.station_to_id = j.station_from_id then
+													if j.arrive_time - r.leave_time >= interval '1' hour and
+													   j.arrive_time - r.leave_time <= interval '4' hour then
+														return next r;
+														return next j;
+													end if;
+												else
+													if j.arrive_time - r.leave_time >= interval '2' hour and
+													   j.arrive_time - r.leave_time <= interval '4' hour then
+														return next r;
+														return next j;
+													end if;
+												end if;
+											end loop;
+									end loop;
+							end if;
+						end loop;
 				end loop;
+			return;
 		end if;
 	end if;
-	return;
 end;
 $$ language plpgsql;
 
@@ -912,8 +971,8 @@ begin
 			     left join train_full_info tfi_end on o_end_station = tfi_end.tfi_station_id
 			and orders.o_train_id = tfi_end.tfi_train_id;
 	hot_trains := array(select t_train_name
-		             from train
-			                  left join top_10_train_ids on train.t_train_id = top_10_train_ids.train_id);
+		                    from train
+			                         left join top_10_train_ids on train.t_train_id = top_10_train_ids.train_id);
 end;
 $$ language plpgsql;
 
