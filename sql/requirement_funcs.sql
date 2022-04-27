@@ -545,6 +545,7 @@ create or replace view top_10_train_tickets(train_id, count_num)
 as
 select o_train_id as train_id, count(*) as count_num
 	from orders
+	where o_status = 'COMPLETE'
 	group by o_train_id
 	order by count_num
 	limit 10;
@@ -569,12 +570,13 @@ as $$
 begin
 	select count(*),
 	       sum(tfi_end.tfi_price[o_seat_type] - tfi_start.tfi_price[o_seat_type] + 5)
-		into total_order_num, hot_trains
+		into total_order_num, total_price
 		from orders
 			     left join train_full_info tfi_start on o_start_station = tfi_start.tfi_station_id
 			and orders.o_train_id = tfi_start.tfi_train_id
 			     left join train_full_info tfi_end on o_end_station = tfi_end.tfi_station_id
-			and orders.o_train_id = tfi_end.tfi_train_id;
+			and orders.o_train_id = tfi_end.tfi_train_id
+			and orders.o_status = 'COMPLETE';
 	hot_trains := array(select t_train_name
 		                    from train
 			                         left join top_10_train_ids on train.t_train_id = top_10_train_ids.train_id);
