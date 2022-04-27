@@ -1,4 +1,4 @@
-\documentclass[UTF-8,twoside,cs4size,hyperref]{ctexart}
+\documentclass[UTF-8,twoside,c5size,hyperref]{ctexart}
 \usepackage[dvipsnames]{xcolor}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -29,6 +29,8 @@
 \usepackage{longtable}
 \usepackage[cache=false]{minted}
 \usepackage{ragged2e}
+\usepackage{fontspec}
+\setmainfont{SourceSans3-Regular}
 
 \hypersetup{colorlinks=true,linkcolor=NavyBlue}
 
@@ -39,9 +41,9 @@
 \captionsetup{font=small}
 
 %\CTEXsetup[name={,.}]{section}
-\CTEXsetup[format={\raggedright\heiti\noindent\zihao{3}},numberformat={\bfseries}]{section}
-\CTEXsetup[format={\raggedright\heiti\zihao{-3}\quad},numberformat={\bfseries}]{subsection}
-\CTEXsetup[format={\raggedright\heiti\qquad\zihao{4}},numberformat={\bfseries}]{subsubsection}
+\CTEXsetup[format={\raggedright\heiti\noindent\zihao{4}},numberformat={\bfseries}]{section}
+\CTEXsetup[format={\raggedright\heiti\zihao{-4}\quad},numberformat={\bfseries}]{subsection}
+\CTEXsetup[format={\raggedright\heiti\qquad\zihao{5}},numberformat={\bfseries}]{subsubsection}
 \CTEXsetup[format={\raggedright\heiti\qquad},numberformat={\bfseries}]{paragraph}
 \renewcommand\thefootnote{\ding{\numexpr171+\value{footnote}}}
 
@@ -62,14 +64,14 @@
 
 \renewcommand\arraystretch{1.5}
 
-\newfontfamily{\cascadia}{Cascadia Mono}
+%\newfontfamily{\cascadia}{Cascadia Mono}
 
 \usemintedstyle{manni}
 \def\inlinecode#1{\colorbox{WhiteSmoke}{{\fontencoding{T1}\fontfamily{zi4}\fontsize{9pt}{9pt}\selectfont #1}}}
 \newenvironment{code}[1]
 {\VerbatimEnvironment
  \setstretch{1.2}
- \begin{minted}[obeytabs=false, linenos, breaklines=true, numbersep=-10pt]{#1}}
+ \begin{minted}[obeytabs=false, linenos, breaklines=true, numbersep=-10pt, fontsize=\small]{#1}}
 {\end{minted}
  \vspace{-0.3cm}
  \setstretch{1.5}}
@@ -112,6 +114,14 @@
             桂庭辉 & 2019K8009929019
         \end{tabular}
     \end{table*}
+    
+    \section{设计总述}
+    
+    经过设计与讨论，我们总结出如下的结论：优化数据库的依赖设计和应用层算法优化的考虑往往是分道扬镳的。优化数据库的存储模式与依赖关系往往倾向于简化其存储空间，会带来数据库的存储效率的优化，而基于应用层算法与数据结构的优化思路往往是采用更加丰富的对象模式去解决实际问题，后者会明显带来额外的依赖关系与空间开销，但换取的是时间复杂度的降低，应用性能的优化。
+    
+    最开始设计阶段我们倾向于面向应用需求进行冗余设计，牺牲空间复杂度而换取时间复杂度的思路，但后来基于课程需求进行了方向的调整。事实上对存储效率和应用性能追求的背道而驰导致编程者必须做出权衡(trade-off)。在本实验中的体现是将本准备存储称为表，描述城市-火车联系的特有数据结构改写成视图，并没有丢弃，而是采用运行时计算的方式，做出了一定的妥协，在数据集确定不更改的情况下，只会运行一次查询，性能可以接受，但是在实际应用中所带来的性能消耗甚为严重。
+    
+    经过一系列的依赖去除和权衡，最终只保留了一个底线设计：在BFS或者DFS失败，未找到路径的情况下，搜索的开销极大，特别是DFS将无法停止，进行回溯。于是特别需要一个数据结构能够帮助在算法运行开始前判断是否能够找到路径，在此实验我们采用可达表，估量可直达和换乘一次可达的城市关系。又因为在数据预处理阶段生成可达表比专门使用查询形成可达表容易更多，因此我们特地将它放入city表作为一项冗余关系，但带来极大的编程上的便捷和性能开销的优化。
     
     \section{模型设计}
     \subsection{\textbf{ER}图与范式分析}
@@ -770,10 +780,10 @@
     
     \section*{成员分工}
     
-    高梓源：
+    高梓源：参与需求分析、算法设计、数据表设计，编写sql语句。
     
-    肖展琪：
+    肖展琪：参与需求分析、算法设计、数据表设计，完成ER图、关系模式等宏观设计。
     
-    桂庭辉：
+    桂庭辉：参与需求分析、算法设计、数据表设计，撰写实验报告。
     
 \end{document}
