@@ -50,4 +50,4 @@ Thumbs.db
 *.aux
 *.log
 *.synctex.gz
-
+*.out
