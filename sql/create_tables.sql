@@ -17,12 +17,12 @@ drop table if exists users;
 -- must in order --
 create table if not exists users (
 	u_uid       serial primary key,
-	u_email     varchar(20) not null,
 	u_user_name varchar(20) unique,
 	u_password  varchar(20) not null,
 	u_real_name varchar(20) not null,
-	u_tel_num   varchar(20) unique,
-	u_admin     bool        not null
+	u_email     varchar(20) unique,
+	u_tel_num   integer[11] unique,
+	u_admin     boolean     not null
 );
 
 create table if not exists train (
@@ -38,8 +38,8 @@ create table if not exists city (
 );
 
 create table if not exists city_train (
-	ct_city_id      integer,
-	ct_train_id     integer,
+	ct_city_id  integer,
+	ct_train_id integer,
 	-- ct_next_city_id integer, # dependence
 	-- ct_priority     integer not null, # dependence
 	primary key (ct_city_id, ct_train_id),

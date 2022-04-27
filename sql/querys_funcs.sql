@@ -6,9 +6,14 @@
 
  * naming rules: directly get info from table use query
  *               use multiple table to form query result use get
+ *               if query can be done by add, delete, update, select directly on a table,
+                        declare function in table function section
+                        call it at requirement accomplishment section
  * TODO: rename function name to clarify and be unique
  *             : query func use query_(target)[_from_param]__[table for short]__
  */
+-- Library Function Section --
+------------------------------
 -- rewrite library functions --
 create function array_set(
 	p_input anyarray, p_index int, p_new_value anyelement
@@ -35,12 +40,69 @@ begin
 end
 $$ language plpgsql immutable;
 
+-- Table Function Section --
+----------------------------
+-- user --
+/* @table: user */
+/* @param: user_name */
+/*       : user_password */
+/*       : name */
+/*       : phone_num */
+/*       : user_email */
+/*       : is_admin */
+/* @return: uid */
+/* @note: insert into user table */
+create or replace function insert_all_info_into__u__(
+	in user_name varchar(20),
+	in user_password varchar(20),
+	in name varchar(20),
+	in phone_num integer[11],
+	in user_email varchar(20),
+	in is_admin boolean,
+	out uid integer
+)
+as $$
+begin
+	insert into users (u_user_name, u_password, u_real_name, u_email, u_tel_num, u_admin)
+		values (user_name, user_password, name, user_email, phone_num, is_admin);
+	select currval(pg_get_serial_sequence('users', 'u_uid')) into uid;
+end;
+$$ language plpgsql;
+
+/* @table: user */
+/* @param: user_name */
+/*       : user_password */
+/* @return: uid */
+/*        : error_type */
+/* @note: user login query */
+create or replace function query_uid_from_uname_password__u__(
+	in user_name varchar(20),
+	in user_password varchar(20),
+	out uid integer,
+	out error error_type__u__
+)
+as $$
+begin
+	if (select * from users where u_user_name = user_name) is null then
+		uid := 0;
+		error := 'ERROR_NOT_FOUND_UNAME';
+	else
+		if (select u_uid from users where u_user_name = user_name and u_password = user_password) is null then
+			uid := 0;
+			error := 'ERROR_NOT_CORRECT_PASSWORD';
+		else
+			error := 'NO_ERROR';
+		end if;
+	end if;
+end;
+$$ language plpgsql;
+
 -- train --
 /* @table: train */
 /* @param: train_name */
 /* @return: train_id */
 /* @note: train_name -> train_id */
-create or replace function query_train_id_from_name__t___(
+create or replace function query_train_id_from_name__t__(
 	in train_name varchar(10),
 	out train_id integer
 )
@@ -57,7 +119,7 @@ $$ language plpgsql;
 /* @param: train_id */
 /* @return: train_name */
 /* @note: train_id -> train_name */
-create or replace function query_train_name_from_id__t___(
+create or replace function query_train_name_from_id__t__(
 	in train_id integer,
 	out train_name varchar(10)
 )
@@ -74,7 +136,7 @@ $$ language plpgsql;
 /* @table: city */
 /* @param: city_name */
 /* @return: city_id */
-create or replace function query_city_id_from_name__c___(
+create or replace function query_city_id_from_name__c__(
 	in city_name varchar(20),
 	out city_id integer
 )
@@ -108,7 +170,7 @@ $$;
 /* @table: station_list */
 /* @param: station_id */
 /* @return: station_name */
-create or replace function query_station_name_from_id__s___(
+create or replace function query_station_name_from_id__s__(
 	in station_id integer,
 	out station_name varchar(20)
 )
@@ -124,7 +186,7 @@ $$ language plpgsql;
 /* @table: station_list */
 /* @param: station_id */
 /* @return: city_id */
-create or replace function query_city_id_from_sid__s___(
+create or replace function query_city_id_from_sid__s__(
 	in station_id integer,
 	out city_id integer
 )
@@ -248,6 +310,8 @@ $$ language plpgsql;
 /*       : station_id */
 /*       : seat_type_list */
 /* @return: table of remain_seat num */
+/* @caller-constraints: use lock outside */
+/*                    : lock type - TO_FILL */
 create or replace function query_remain_seats__st__(
 	in train_id integer,
 	in query_date date,
@@ -289,6 +353,8 @@ $$ language plpgsql;
 /*       : seat_type_list */
 /* @return: min_seats */
 /* @note: get min seats num between start city and end */
+/* @caller-constraints: use lock outside */
+/*                    : lock type - TO_FILL */
 create or replace function get_min_seats(
 	in train_id integer,
 	in query_date date,
@@ -349,6 +415,8 @@ $$ language plpgsql;
 /* @return: succeed or not */
 /*        : seat id as left_seat if succeed */
 /*        : actual left_seat if failed */
+/* @caller-constraints: use lock outside */
+/*                    : lock type - TO_FILL */
 create or replace function try_occupy_seats(
 	in train_id integer,
 	in order_date date,
@@ -407,6 +475,8 @@ $$ language plpgsql;
 /* @return: succeed or not */
 /*        : 0 left_seat if succeed */
 /*        : actual left_seat if failed */
+/* @caller-constraints: use lock outside */
+/*                    : lock type - TO_FILL */
 create or replace function release_seats(
 	in train_id integer,
 	in order_date date,
@@ -507,7 +577,7 @@ begin
 		loop
 			in_order := ptr;
 			select get_station_id_from_cid_tid(city_id, train_idi) into station_id;
-			select query_city_id_from_sid__s___(
+			select query_city_id_from_sid__s__(
 						       (select get_next_station_id(train_idi, station_id))
 				       )
 				into next_city_id;
@@ -530,9 +600,44 @@ begin
 end;
 $$ language plpgsql;
 
+-- Requirement Function Section --
+----------------------------------
+-- Requirement 3 --
+/* @note: relevant check and encrypt done outside by php */
+/* @caller-constraints: use lock outside */
+/*                    : lock type - TO_FILL */
+create or replace function user_register(
+	in user_name varchar(20),
+	in user_password varchar(20),
+	in name varchar(20),
+	in phone_num integer[11],
+	in user_email varchar(20),
+	in is_admin boolean,
+	out uid integer
+)
+as $$
+begin
+	select * into uid from insert_all_info_into__u__(user_name, user_password, name, phone_num, user_email, is_admin);
+end;
+$$ language plpgsql;
+
+create or replace function user_login(
+	in user_name varchar(20),
+	in user_password varchar(20),
+	out uid integer,
+	out error error_type__u__
+)
+as $$
+    begin
+	    select * from query_uid_from_uname_password__u__(user_name, user_password) into uid, error;
+    end;
+$$ language plpgsql;
+
 -- Requirement 4 --
 /* @note: query specific train */
 /*      : we return id also, to help later function */
+/* @caller-constraints: use lock outside */
+/*                    : lock type - TO_FILL */
 /* @TODO: can add param train type and seat type to filter result */
 create or replace function get_train_info(
 	in train_name varchar(10),
@@ -557,7 +662,7 @@ as $$
 declare
 	train_id integer;
 begin
-	select query_train_id_from_name__t___(train_name) into train_id;
+	select query_train_id_from_name__t__(train_name) into train_id;
 	return query select tfi_station_order as station_order,
 	                    s_station_name as station,
 	                    s_station_id as station_id,
@@ -584,6 +689,8 @@ $$;
 /* @note: query train between 2 cities */
 /*      : we return id also, to help later function */
 /*      : we ONLY search for tickets that trains can go today */
+/* @caller-constraints: use lock outside */
+/*                    : lock type - TO_FILL */
 /* @TODO: can add param train type and seat type to filter result */
 -- currently found effective way to return is through [setof] --
 drop table if exists train_info;
@@ -620,6 +727,8 @@ begin
 end;
 $$ language plpgsql;
 
+/* @caller-constraints: use lock outside */
+/*                    : lock type - TO_FILL */
 create or replace function get_train_bt_cities_directly(
 	in from_city_id integer,
 	in to_city_id integer,
@@ -670,7 +779,7 @@ begin
 			-- 2 ways of accomplishment --
 			-- leave station --
 				select get_station_id_from_cid_tid(from_city_id, train_idi) into station_leave_id;
-				select query_station_name_from_id__s___(station_leave_id) into station_leave_name;
+				select query_station_name_from_id__s__(station_leave_id) into station_leave_name;
 				select q_all_info_leave.leave_time, q_all_info_leave.distance, q_all_info_leave.price
 					into station_leave_time, station_leave_distance, station_arrive_price
 					from query_train_all_info_from_tid_sid__tfi__(train_idi, station_leave_id) q_all_info_leave;
@@ -678,10 +787,10 @@ begin
 				if station_leave_time < q_time then
 					continue scan_train_list;
 				end if;
-				select query_train_name_from_id__t___(train_idi) into train_namei;
+				select query_train_name_from_id__t__(train_idi) into train_namei;
 				-- arrive station --
 				select get_station_id_from_cid_tid(to_city_id, train_idi) into station_arrive_id;
-				select query_station_name_from_id__s___(station_arrive_id) into station_arrive_name;
+				select query_station_name_from_id__s__(station_arrive_id) into station_arrive_name;
 				select q_all_info_arrive.leave_time, q_all_info_arrive.distance, q_all_info_arrive.price
 					into station_arrive_time, station_arrive_distance, station_leave_price
 					from query_train_all_info_from_tid_sid__tfi__(train_idi, station_arrive_id) q_all_info_arrive;
@@ -721,6 +830,8 @@ begin
 end;
 $$ language plpgsql;
 
+/* @caller-constraints: use lock outside */
+/*                    : lock type - TO_FILL */
 create or replace function get_train_bt_cities(
 	in city_from varchar(20),
 	in city_to varchar(20),
@@ -744,8 +855,8 @@ declare
 	r train_info%rowtype;
 	j train_info%rowtype;
 begin
-	select query_city_id_from_name__c___(city_from) into from_city_id;
-	select query_city_id_from_name__c___(city_to) into to_city_id;
+	select query_city_id_from_name__c__(city_from) into from_city_id;
+	select query_city_id_from_name__c__(city_to) into to_city_id;
 	select check_reach_table(from_city_id, to_city_id) into city_reachable;
 	if city_reachable then
 		for r in
@@ -815,6 +926,8 @@ $$ language plpgsql;
 /*                                  check status function, if status not changed after some time, cancel it */
 /*      : we only return info needed, php can deal with info if exists already */
 /* @see also: order_train_seat */
+/* @caller-constraints: use lock outside */
+/*                    : lock type - TO_FILL */
 /* TODO: add account balance function, so there is a new order status: ORDERED, or TO_BE_BOUGHT */
 create or replace function pre_order_train(
 	in train_id integer,
@@ -866,6 +979,8 @@ $$ language plpgsql;
 
 -- Requirement 8 and 9 --
 -- all used after identity check --
+/* @caller-constraints: use lock outside */
+/*                    : lock type - TO_FILL */
 create or replace function user_query_order(
 	in uid integer,
 	in start_query_date date,
@@ -917,6 +1032,8 @@ begin
 end;
 $$ language plpgsql;
 
+/* @caller-constraints: use lock outside */
+/*                    : lock type - TO_FILL */
 create or replace function user_delete_order(
 	in order_id integer,
 	out succeed boolean
@@ -955,6 +1072,8 @@ select train_id
 	from top_10_train_tickets;
 
 
+/* @caller-constraints: use lock outside */
+/*                    : lock type - TO_FILL */
 create or replace function admin_query_orders(
 	out total_order_num integer,
 	out total_price integer,
@@ -976,6 +1095,8 @@ begin
 end;
 $$ language plpgsql;
 
+/* @caller-constraints: use lock outside */
+/*                    : lock type - TO_FILL */
 create or replace function admin_query_users(
 )
 	returns table (
