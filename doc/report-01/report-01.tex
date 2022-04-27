@@ -1,0 +1,153 @@
+\documentclass[UTF-8,twoside,cs4size]{ctexart}
+\usepackage[svgnames]{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{setspace}
+\usepackage{xeCJK}
+\usepackage{ulem}
+\usepackage{pstricks}
+\usepackage{pstricks-add}
+\usepackage{bm}
+\usepackage{mathtools}
+\usepackage{breqn}
+\usepackage{mathrsfs}
+\usepackage{esint}
+\usepackage{textcomp}
+\usepackage{upgreek}
+\usepackage{pifont}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{caption}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{pgfplots}
+\usepackage{multirow}
+\usepackage{pgfplotstable}
+\usepackage{mhchem}
+\usepackage{longtable}
+\usepackage[cache=false]{minted}
+\usepackage{ragged2e}
+
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\geometry{a4paper,centering,top=2.54cm,bottom=2.54cm,left=2cm,right=2cm}
+\graphicspath{{figures/}}
+\pagestyle{plain}
+\captionsetup{font=small}
+
+%\CTEXsetup[name={,.}]{section}
+\CTEXsetup[format={\raggedright\heiti\noindent\zihao{3}},numberformat={\bfseries}]{section}
+\CTEXsetup[format={\raggedright\heiti\zihao{-3}\quad},numberformat={\bfseries}]{subsection}
+\CTEXsetup[format={\raggedright\heiti\qquad\zihao{4}},numberformat={\bfseries}]{subsubsection}
+\CTEXsetup[format={\raggedright\heiti\qquad},numberformat={\bfseries}]{paragraph}
+\renewcommand\thefootnote{\ding{\numexpr171+\value{footnote}}}
+
+\setstretch{1.5}
+
+\setCJKfamilyfont{boldsong}[AutoFakeBold = {2.17}]{SimSun}
+\newcommand*{\boldsong}{\CJKfamily{boldsong}}
+%\DeclareMathOperator\dif{d\!}
+\newcommand*{\me}{\mathop{}\!\mathrm{e}}
+\newcommand*{\mpar}{\mathop{}\!\partial}
+\newcommand*{\dif}{\mathop{}\!\mathrm{d}}
+\newcommand*{\tab}{\indent}
+\newcommand*{\mcelsius}{\mathop{}\!{^\circ}\mathrm{C}}
+\renewcommand*{\Im}{\mathrm{Im}\,}
+
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+
+\renewcommand\arraystretch{1.5}
+
+\newfontfamily{\cascadia}{Cascadia Mono}
+
+\usemintedstyle{manni}
+\def\inlinecode#1{\colorbox{WhiteSmoke}{{\fontencoding{T1}\fontfamily{zi4}\fontsize{9pt}{9pt}\selectfont #1}}}
+\newenvironment{code}[1]
+{\VerbatimEnvironment
+ \setstretch{1.2}
+ \begin{minted}[frame=single, obeytabs=false, linenos, breaklines=true, numbersep=-10pt]{#1}}
+{\end{minted}
+ \vspace{-0.3cm}}
+
+%\setminted{style=manni,fontsize=\small,breaklines=true}
+
+
+\tikzset{
+	snode/.style ={
+	    circle,
+		inner sep=0pt,
+		text width=10mm,
+		draw = black,
+		align=center
+	}
+}
+
+\lstset{
+	backgroundcolor=\color[RGB]{245,245,245},
+	keywordstyle=\color{blue}\bfseries,
+	basicstyle=\footnotesize\ttfamily,
+	commentstyle=\itshape\color{olive},
+	numberstyle=\ttfamily,
+	stringstyle=\itshape\color{orange},
+	tabsize=4,
+	breaklines=true
+}
+
+\begin{document}
+	\begin{center}
+		\heiti\zihao{-2}
+		数据库系统实验\textbf{2}设计报告
+	\end{center}
+
+	\begin{table*}[!h]
+        \raggedleft
+        \begin{tabular}{rc}
+            高梓源 & 2019K8009929026\\
+            肖展琪 & 2019K8009926014\\
+            桂庭辉 & 2019K8009929019
+        \end{tabular}
+    \end{table*}
+    
+    \section{模型设计}
+    \subsection{\textbf{ER}图与范式分析}
+    
+    \begin{figure}[!h]
+        \centering
+        \includegraphics*[width=\textwidth]{RE_2.pdf}
+        \caption{火车订票系统ER图}
+    \end{figure}
+    
+    
+    
+    \subsection{关系模式}
+    
+    \section{需求实现}
+    \subsection{需求\textbf{1}：记录列车信息}
+    
+    \subsection{需求\textbf{2}：记录列车座位情况}
+    
+    \subsection{需求\textbf{3}：记录乘客信息}
+    
+    \subsection{需求\textbf{4}：查询具体车次}
+    
+    \subsection{需求\textbf{5}：查询两地之间的车次}
+    
+    \subsection{需求\textbf{6}：查询返程信息}
+    
+    \subsection{需求\textbf{7}：预订车次座位}
+    
+    \subsection{需求\textbf{8}：查询订单和删除订单}
+    
+    \subsection{需求\textbf{9}：管理员}
+    
+    \section*{成员分工}
+    
+    高梓源：
+    
+    肖展琪：
+    
+    桂庭辉：
+    
+\end{document}
