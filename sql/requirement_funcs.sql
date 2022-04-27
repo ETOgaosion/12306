@@ -214,7 +214,10 @@ begin
 			-- leave station --
 				select get_station_id_from_cid_tid(from_city_id, train_idi) into station_leave_id;
 				select query_station_name_from_id__s__(station_leave_id) into station_leave_name;
-				select q_all_info_leave.leave_time, q_all_info_leave.day_from_departure, q_all_info_leave.distance, q_all_info_leave.price
+				select q_all_info_leave.leave_time,
+				       q_all_info_leave.day_from_departure,
+				       q_all_info_leave.distance,
+				       q_all_info_leave.price
 					into station_leave_time, station_leave_day, station_leave_distance, station_arrive_price
 					from query_train_all_info_from_tid_sid__tfi__(train_idi, station_leave_id) q_all_info_leave;
 				-- check time --
@@ -225,7 +228,10 @@ begin
 				-- arrive station --
 				select get_station_id_from_cid_tid(to_city_id, train_idi) into station_arrive_id;
 				select query_station_name_from_id__s__(station_arrive_id) into station_arrive_name;
-				select q_all_info_arrive.leave_time, q_all_info_arrive.day_from_departure, q_all_info_arrive.distance, q_all_info_arrive.price
+				select q_all_info_arrive.leave_time,
+				       q_all_info_arrive.day_from_departure,
+				       q_all_info_arrive.distance,
+				       q_all_info_arrive.price
 					into station_arrive_time, station_arrive_day, station_arrive_distance, station_leave_price
 					from query_train_all_info_from_tid_sid__tfi__(train_idi, station_arrive_id) q_all_info_arrive;
 				-- seats and price calculation --
@@ -249,7 +255,8 @@ begin
 					       station_arrive_id as station_to_id,
 					       station_leave_time as leave_time,
 					       station_arrive_time as arrive_time,
-					       (station_arrive_day - station_leave_day || 'days')::interval + station_arrive_time - station_leave_time as durance,
+					       (station_arrive_day - station_leave_day || 'days')::interval + station_arrive_time -
+					       station_leave_time as durance,
 					       station_arrive_distance - station_leave_distance as distance,
 					       res_price as seat_price,
 					       seat_nums as seat_nums,
@@ -319,23 +326,40 @@ begin
 							if (select array_length(src_city, 1)) > 1 then
 								for r in
 									(select *
-										 from get_train_bt_cities_directly(from_city_id, src_city[1], q_date, q_time))
+										 from get_train_bt_cities_directly(from_city_id,
+										                                   src_city[1],
+										                                   q_date,
+										                                   q_time))
 									loop
 										for j in
 											(select *
-												 from get_train_bt_cities_directly(src_city[1], to_city_id, q_date,
+												 from get_train_bt_cities_directly(src_city[1],
+												                                   to_city_id, q_date,
 												                                   q_time + r.durance +
 												                                   interval '1 hour'))
 											loop
 												if r.station_to_id = j.station_from_id then
-													if j.leave_time - r.arrive_time >= interval '1 hour' and
-													   j.leave_time - r.arrive_time <= interval '4 hours' then
+													if (j.leave_time > r.arrive_time
+														and j.leave_time - r.arrive_time >= interval '1 hour'
+														and j.leave_time - r.arrive_time <= interval '4 hours') or
+													   (j.leave_time < r.arrive_time
+														   and interval '24 hours' - r.arrive_time + j.leave_time >=
+														       interval '1 hour'
+														   and interval '24 hours' - r.arrive_time + j.leave_time <=
+														       interval '4 hours')
+													then
 														return next r;
 														return next j;
 													end if;
 												else
-													if j.leave_time - r.arrive_time >= interval '2 hours' and
-													   j.leave_time - r.arrive_time <= interval '4 hours' then
+													if (j.leave_time > r.arrive_time
+														and j.leave_time - r.arrive_time >= interval '2 hours'
+														and j.leave_time - r.arrive_time <= interval '4 hours') or
+													   (j.leave_time < r.arrive_time
+														   and interval '24 hours' - r.arrive_time + j.leave_time >=
+														       interval '2 hours'
+														   and interval '24 hours' - r.arrive_time + j.leave_time <=
+														       interval '4 hours') then
 														return next r;
 														return next j;
 													end if;
@@ -457,7 +481,9 @@ begin
 	                    s_arrive.s_station_name as station_arrive,
 	                    tfi_start.tfi_leave_time as start_time,
 	                    tfi_end.tfi_arrive_time as arrive_time,
-	                    tfi_start.tfi_leave_time - tfi_end.tfi_arrive_time as durance,
+	                    (tfi_start.tfi_day_from_departure - tfi_end.tfi_day_from_departure || 'days')::interval +
+	                    tfi_end.tfi_arrive_time -
+	                    tfi_start.tfi_leave_time as durance,
 	                    tfi_end.tfi_distance - tfi_start.tfi_distance as distance,
 	                    o_seat_type as seat_type,
 	                    o_seat_id as seat_id,
@@ -515,7 +541,14 @@ create or replace function remove_outdated_order(
 )
 as $$
 begin
-	delete from orders where now() - orders.o_effect_time > interval '30 minutes';
+	delete
+		from orders
+		where (now() > orders.o_effect_time
+			and now() - orders.o_effect_time > interval '30 minutes')
+		   or (
+					now() < orders.o_effect_time
+				and interval '24 hours' + now() - orders.o_effect_time > interval '30 minutes'
+			);
 end;
 $$ language plpgsql;
 
