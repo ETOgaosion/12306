@@ -68,9 +68,11 @@
 
 \usemintedstyle{manni}
 \def\inlinecode#1{\colorbox{WhiteSmoke}{{\fontencoding{T1}\fontfamily{zi4}\fontsize{9pt}{9pt}\selectfont #1}}}
+
 \newenvironment{code}[1]
 {\VerbatimEnvironment
  \setstretch{1.2}
+ \vspace{-0.2cm}
  \begin{minted}[obeytabs=false, linenos, breaklines=true, numbersep=-10pt, fontsize=\small]{#1}}
 {\end{minted}
  \vspace{-0.3cm}
@@ -123,13 +125,18 @@
     
     经过一系列的依赖去除和权衡，最终只保留了一个底线设计：在BFS或者DFS失败，未找到路径的情况下，搜索的开销极大，特别是DFS将无法停止，进行回溯。于是特别需要一个数据结构能够帮助在算法运行开始前判断是否能够找到路径，在此实验我们采用可达表，估量可直达和换乘一次可达的城市关系。又因为在数据预处理阶段生成可达表比专门使用查询形成可达表容易更多，因此我们特地将它放入city表作为一项冗余关系，但带来极大的编程上的便捷和性能开销的优化。
     
+    还有值得叙述的是编程思想的转变，sql编程不同于一般问题求解级别的高级语言编程，后者往往有面向对象和面向过程两种编程思想，但是前者主要对象并非冯诺伊曼结构计算机模型，而是NUMA架构下文件系统存储，因此可称为面向存储结构编程。从后续代码中可见编程者仍然未能完成从面相对象/面向过程到面向存储结构的转变，控制流语句仍然很多，事实上大多都可以通过表间连接等操作转化，并且性能通常比多次查询更优。
+    
     \section{模型设计}
     \subsection{\textbf{ER}图与范式分析}
+    
+    ER图见下页图\ref{fig::ER}。
     
     \begin{figure}[!h]
         \centering
         \includegraphics*[width=\textwidth]{RE_2.pdf}
         \caption{火车订票系统ER图}
+        \label{fig::ER}
     \end{figure}
     
     \subsubsection{\textbf{users}}\label{sssec:users}
@@ -138,7 +145,9 @@
     
     passengers中候选键为pid，函数依赖关系仅有pid$\to$real\_name，故passengers满足BCNF。
     
-    admin中候选键为aid，函数依赖关系仅有aid$\to$authority authentication，故admin满足BCNF。
+    admin中候选键为aid，函数依赖关系仅有aid$\to$authority authentication，故admin满足BCNF，admin登录时需要进行二次验证，因此设置了authentication域，此外使用authority域来表示该管理员的权限范围，后期可以进行扩展。
+    
+    此处我们采用类层次的设计方式，由于需要明确区分passengers和admin两种身份，他们所需要的属性有部分重合也有部分是独有的。于是采用ISA表示实体集之间的继承关系，将其公共信息提取成名为users的共有结构。
     
     \begin{code}{sql}
     create table if not exists users (
@@ -228,10 +237,13 @@
     \end{code}
     
     \subsubsection{\textbf{train\_full\_info}}\label{sssec:tfi}
+    \label{subsubsection::train_full_info}
     
     该表记录每次列车每经停站的信息，主键为(train\_id, station\_id)，每个条目中其他信息可由该二元组确定。由于存在跨天运行的列车，故而无法仅通过train\_id与arrive\_time或leave\_time确定所有信息。故train\_full\_info满足BCNF。
     
     在获取数据时，每车次列车初始域day\_from\_departure置0，列车运行时间每次跨越午夜零点则域day\_from\_departure自增1，由此记录列车准确的运行历时与进出站时间。
+    
+    tfi\_price事实上也是较为独立随机的信息，并没有必要把金额单独独立成表，因此附加在此处。已知总共有7种座位，为方便索引、替换等操作，将其视为7个元素的integer array，而后可利用postgresql内置和自己添加的array函数进行处理。
     
     \begin{code}{sql}
     create table if not exists train_full_info (
@@ -252,6 +264,8 @@
     \subsubsection{\textbf{station\_tickets}}\label{sssec:station_tickets}
     
     该表记录某站某日经停的某车各类型的余票，主键为(train\_id, station\_id, date)，没有非平凡的依赖关系，station\_tickets满足BCNF。
+    
+    stt\_num的处理和上小节\ref{subsubsection::train_full_info}的tfi\_price相同，视为数组。
     
     \begin{code}{sql}
     create table if not exists station_tickets (
@@ -283,6 +297,8 @@
     create type order_status as enum ('COMPLETE', 'PRE_ORDERED', 'CANCELED');
     create type admin_authority as enum ('ALL');
     \end{code}
+    
+    psql中目前还没有查到宏的实现，枚举类型的一大优点在于可以充当统一接口宏的作用。
     
     \section{需求实现}
     \subsection{需求\textbf{1 $\sim$ 3}：记录相关信息}
@@ -414,6 +430,8 @@
     
     直达列车的查询逻辑较为简单，对起始站点查询此处离开的列车，遍历这些可能的列车，通过输入的出发时间过滤掉发车时间早于出发时间的列车，通过车次与城市即可确定可能的终点站，而后则是余票与价格的计算。余票与车次座位的设计维护在需求7中说明。
     
+    此处编程风格是较为明显的面向过程思想，使用中间变量来转化存储函数调用结果，而后对于表的组织也通过中间变量从而更加可读。但事实上此处一定存在面向存储结构的编程方案，一开始train\_id\_list并不作为array，而是直接使用table提取到train\_id后与其他相关表连接，中间也可通过函数调用组织相关信息，但总体结构仍然是面向表间关系。
+    
     \begin{code}{sql}
     /* @func: get_train_bt_cities_directly */
     /* @param: from_city_id */
@@ -433,8 +451,8 @@
             <<scan_train_list>>
             foreach train_idi in array train_id_list
                 loop
-                -- 2 ways of accomplishment --
-                -- leave station --
+                    -- 2 ways of accomplishment --
+                    -- leave station --
                     select get_station_id_from_cid_tid(from_city_id, train_idi) into station_leave_id;
                     select query_station_name_from_id__s__(station_leave_id) into station_leave_name;
                     select q_all_info_leave.leave_time,
@@ -499,6 +517,8 @@
     具体实现上类似BFS，通过队列记录可能的换乘城市，遍历所有可能的情况直到清空队列。
     
     以下代码指定\mintinline{sql}{query_transfer}为真时查询换乘一次的结果，为否则调用上文函数查询直达列车。
+    
+    此处为了BFS算法书写的方便仍然暂时先按照面向过程的风格书写。src\_city以array的数据结构存储每层查找的城市。此处更改为面向存储结构的风格较为简单，可以直接将所有经过源城市city\_from之后的列车在之后经过的城市名查询得到，在和station\_list与train\_full\_info进行连接，查找得到每站经过的车次，形成一个大表后与目的城市city\_to经停列车比对，一次性得到所有换乘后半行程的列车信息。
     
     \begin{code}{sql}
     /* @param: city_from */
