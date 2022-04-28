@@ -45,3 +45,26 @@ begin
 	select now() + (days_interval || 'days')::interval into date_then;
 end;
 $$ language plpgsql;
+
+/* @param: start_time */
+/*       : end_time */
+/*       : days_added */
+/* @return: actual interval */
+drop function if exists get_actual_interval_bt_time;
+
+create or replace function get_actual_interval_bt_time(
+    in start_time time,
+    in end_time time,
+    in days_added integer,
+    out actual_interval interval
+)
+as $$
+begin
+    if days_added = 0 and start_time > end_time then
+        actual_interval := interval '24 hours' + end_time - start_time;
+    else
+	    actual_interval := (days_added || 'days')::interval + end_time - start_time;
+    end if;
+
+end
+$$ language plpgsql;
