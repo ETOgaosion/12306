@@ -22,7 +22,6 @@
 
 # Mid data #
 ############
-*.txt
 *.png
 
 # Logs and databases #
@@ -48,6 +47,5 @@ Thumbs.db
 
 # LaTeX
 *.aux
-*.log
 *.synctex.gz
 *.out

@@ -6,7 +6,7 @@
 
 **根本设计原则：简洁唯美**
 
-打开时要求登陆或注册，可选择记住并自动登录，以后打开时不会要求注册，利用已有信息直接打开主界面。管理员登陆给出连接到admin_login.php，成功登陆后跳转到管理员主页面
+打开时要求登陆或注册，可选择记住并自动登录，以后打开时不会要求登陆，利用已有信息直接打开主界面。管理员统一入口登陆，但需输入二次验证信息，成功登陆后跳转到管理员主页面。注册，登陆使用列tab。
 
 主界面只有背景图、中间为中国地图和查询tabs，地图下方有一个查询支持城市的块；查询tabs默认为两地之间车次查询，查询输入包括文本框内的出发、到达城市名，后期结合bootstrap提供自动补全；出发日期可采用文本框或者下拉日历的形式，后期可运用bootstrap对后者予以实现；查询时间也是两种；查询tab通过两个按钮开启查询事件，分别查询去程和返程车票。
 
@@ -20,15 +20,26 @@
 
 ```
 UCAS_Database
-|- index.php: user login
-|----- main.php: user main view, query train info
-|----- queryRes.php: user query result
-|----- orderGenerate.php: user generate orders
-|----- orderConfirm.php: user confirm order
+|- index.php: login & register
+|----- userMain.php: user main view, query train info
+|----- userQueryRes.php: user query result
+|----- userOrderGenerate.php: user generate orders
+|----- userOrderConfirm.php: user confirm order
 |----- userSpace.php: user space
-|- adminLogin.php: admin login
-|----- adminIndex.php: admin main view
+|
+|----- adminMain.php: admin main view
 |----- adminUserDetail.php: admin view user info
+|
+|- errorPage.php
+```
+
+MVC模式: Model-View-Controller, but we separate them
+
+使用Bootstrap
+
+```html
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 ```
 
 第一阶段：
