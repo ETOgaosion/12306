@@ -21,7 +21,7 @@
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
 
-drop function if exists user_register;
+drop function if exists user_register cascade;
 
 create or replace function user_register(
 	in user_name varchar(20),
@@ -36,7 +36,7 @@ begin
 end;
 $$ language plpgsql;
 
-drop function if exists user_login;
+drop function if exists user_login cascade;
 
 create or replace function user_login(
 	in user_name varchar(20),
@@ -57,7 +57,7 @@ $$ language plpgsql;
 /*                    : lock type - TO_FILL */
 /* @TODO: can add param train type and seat type to filter result */
 
-drop function if exists get_train_info;
+drop function if exists get_train_info cascade;
 
 create or replace function get_train_info(
 	in train_name varchar(10),
@@ -118,7 +118,7 @@ $$;
 /*                    : lock type - TO_FILL */
 /* @TODO: can add param train type and seat type to filter result */
 -- currently found effective way to return is through [setof] --
-drop table if exists train_info;
+drop table if exists train_info cascade;
 
 create table if not exists train_info (
 	train_name        varchar(10),
@@ -137,7 +137,7 @@ create table if not exists train_info (
 	transfer_late     boolean
 );
 -- check reach table --
-drop function if exists check_reach_table;
+drop function if exists check_reach_table cascade;
 
 create or replace function check_reach_table(
 	in city_from_id integer,
@@ -156,7 +156,7 @@ $$ language plpgsql;
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
 
-drop function if exists get_train_bt_cities_directly;
+drop function if exists get_train_bt_cities_directly cascade;
 
 create or replace function get_train_bt_cities_directly(
 	in from_city_id integer,
@@ -272,7 +272,7 @@ $$ language plpgsql;
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
 
-drop function if exists get_train_bt_cities;
+drop function if exists get_train_bt_cities cascade;
 
 create or replace function get_train_bt_cities(
 	in city_from varchar(20),
@@ -383,7 +383,7 @@ $$ language plpgsql;
 /*                    : lock type - TO_FILL */
 /* TODO: add account balance function, so there is a new order status: ORDERED, or TO_BE_BOUGHT */
 
-drop function if exists pre_order_train;
+drop function if exists pre_order_train cascade;
 
 create or replace function pre_order_train(
 	in train_id integer,
@@ -420,7 +420,7 @@ begin
 end;
 $$ language plpgsql;
 
-drop function if exists order_train_seats;
+drop function if exists order_train_seats cascade;
 
 create or replace function order_train_seats(
 	in order_id integer,
@@ -440,7 +440,7 @@ $$ language plpgsql;
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
 
-drop function if exists user_query_order;
+drop function if exists user_query_order cascade;
 
 create or replace function user_query_order(
 	in uid integer,
@@ -497,7 +497,7 @@ $$ language plpgsql;
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
 
-drop function if exists user_cancel_order;
+drop function if exists user_cancel_order cascade;
 
 create or replace function user_cancel_order(
 	in order_id integer,
@@ -526,10 +526,10 @@ $$ language plpgsql;
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
 
-drop function if exists remove_outdated_order;
+drop function if exists remove_outdated_order cascade;
 
 create or replace function remove_outdated_order(
-)
+) returns void
 as $$
 begin
 	delete
@@ -559,7 +559,7 @@ select train_id
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
 
-drop function if exists admin_query_orders;
+drop function if exists admin_query_orders cascade;
 
 create or replace function admin_query_orders(
 	out total_order_num integer,
@@ -586,7 +586,7 @@ $$ language plpgsql;
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
 
-drop function if exists admin_query_users;
+drop function if exists admin_query_users cascade;
 
 create or replace function admin_query_users(
 )

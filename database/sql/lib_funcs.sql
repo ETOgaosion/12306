@@ -1,7 +1,7 @@
 -- Library Function Section --
 ------------------------------
 -- rewrite library functions --
-drop function if exists array_set;
+drop function if exists array_set cascade;
 
 create or replace function array_set(
 	p_input anyarray, p_index int, p_new_value anyelement
@@ -18,7 +18,7 @@ end;
 $$ language plpgsql immutable;
 
 
-drop function if exists array_remove_elem;
+drop function if exists array_remove_elem cascade;
 
 create or replace function array_remove_elem(
 	anyarray, int
@@ -34,7 +34,7 @@ $$ language plpgsql immutable;
 /* @param: days_interval */
 /* @return: date_then */
 /* @note: NOW + day_interval -> date_then */
-drop function if exists get_date_from_now;
+drop function if exists get_date_from_now cascade;
 
 create or replace function get_date_from_now(
 	in days_interval integer,
@@ -50,7 +50,7 @@ $$ language plpgsql;
 /*       : end_time */
 /*       : days_added */
 /* @return: actual interval */
-drop function if exists get_actual_interval_bt_time;
+drop function if exists get_actual_interval_bt_time cascade;
 
 create or replace function get_actual_interval_bt_time(
     in start_time time,
