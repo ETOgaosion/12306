@@ -43,7 +43,7 @@ create table if not exists admin (
 );
 
 create table if not exists train (
-	t_train_id   serial primary key,
+	t_train_id   integer primary key,
 	t_train_type varchar(1)  not null,
 	t_train_name varchar(10) not null
 );
@@ -55,7 +55,7 @@ create table if not exists city (
 );
 
 create table if not exists station_list (
-	s_station_id      serial primary key,
+	s_station_id      integer primary key,
 	s_station_name    varchar(20) not null,
 	s_station_city_id integer     not null,
 	foreign key (s_station_city_id) references city (c_city_id)
