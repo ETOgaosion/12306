@@ -1,0 +1,11 @@
+/*
+ * Copyright @2022- Blue Space
+ */
+
+.navbar-header{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:50px;
+    width:100%;
+}

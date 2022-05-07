@@ -20,7 +20,7 @@
 *.tar
 *.zip
 
-# Mid data #
+# Mid data_process #
 ############
 *.png
 
@@ -42,7 +42,7 @@ Thumbs.db
 # code editor generated files #
 ###############################
 .vscode
-.idea
+../.idea
 .texpadtmp
 
 # LaTeX

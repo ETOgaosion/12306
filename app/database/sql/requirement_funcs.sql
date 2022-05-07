@@ -368,7 +368,7 @@ end;
 $$ language plpgsql;
 
 -- Requirement 7 --
-/* @param: we use data from previous queries, it's php's mission to get and maintain */
+/* @param: we use data_process from previous queries, it's php's mission to get and maintain */
 /* @return: only seat id */
 /* @note: show the orders and order train and seats */
 /*      : we view this function as confirmation of order */
