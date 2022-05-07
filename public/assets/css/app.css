@@ -2,10 +2,47 @@
  * Copyright @2022- Blue Space
  */
 
-.navbar-header{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:50px;
-    width:100%;
+.navbar-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+    width: 100%;
+}
+
+.bg-blueviolet {
+    background-color: rgba(138, 43, 226, 0.8);
+}
+
+.btn-blueviolet {
+    color: #fff;
+    background-color: #8a2be2;
+}
+
+#toTopBtn {
+    position: fixed;
+    bottom: 100px;
+    right: 39px;
+    z-index: 98;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(138, 43, 226, 0.8);
+}
+
+.js .cd-top--fade-out {
+    opacity: .5;
+}
+
+.js .cd-top--is-visible {
+    visibility: visible;
+    opacity: 1;
+}
+
+.js .cd-top {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .3s, visibility .3s, background-color .3s;
 }
