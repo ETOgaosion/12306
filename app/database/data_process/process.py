@@ -33,7 +33,7 @@ with open(raw_data_path + '/all-stations.txt', 'r') as if_all_stations:
     for line in lines:
         toks = line.split(',')
         station_name_list.append(toks[1].strip())
-        if toks[2] not in city_name_list:
+        if toks[2].strip() not in city_name_list:
             city_name_list.append(toks[2].strip())
         station_city_list.append(city_name_list.index(toks[2].strip()))
 # write station_list.csv
