@@ -1,5 +1,5 @@
 <?php
-$pageTitle = "hello";
+$pageTitle = "index";
 $assetsDir = "../assets/";
 $login = false;
 ?>

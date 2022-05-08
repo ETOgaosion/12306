@@ -38,7 +38,7 @@ $login = false;
 <video autoplay muted loop id="video-background" class="position-fixed"
        style="height: 100vh; width: 100%; object-fit: cover">
     <source src="<?= $assetsDir ?>media/videos/train-bg.mp4" type="video/mp4">
-    Your brower is old
+    Your browser is old
 </video>
 <nav class="navbar navbar-expand fixed-top navbar-dark bg-blueviolet">
     <div class="container-fluid">
@@ -55,11 +55,11 @@ $login = false;
                     <?php
                     if ($login) {
                         echo <<<END
-                            <a class="nav-link" href="/login"><i class="bi bi-person" style="font-size: 1.5rem;"></i></a>
+                            <a class="nav-link" href="/userSpace"><i class="bi bi-person-circle" style="font-size: 1.5rem;"></i></a>
                             END;
                     } else {
                         echo <<<END
-                            <a class="nav-link" href="/userSpace"><i class="bi bi-person" style="font-size: 1.5rem;"></i></a>
+                            <a class="nav-link" href="/login"><i class="bi bi-person" style="font-size: 1.5rem;"></i></a>
                             END;
                     }
                     ?>
@@ -68,3 +68,18 @@ $login = false;
         </div>
     </div>
 </nav>
+
+<a href="#" id="toTopBtn" class="cd-top text-replace js-cd-top cd-top--is-visible cd-top--fade-out" data-abc="true">
+    <i class="bi bi-arrow-up-circle" style="font-size: 1.5rem; color: yellow"></i>
+</a>
+<footer class="text-center fixed-bottom bg-blueviolet text-light">
+    <div class="text-center pt-4">
+        2022 &copy; Copyright:
+        <a class="text-reset fw-bold" href="https://github.com/ETOgaosion">Blue Space</a>
+    </div>
+    <div class="text-center pb-4 pt-1">
+        UCAS Database Class project in 2022 Spring.
+    </div>
+</footer>
+</body>
+</html>
