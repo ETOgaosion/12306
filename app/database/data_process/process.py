@@ -127,14 +127,24 @@ for child in os.listdir(raw_data_path):
                         lst_toks2 = toks[2]
                     else:
                         tfi_price_list.append([0.0,0,0,0,0,0,0])
+                        lst_toks2 = toks[3]
                     tfi_train_id_list.append(train_id)
                     tfi_station_id_list.append(station_name_list.index(toks[1].strip()))
                     tfi_station_order_list.append(station_order)
                     station_order += 1
-                    tfi_arrive_time_list.append(toks[2].strip())
-                    tfi_leave_time_list.append(toks[3].strip())
+                    if toks[2].strip() == '-': # beg station
+                        tfi_arrive_time_list.append(toks[3].strip())
+                    else:
+                        tfi_arrive_time_list.append(toks[2].strip())
+                    if toks[3].strip() == '-': # end station
+                        tfi_leave_time_list.append(toks[2].strip())
+                    else:
+                        tfi_leave_time_list.append(toks[3].strip())
                     tfi_day_from_departure_list.append(day_from_departure)
-                    tfi_distance_list.append(toks[6].strip())
+                    if toks[6].strip() == '-': # beg station
+                        tfi_distance_list.append('0')
+                    else:
+                        tfi_distance_list.append(toks[6].strip())
             train_id += 1
 
 def get_train_type(train_name: str):
