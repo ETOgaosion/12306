@@ -13,7 +13,7 @@ $login = true;
         </div>
         <div class="row w-100 h-50 d-flex flex-row justify-content-center align-items-center">
             <div class="h-100 w-25 d-flex flex-row justify-content-center align-items-center">
-                <a type="button" class="btn btn-primary" href="/index"> return to Home Page</a>
+                <a type="button" class="btn btn-primary" href="../index"> return to Home Page</a>
             </div>
         </div>
     </div>

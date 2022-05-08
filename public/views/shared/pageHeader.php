@@ -46,7 +46,7 @@ $login = false;
 <nav class="navbar navbar-expand fixed-top navbar-dark bg-blueviolet" style="height: 75px">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="/index">Train Database</a>
+            <a class="navbar-brand" href="../index">Train Database</a>
         </div>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,11 +58,11 @@ $login = false;
                     <?php
                     if ($login) {
                         echo <<<END
-                            <a class="nav-link" href="/userSpace"><i class="bi bi-person-circle" style="font-size: 1.5rem;"></i></a>
+                            <a class="nav-link" href="../userSpace"><i class="bi bi-person-circle" style="font-size: 1.5rem;"></i></a>
                             END;
                     } else {
                         echo <<<END
-                            <a class="nav-link" href="/login"><i class="bi bi-person" style="font-size: 1.5rem;"></i></a>
+                            <a class="nav-link" href="../login"><i class="bi bi-person" style="font-size: 1.5rem;"></i></a>
                             END;
                     }
                     ?>
