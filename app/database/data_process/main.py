@@ -85,7 +85,6 @@ def get_reach_table():
                 data = row.strip("\n").split(",")
                 if int(data[0]) == train_id:
                     pass_station.append(int(data[1]))
-            print(train_id)
             store_info(reach_matrix, pass_station, train_id)
 
     reach_matrix = np.matmul(reach_matrix, reach_matrix)
