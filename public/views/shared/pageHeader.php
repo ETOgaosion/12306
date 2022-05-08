@@ -26,6 +26,9 @@ $login = false;
             integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
             crossorigin="anonymous"></script>
 
+    <!-- popper js link -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/popper-utils.min.js"></script>
+
     <!-- jQuery js -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
 
@@ -40,7 +43,7 @@ $login = false;
     <source src="<?= $assetsDir ?>media/videos/train-bg.mp4" type="video/mp4">
     Your browser is old
 </video>
-<nav class="navbar navbar-expand fixed-top navbar-dark bg-blueviolet">
+<nav class="navbar navbar-expand fixed-top navbar-dark bg-blueviolet" style="height: 75px">
     <div class="container-fluid">
         <div class="navbar-header">
             <a class="navbar-brand" href="/index">Train Database</a>
@@ -68,18 +71,3 @@ $login = false;
         </div>
     </div>
 </nav>
-
-<a href="#" id="toTopBtn" class="cd-top text-replace js-cd-top cd-top--is-visible cd-top--fade-out" data-abc="true">
-    <i class="bi bi-arrow-up-circle" style="font-size: 1.5rem; color: yellow"></i>
-</a>
-<footer class="text-center fixed-bottom bg-blueviolet text-light">
-    <div class="text-center pt-4">
-        2022 &copy; Copyright:
-        <a class="text-reset fw-bold" href="https://github.com/ETOgaosion">Blue Space</a>
-    </div>
-    <div class="text-center pb-4 pt-1">
-        UCAS Database Class project in 2022 Spring.
-    </div>
-</footer>
-</body>
-</html>

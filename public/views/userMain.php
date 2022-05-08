@@ -25,7 +25,7 @@ $trainFound = true;
 <!--<script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>-->
 <!--<script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>-->
 
-<div class="d-flex align-items-center justify-content-center position-absolute top-0 start-0 bottom-0 end-0">
+<div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0" style="top: 75px; bottom: 100px">
     <div class="d-flex align-items-center justify-content-center" style="height: 60%; width: 60%">
         <div class="row w-100 h-100">
             <div class="col-7 h-100 pe-3">
@@ -49,7 +49,7 @@ $trainFound = true;
                                 <input type="text" id="queryCityName" class="form-control">
                             </div>
                             <div class="col-3 p-1">
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-primary" form="queryCityNameForm">Submit</button>
                             </div>
                         </form>
                         <form class="row p-2 w-100 d-flex align-items-center" style="height: 15%" id="queryTrainNameForm">
@@ -60,7 +60,7 @@ $trainFound = true;
                                 <input type="text" id="queryTrainName" class="form-control">
                             </div>
                             <div class="col-3 p-1">
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-primary" form="queryTrainNameForm">Submit</button>
                             </div>
                         </form>
                         <div class="row p-2 w-100 h-auto">
@@ -152,7 +152,7 @@ $trainFound = true;
                                     </div>
                                     <div class="row flex-row justify-content-center align-items-center p-1">
                                         <div class="w-50 d-flex flex-row justify-content-center align-items-center">
-                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                            <button type="submit" class="btn btn-primary" form="queryTrainByCityForm">Submit</button>
                                         </div>
                                     </div>
                                 </form>
@@ -177,7 +177,7 @@ $trainFound = true;
                                     </div>
                                     <div class="row flex-row justify-content-center align-items-center p-1">
                                         <div class="w-50 d-flex flex-row justify-content-center align-items-center">
-                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                            <button type="submit" class="btn btn-primary" form="queryTrainByTrainForm">Submit</button>
                                         </div>
                                     </div>
                                 </form>

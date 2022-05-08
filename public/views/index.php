@@ -6,7 +6,7 @@ $login = false;
 
 <!-- View js -->
 <script src="<?= $assetsDir ?>js/index.js"></script>
-<div class="container d-flex align-items-center justify-content-center position-absolute top-0 start-0 bottom-0 end-0" id="indexMainContainer">
+<div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0" style="top: 75px; bottom: 100px" id="indexMainContainer">
     <div class="bg-light" style="border-radius: 1rem; width: 40%; height: 220px" id="indexMainView">
         <nav style="height: 15%">
             <div class="nav nav-tabs justify-content-center" id="nav-tab" role="tablist">

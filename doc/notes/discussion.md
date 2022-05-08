@@ -10,7 +10,7 @@
 
 主界面只有背景图、中间为中国地图和查询tabs，地图下方有一个查询支持城市的块；查询tabs默认为两地之间车次查询，查询输入包括文本框内的出发、到达城市名，后期结合bootstrap提供自动补全；出发日期可采用文本框或者下拉日历的形式，后期可运用bootstrap对后者予以实现；查询时间也是两种；查询tab通过两个按钮开启查询事件，分别查询去程和返程车票。
 
-而后跳转到查询结果页面，两种结果页面分别对应两种查询tab，可分立。表格信息如notion设计。车次查询中点击余票之后跳转到订单预生成界面，可以调整始发终点站，输入乘客信息（自己不用输入）生成多张票的订单，而后跳转到订单确认界面，确认生成的多张订单，完成或取消后返回主界面。车次查询按照notion中设计显示表格，之后过程同上，可重用。
+而后跳转到查询结果页面，两种结果页面分别对应两种查询tab，可分立。表格信息如notion设计。车次查询中点击余票之后跳转到订单预生成界面，输入乘客信息（自己不用输入）生成多张票的订单，而后跳转到订单确认界面，确认生成的多张订单，完成或取消后返回主界面。车次查询按照notion中设计显示表格，之后过程同上，可重用。
 
 主界面右上角有浮动用户头像，可以有弹出side bar，点击浮动用户头像后跳转到用户界面，使用左右栏样式，左边两个tab，用户信息更改和订单查询，订单查询界面会显示所有订单，可提供筛选或查找文本框。若订单未完成可显示确认和取消连接，确认链接转到确认界面，只显示自己订单，弹窗确认后取消订单，取消订单仍然在订单数据库。
 
@@ -22,13 +22,13 @@
 UCAS_Database
 |- index.php: login & register
 |----- userMain.php: user main view, query train info
-|----- userQueryRes.php: user query result
+|----- userQueryTrainRes.php: user query result
+|----- userQueryCityRes.php: user query result
 |----- userOrderGenerate.php: user generate orders
 |----- userOrderConfirm.php: user confirm order
 |----- userSpace.php: user space
 |
 |----- adminMain.php: admin main view
-|----- adminUserDetail.php: admin view user info
 |
 |- errorPage.php
 ```
