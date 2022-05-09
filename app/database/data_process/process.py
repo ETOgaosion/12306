@@ -8,6 +8,7 @@
 #   id -> index of lists
 
 import os
+import datetime
 
 raw_data_path = './raw_data'
 output_path = './postprocess_data'
@@ -16,6 +17,7 @@ out_train_path = output_path + '/train.csv'
 out_city_path = output_path + '/city.csv'
 out_statlist_path = output_path + '/station_list.csv'
 out_tfi_path = output_path + '/train_full_info.csv'
+out_stt_path = output_path + '/station_tickets.csv'
 
 # of_train = open(output_path + '/train.csv', 'w')
 # of_city = open(output_path + '/city.csv', 'w')
@@ -183,11 +185,49 @@ with open(out_tfi_path, 'w', encoding="utf8") as of_tfi:
                                                   tfi_distance_list[i],
                                                   gen_pgsql_array_csv_str(tfi_price_list[i])))
 
-
 # write city.csv
-# TODO: city reach table
 # array format in csv for pgsql:"{elem0, elem1, ...}"
 with open(out_city_path, 'w', encoding="utf8") as of_city:
     of_city.write('c_city_id,c_city_name,c_city_reach_table\n')
     for i in range(len(city_name_list)):
         of_city.write('%d,%s\n' % (i, city_name_list[i]))
+
+def price2ticketnum(price: int):
+    if price == 0:
+        return 0
+    return 5
+
+def gen_station_tickets_array_str(price_list: list):
+    tickets_num_list = []
+    for i in range(len(price_list)):
+        tickets_num_list.append(price2ticketnum(price_list[i]))
+    return gen_pgsql_array_csv_str(tickets_num_list)
+
+# write station_tickets.csv
+today = datetime.date.today()
+with open(out_stt_path, 'w', encoding='utf8') as of_stt:
+    of_stt.write('stt_station_id,stt_train_id,stt_date,stt_num\n')
+    for i in range(14):
+        for j in range(len(tfi_train_id_list)):
+            if tfi_station_order_list[j] == 0:  # beg station
+                if tfi_train_id_list[j + 1] == tfi_train_id_list[j]: # valid stations >= 2
+                    of_stt.write('%d,%d,%d-%d-%d,%s\n' % (tfi_station_id_list[j],
+                                                        tfi_train_id_list[j], 
+                                                        today.year, today.month, today.day + i,
+                                                        gen_station_tickets_array_str(tfi_price_list[j + 1])))
+                else:
+                    of_stt.write('%d,%d,%d-%d-%d,%s\n' % (tfi_station_id_list[j],
+                                                        tfi_train_id_list[j], 
+                                                        today.year, today.month, today.day + i,
+                                                        gen_station_tickets_array_str(tfi_price_list[j])))
+            elif j == len(tfi_train_id_list) - 1 \
+                or tfi_train_id_list[j + 1] != tfi_train_id_list[j]:  # last station
+                of_stt.write('%d,%d,%d-%d-%d,%s\n' % (tfi_station_id_list[j],
+                                                    tfi_train_id_list[j], 
+                                                    today.year, today.month, today.day + i,
+                                                    gen_station_tickets_array_str([0,0,0,0,0,0,0])))
+            else:
+                of_stt.write('%d,%d,%d-%d-%d,%s\n' % (tfi_station_id_list[j],
+                                                    tfi_train_id_list[j], 
+                                                    today.year, today.month, today.day + i,
+                                                    gen_station_tickets_array_str(tfi_price_list[j])))
