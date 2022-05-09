@@ -51,9 +51,39 @@ def get_line_count(file_path):
         return cnt
 
 
+def trans_list_to_str(str_list):
+    result_str = ""
+    for i in range(len(str_list)):
+        result_str += str_list[i]
+        if i != len(str_list) - 1:
+            result_str += ","
+    return result_str
+
+
+def gen_pgsql_array_csv_str(str_list):
+    ret_str = '\"{'
+    for i in range(len(str_list)):
+        ret_str += str(int(str_list[i]))
+        if i != len(str_list) - 1:
+            ret_str += ','
+    return ret_str + '}\"'
+
+
+def station_sold_no_tickets(price_str):
+    tmp_str = price_str[2:-2]
+    data = tmp_str.split(",")
+    result = 0
+    for i in range(len(data)):
+        if float(data[i]) != 0:
+            result = 1
+            break
+    return result
+
+
 def store_info(reach_matrix, pass_station, train_id):
     station_len = len(pass_station)
     #   print("station_len:" + str(station_len))
+    print("train_id: " + str(train_id))
     with open(station_list_path, "r", encoding="utf8") as f:
         read = f.readlines()
         for i in range(station_len):
@@ -64,11 +94,10 @@ def store_info(reach_matrix, pass_station, train_id):
                 end_data = read[end_station_id + 1].strip('\n').split(",")
                 start_city_id = int(start_data[2])
                 end_city_id = int(end_data[2])
-                if train_id == 0:
-                    print("start_station_id: " + str(start_station_id))
-                    print("end_station_id: " + str(end_station_id))
-                    print("start_city_id: " + str(start_city_id) + start_data[1])
-                    print("end_city_id: " + str(end_city_id) + end_data[1] + "\n")
+                print("\tstart_station_id: " + str(start_station_id))
+                print("\tend_station_id: " + str(end_station_id))
+                print("\tstart_city_id: " + str(start_city_id) + start_data[1])
+                print("\tend_city_id: " + str(end_city_id) + end_data[1] + "\n")
                 if start_city_id != end_city_id:
                     reach_matrix[start_city_id][end_city_id] = 1
 
@@ -84,10 +113,17 @@ def get_reach_table():
             for row in read[1:]:
                 data = row.strip("\n").split(",")
                 if int(data[0]) == train_id:
-                    pass_station.append(int(data[1]))
+                    if int(data[2]) == 0 or station_sold_no_tickets(trans_list_to_str(data[7:])):
+                        pass_station.append(int(data[1]))
             store_info(reach_matrix, pass_station, train_id)
 
     reach_matrix = np.matmul(reach_matrix, reach_matrix)
+
+    #   trans the element of the matrix to bool
+    for matrix_i in range(reach_matrix.shape[0]):
+        for matrix_j in range(reach_matrix.shape[1]):
+            if reach_matrix[matrix_i][matrix_j] > 0:
+                reach_matrix[matrix_i][matrix_j] = 1
 
     with open(city_path, "r", encoding="utf8") as city_info:
         read = city_info.readlines()
@@ -95,7 +131,9 @@ def get_reach_table():
         count = 0
         for row in read[1:]:
             data = row.strip("\n").split(",")
-            analyze_dict = {'c_city_id': data[0], 'c_city_name': data[1], 'reach_table': reach_matrix[count]}
+            analyze_dict = {'c_city_id': data[0], 'c_city_name': data[1],
+                            'reach_table': gen_pgsql_array_csv_str(reach_matrix[count])}
+            #   print(analyze_dict)
             analyze.append(analyze_dict)
             count += 1
     with open("after_process_city.csv", "w", encoding="utf8", newline="") as ff:
