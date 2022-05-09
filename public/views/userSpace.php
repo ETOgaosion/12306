@@ -1,7 +1,7 @@
 <?php
-$pageTitle = "user_Space";
-$assetsDir = "../assets/";
-$login = true;
+use app\controllers\ViewCtrl;
+ViewCtrl::includePageHeader(array('pageTitle' => "user_Space", 'assetsDir' => "assets/", 'login' => true));
+$assetsDir = 'assets/';
 $userName = "Blue Space";
 $userEmail = "gaoziyuan19@mails.ucas.ac.cn";
 $userRealName = "Gao Ziyuan";
@@ -138,3 +138,7 @@ $orderStatusList = array('COMPLETE');
         </div>
     </div>
 </div>
+
+<?php
+ViewCtrl::includePageFooter();
+?>

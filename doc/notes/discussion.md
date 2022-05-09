@@ -33,6 +33,21 @@ UCAS_Database
 |- errorPage.php
 ```
 
+session: 服务器中跨php文件获取数据
+cookie: 保存在用户本地，存储用户信息，index查cookie判断是否已经登陆。
+
+可能用到的与数据库交互：
+- login: AuthCtrl获取用户名密码，是否是管理员登陆，管理员authen，传递到Auth，Auth内部调用user_login函数，获取uid和error，若无error，将uid, username给session，跳转到userMain，若为管理员跳转到adminMain，若存在error，同样通过session同步提示，index.php显示错误内容。
+- register: Auth内部调用user_register函数，获取uid和error，若无error，提示成功，若有error显示错误信息，成功后用户手动login。
+- userMain: QueryCtrl获取查询类别和内容：
+  - 若查询列车，调用get_train_info，获取信息列表后跳转至查询结果界面userQueryTrainRes，参数设置火车名、查询日期、始末站、结果list，直接显示
+  - 若查询两地，调用get_train_bt_cities，跳转页面为userQueryCityRes
+- userQueryTrainRes: 点击链接通过OrderCtrl获取车辆信息，跳转到userOrderGenerate
+- userOrderGenerate: 获取用户信息，生成订单，OrderCtrl获取uid list、车次、日期、起始到达站、座位类型、数量，传给UserOrder调用pre_order_train，获取seat, order, success，若成功，收集票的信息跳转到userOrderConfirm，否则session提示订票失败，弹窗后跳转至userMain
+- userOrderConfirm: 点击确认后OrderCtrl通过已知信息（可以存储在session），调用order_train_seats，确认订单，成功后显示正确弹窗返回，否则显示错误弹窗，错误为有订单超时，会显示所有票的成功与否。
+- userSpace: 查询、修改用户信息及查找订单都要在User，通过session获取uid等信息，调用user_query_info，查询订单调用user_query_order获取列表，用户取消订单使用OrderCtrl获取信息order_id，调用UserOrder调用user_cancel_order
+- adminMain: 通过AdminCtrl到AdminQuery调用admin_query_orders获取订单数量、总票价、top 10火的车次，调用admin_query_users获取用户信息，点击查询订单后通过UserCtrl调用user_query_order获取订单列表。
+
 MVC模式: Model-View-Controller, but we separate them
 
 使用Bootstrap

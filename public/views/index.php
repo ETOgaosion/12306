@@ -1,13 +1,13 @@
 <?php
-$pageTitle = "index";
-$assetsDir = "../assets/";
-$login = false;
+use app\controllers\ViewCtrl;
+ViewCtrl::includePageHeader(array('pageTitle' => "index", 'assetsDir' => "assets/", 'login' => false));
+$assetsDir = 'assets/';
 ?>
 
 <!-- View js -->
 <script src="<?= $assetsDir ?>js/index.js"></script>
 <div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0" style="top: 75px; bottom: 100px" id="indexMainContainer">
-    <div class="bg-light" style="border-radius: 1rem; width: 40%; height: 220px" id="indexMainView">
+    <div class="bg-light" style="border-radius: 1rem; width: 30%; height: 220px" id="indexMainView">
         <nav style="height: 15%">
             <div class="nav nav-tabs justify-content-center" id="nav-tab" role="tablist">
                 <button class="nav-link active" id="nav-login-tab" data-bs-toggle="tab" data-bs-target="#nav-login"
@@ -140,3 +140,7 @@ $login = false;
         </div>
     </div>
 </div>
+
+<?php
+ViewCtrl::includePageFooter();
+?>

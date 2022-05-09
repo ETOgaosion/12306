@@ -1,7 +1,7 @@
 <?php
-$pageTitle = "query_res";
-$assetsDir = "../assets/";
-$login = true;
+use app\controllers\ViewCtrl;
+ViewCtrl::includePageHeader(array('pageTitle' => "query_res", 'assetsDir' => "assets/", 'login' => true));
+$assetsDir = 'assets/';
 $trainName = "1055";
 $date = date('Y-m-d', time());
 $start_station = "北京南";
@@ -94,3 +94,8 @@ $end_station = "郑州东";
         </div>
     </div>
 </div>
+
+
+<?php
+ViewCtrl::includePageFooter();
+?>
