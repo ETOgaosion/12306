@@ -1,7 +1,7 @@
 <?php
-$pageTitle = "user main";
-$assetsDir = "../assets/";
-$login = true;
+use app\controllers\ViewCtrl;
+ViewCtrl::includePageHeader(array('pageTitle' => "user_main", 'assetsDir' => "assets/", 'login' => true));
+$assetsDir = 'assets/';
 $inputCityName = "北京";
 $cityFound = false;
 $cityStationList = [];
@@ -197,3 +197,7 @@ $trainFound = true;
 <!-- HERE map api -->
 <!-- File js link -->
 <!--<script src="-->< ?//= $assetsDir ? ><!--js/mapAPI.js"></script>-->
+
+<?php
+ViewCtrl::includePageFooter();
+?>

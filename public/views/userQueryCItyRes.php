@@ -1,7 +1,7 @@
 <?php
-$pageTitle = "query_res";
-$assetsDir = "../assets/";
-$login = true;
+use app\controllers\ViewCtrl;
+ViewCtrl::includePageHeader(array('pageTitle' => "query_res", 'assetsDir' => "assets/", 'login' => true));
+$assetsDir = 'assets/';
 $date = date('Y-m-d', time());
 $time = date('H:i', time());;
 $start_city = "北京";
@@ -94,4 +94,9 @@ $end_city = "郑州";
 
 <!-- free map api: OpenLayers -->
 <!-- File js link -->
-<script src="<?= $assetsDir ?>js/mapAPI.js"></script>、
+<script src="<?= $assetsDir ?>js/mapAPI.js"></script>
+
+
+<?php
+ViewCtrl::includePageFooter();
+?>

@@ -1,7 +1,7 @@
 <?php
-$pageTitle = "admin_Main";
-$assetsDir = "../assets/";
-$login = true;
+use app\controllers\ViewCtrl;
+ViewCtrl::includePageHeader(array('pageTitle' => "admin_Main", 'assetsDir' => "assets/", 'login' => true));
+$assetsDir = 'assets/';
 $totalOrder = 0;
 $totalPrice = 0;
 $hotTrains = array("1055", "1055", "1055", "1055", "1055", "1055", "1055", "1055", "1055", "1055");
@@ -141,3 +141,7 @@ $orderStatusList = array('COMPLETE');
         </div>
     </div>
 </div>
+
+<?php
+ViewCtrl::includePageFooter();
+?>

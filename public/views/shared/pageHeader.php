@@ -1,7 +1,16 @@
 <?php
-$pageTitle = "hello";
-$assetsDir = "../../assets/";
-$login = false;
+if (empty($pageTitle)) {
+    $pageTitle = "index";
+}
+if (empty($assetsDir)) {
+    $assetsDir = "../assets";
+}
+if (empty($login)) {
+    $login = false;
+}
+if (empty($isAdmin)) {
+    $isAdmin = false;
+}
 ?>
 
 <!DOCTYPE html>
@@ -46,7 +55,24 @@ $login = false;
 <nav class="navbar navbar-expand fixed-top navbar-dark bg-blueviolet" style="height: 75px">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="../index">Train Database</a>
+            <?php
+            if (!$isAdmin){
+                if ($login) {
+                    echo <<<END
+            <a class="navbar-brand" href="userMain">Train Database</a>
+            END;
+                } else {
+                    echo <<<END
+            <a class="navbar-brand" href="index">Train Database</a>
+            END;
+                }
+            }
+            else {
+                echo <<<END
+            <a class="navbar-brand" href="adminMain">Train Database</a>
+            END;
+            }
+            ?>
         </div>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,19 +80,28 @@ $login = false;
         </button>
         <div class="navbar-collapse collapse" id="collapseNavbar">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <?php
-                    if ($login) {
-                        echo <<<END
-                            <a class="nav-link" href="../userSpace"><i class="bi bi-person-circle" style="font-size: 1.5rem;"></i></a>
-                            END;
-                    } else {
-                        echo <<<END
-                            <a class="nav-link" href="../login"><i class="bi bi-person" style="font-size: 1.5rem;"></i></a>
-                            END;
-                    }
-                    ?>
+                <?php
+                if ($login) {
+                    echo <<<END
+                <li class="nav-item dropdown">
+                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle" style="font-size: 1.5rem;"></i>
+                     </a>
+                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                     <li><a class="dropdown-item" href="logout">Log out</a></li>
+                     <li><hr class="dropdown-divider"></li>
+                     <li><a class="dropdown-item" href="userSpace">UserInfo Space</a></li>
+                     </ul>
                 </li>
+                END;
+                } else {
+                    echo <<<END
+                <li class="nav-item">
+                     <a class="nav-link" href="login"><i class="bi bi-person" style="font-size: 1.5rem;"></i></a>
+                </li>
+                END;
+                    }
+                ?>
             </ul>
         </div>
     </div>

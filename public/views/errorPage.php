@@ -1,7 +1,7 @@
 <?php
-$pageTitle = "error_Page";
-$assetsDir = "../assets/";
-$login = true;
+use app\controllers\ViewCtrl;
+ViewCtrl::includePageHeader(array('pageTitle' => "error_Page", 'assetsDir' => "assets/", 'login' => true));
+$assetsDir = 'assets/';
 ?>
 
 <div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0"
@@ -13,8 +13,12 @@ $login = true;
         </div>
         <div class="row w-100 h-50 d-flex flex-row justify-content-center align-items-center">
             <div class="h-100 w-25 d-flex flex-row justify-content-center align-items-center">
-                <a type="button" class="btn btn-primary" href="../index"> return to Home Page</a>
+                <a type="button" class="btn btn-primary" href="index"> return to Home Page</a>
             </div>
         </div>
     </div>
 </div>
+
+<?php
+ViewCtrl::includePageFooter();
+?>
