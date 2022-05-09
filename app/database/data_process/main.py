@@ -61,12 +61,12 @@ def trans_list_to_str(str_list):
 
 
 def gen_pgsql_array_csv_str(str_list):
-    ret_str = '\"{'
+    ret_str = '{'
     for i in range(len(str_list)):
         ret_str += str(int(str_list[i]))
         if i != len(str_list) - 1:
             ret_str += ','
-    return ret_str + '}\"'
+    return ret_str + '}'
 
 
 def station_sold_no_tickets(price_str):
@@ -136,6 +136,7 @@ def get_reach_table():
             #   print(analyze_dict)
             analyze.append(analyze_dict)
             count += 1
+
     with open(raw_data_path + "/city.csv", "w", encoding="utf8", newline="") as ff:
         field_name = ['c_city_id', 'c_city_name', 'reach_table']
         writer = csv.DictWriter(ff, field_name)
