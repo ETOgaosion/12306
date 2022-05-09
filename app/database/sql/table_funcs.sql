@@ -230,7 +230,7 @@ drop function if exists query_day_from_departure_from_id__tfi__ cascade;
 create or replace function query_day_from_departure_from_id__tfi__(
 	in train_id integer,
 	in station_id integer,
-	out day_from_departure time
+	out day_from_departure integer
 )
 as $$
 begin
