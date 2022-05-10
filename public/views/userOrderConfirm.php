@@ -92,10 +92,10 @@ $userTelNumList = array(array(1,9,8,0,1,1,9,0,3,6,5));
                     </table>
                 </div>
                 <div class="row w-100 d-flex flex-row justify-content-around align-items-center" style="height: 10%">
-                    <button type="submit" class="btn btn-success w-25" id="confirmBtn">
+                    <button type="submit" formmethod="post" class="btn btn-success w-25" id="confirmBtn">
                         Confirm
                     </button>
-                    <button type="submit" class="btn btn-danger w-25" id="cancelBtn">
+                    <button type="submit" formmethod="post" class="btn btn-danger w-25" id="cancelBtn">
                         Cancel
                     </button>
                 </div>

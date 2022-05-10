@@ -83,7 +83,7 @@ $orderStatusList = array('COMPLETE');
                         <label for="inputStartQueryDate" class="col-form-label">Start Query Date:</label>
                     </div>
                     <div class="col-7">
-                        <input type="date" id="inputStartQueryDate" class="form-control">
+                        <input type="date" name="inputStartQueryDate" id="inputStartQueryDate" class="form-control">
                     </div>
                 </div>
                 <div class="col d-flex flex-row justify-content-center align-items-center" style="width: 40%">
@@ -91,12 +91,12 @@ $orderStatusList = array('COMPLETE');
                         <label for="inputEndQueryDate" class="col-form-label">End Query Date:</label>
                     </div>
                     <div class="col-7">
-                        <input type="date" id="inputEndQueryDate" class="form-control">
+                        <input type="date" name="inputEndQueryDate" id="inputEndQueryDate" class="form-control">
                     </div>
                 </div>
                 <div class="col d-flex flex-row justify-content-center align-items-center" style="width: 20%">
                     <div class="col-5 d-flex flex-row justify-content-center align-items-center">
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="submit" formmethod="post" class="btn btn-primary">Submit</button>
                     </div>
                 </div>
             </form>

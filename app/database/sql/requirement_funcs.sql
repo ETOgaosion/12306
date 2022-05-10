@@ -21,35 +21,83 @@
 /* @caller-constraints: use lock outside */
 /*                    : lock type - TO_FILL */
 
-drop function if exists user_register cascade;
+drop function if exists passenger_register cascade;
 
-create or replace function user_register(
+create or replace function passenger_register(
+    in user_name varchar(20),
+    in user_password varchar(20),
+    in user_realname varchar(20),
+    in phone_num integer[11],
+    in user_email varchar(20)
+)
+    returns table
+            (
+                uid   integer,
+                error error_type__u__
+            )
+as
+$$
+begin
+    return query select *
+    from insert_all_info_into__up__(user_name, user_password, user_realname, phone_num, user_email);
+end;
+$$ language plpgsql;
+
+drop function if exists passenger_login cascade;
+
+create or replace function passenger_login(
+    in user_name varchar(20),
+    in user_password varchar(20)
+)
+    returns table (
+        uid integer,
+        error error_type__u__
+                  )
+as
+$$
+begin
+    return query select * from query_p_uid_from_uname_password__up__(user_name, user_password);
+end;
+$$ language plpgsql;
+
+drop function if exists admin_register cascade;
+
+create or replace function admin_register(
     in user_name varchar(20),
     in user_password varchar(20),
     in phone_num integer[11],
     in user_email varchar(20),
-    out uid integer,
-    out error error_type__u__
+    in authentication varchar(20),
+    in authority admin_authority
 )
+    returns table (
+        uid integer,
+        error error_type__u__
+                  )
 as
 $$
 begin
-    select * into uid, error from insert_all_info_into__u__(user_name, user_password, phone_num, user_email);
+    return query
+    select *
+    from insert_all_info_into__ua__(user_name, user_password, phone_num, user_email, authentication, authority);
 end;
 $$ language plpgsql;
 
-drop function if exists user_login cascade;
+drop function if exists admin_login cascade;
 
-create or replace function user_login(
+create or replace function admin_login(
     in user_name varchar(20),
     in user_password varchar(20),
-    out uid integer,
-    out error error_type__u__
+    in admin_auth varchar(20)
 )
+    returns table (
+        aid integer,
+        error error_type__u__
+                  )
 as
 $$
 begin
-    select * from query_uid_from_uname_password__u__(user_name, user_password) into uid, error;
+    return query select * from query_aid_from_uname_password_auth__ua__(user_name, user_password, admin_auth);
 end;
 $$ language plpgsql;
 
@@ -148,16 +196,18 @@ drop function if exists check_reach_table cascade;
 
 create or replace function check_reach_table(
     in city_from_id integer,
-    in city_to_id integer,
-    out reachable boolean
+    in city_to_id integer
 )
+    returns boolean
 as
 $$
 declare
     reach_table boolean[];
+    reachable boolean;
 begin
     select c_reach_table into reach_table from city where c_city_id = city_from_id;
     reachable := reach_table[city_to_id];
+    return reachable;
 end;
 $$ language plpgsql;
 
@@ -402,16 +452,21 @@ create or replace function pre_order_train(
     in seat_type seat_type,
     in seat_num integer,
     in order_date date,
-    in uid_list integer[],
-    out succeed boolean,
-    out seat_id integer,
-    out order_id integer
+    in uid_list integer[]
 )
+    returns table (
+        succeed boolean,
+        seat_id integer,
+        order_id integer
+                  )
 as
 $$
 declare
     uid  integer;
     uidi integer default 0;
+    succeed boolean;
+    seat_id integer;
+    order_id integer;
 begin
     select succeed, left_seat
     into succeed, seat_id
@@ -436,6 +491,7 @@ begin
     else
         order_id := 0;
     end if;
+    return query select succeed, seat_id, order_id;
 end;
 $$ language plpgsql;
 
@@ -443,14 +499,15 @@ drop function if exists order_train_seats cascade;
 
 create or replace function order_train_seats(
     in order_id integer,
-    in uid_list integer[],
-    out succeed boolean[]
+    in uid_list integer[]
 )
+    returns boolean[]
 as
 $$
 declare
     uid  integer;
     uidi integer default 0;
+    succeed boolean[];
 begin
     foreach uid in array uid_list
         loop
@@ -466,6 +523,7 @@ begin
             where o_oid = order_id + uidi;
             uidi := uidi + 1;
         end loop;
+    return succeed;
 end;
 $$ language plpgsql;
 
@@ -477,25 +535,24 @@ $$ language plpgsql;
 drop function if exists user_query_info cascade;
 
 create or replace function user_query_info(
-    in uid integer,
-    out user_name varchar(20),
-    out user_real_name varchar(20),
-    out user_email varchar(20),
-    out user_telnum integer[]
+    in uid integer
 )
+    returns table (
+                      user_name varchar(20),
+                      user_real_name varchar(20),
+                      user_email varchar(20),
+                      user_telnum integer[]
+                  )
 as
 $$
 declare
 begin
-    select u_user_name,
+    return query select u_user_name,
            p_real_name,
            u_email,
            u_tel_num
-    into user_name,
-        user_real_name,
-        user_email,
-        user_telnum
-    from users join passengers p on users.u_uid = p.p_pid
+    from users
+             join passengers p on users.u_uid = p.p_pid
     where users.u_uid = uid;
 end;
 $$ language plpgsql;
@@ -564,9 +621,12 @@ $$ language plpgsql;
 drop function if exists user_cancel_order cascade;
 
 create or replace function user_cancel_order(
-    in order_id integer,
-    out succeed boolean
+    in order_id integer
 )
+    returns table
+            (
+                succeed boolean
+            )
 as
 $$
 declare
@@ -585,6 +645,7 @@ begin
     update orders
     set o_status = 'CANCELED'
     where o_oid = order_id;
+    return query select true;
 end;
 $$ language plpgsql;
 
@@ -627,13 +688,17 @@ from top_10_train_tickets;
 
 drop function if exists admin_query_orders cascade;
 
-create or replace function admin_query_orders(
-    out total_order_num integer,
-    out total_price integer,
-    out hot_trains varchar(10)[]
-)
+create or replace function admin_query_orders()
+    returns table (
+                      total_order_num integer,
+                      total_price integer,
+                      hot_trains varchar(10)[]
+                  )
 as
 $$
+    declare total_order_num integer;
+        total_price integer;
+        hot_trains varchar(10)[];
 begin
     select count(*),
            sum(tfi_end.tfi_price[o_seat_type] - tfi_start.tfi_price[o_seat_type] + 5)
@@ -647,6 +712,7 @@ begin
     hot_trains := array(select t_train_name
                         from train
                                  left join top_10_train_ids on train.t_train_id = top_10_train_ids.train_id);
+    return query select total_order_num, total_price, hot_trains;
 end;
 $$ language plpgsql;
 
@@ -659,8 +725,8 @@ create or replace function admin_query_users(
 )
     returns table
             (
-                uid    integer,
-                uname  varchar(20)
+                uid   integer,
+                uname varchar(20)
             )
 as
 $$

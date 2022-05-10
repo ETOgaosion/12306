@@ -46,10 +46,10 @@ $trainFound = true;
                                 <label for="queryCityName" class="col-form-label">City Name:</label>
                             </div>
                             <div class="col-6 p-1">
-                                <input type="text" id="queryCityName" class="form-control">
+                                <input type="text" name="queryCityName" id="queryCityName" class="form-control">
                             </div>
                             <div class="col-3 p-1">
-                                <button type="submit" class="btn btn-primary" form="queryCityNameForm">Submit</button>
+                                <button type="submit" formmethod="post" class="btn btn-primary" form="queryCityNameForm">Submit</button>
                             </div>
                         </form>
                         <form class="row p-2 w-100 d-flex align-items-center" style="height: 15%" id="queryTrainNameForm">
@@ -57,10 +57,10 @@ $trainFound = true;
                                 <label for="queryTrainName" class="col-form-label">Train Name:</label>
                             </div>
                             <div class="col-6 p-1">
-                                <input type="text" id="queryTrainName" class="form-control">
+                                <input type="text" name="queryTrainName" id="queryTrainName" class="form-control">
                             </div>
                             <div class="col-3 p-1">
-                                <button type="submit" class="btn btn-primary" form="queryTrainNameForm">Submit</button>
+                                <button type="submit" formmethod="post" class="btn btn-primary" form="queryTrainNameForm">Submit</button>
                             </div>
                         </form>
                         <div class="row p-2 w-100 h-auto">
@@ -123,7 +123,7 @@ $trainFound = true;
                                             <label for="trainCityFromCityName" class="col-form-label">出发城市</label>
                                         </div>
                                         <div class="col-7 align-items-center justify-content-center">
-                                            <input type="text" id="trainCityFromCityName" class="form-control">
+                                            <input type="text" name="trainCityFromCityName" id="trainCityFromCityName" class="form-control">
                                         </div>
                                     </div>
                                     <div class="row align-items-center p-1">
@@ -131,7 +131,7 @@ $trainFound = true;
                                             <label for="trainCityToCityName" class="col-form-label">到达城市</label>
                                         </div>
                                         <div class="col-7 align-items-center justify-content-center">
-                                            <input type="text" id="trainCityToCityName" class="form-control">
+                                            <input type="text" name="trainCityToCityName" id="trainCityToCityName" class="form-control">
                                         </div>
                                     </div>
                                     <div class="row align-items-center p-1">
@@ -139,7 +139,7 @@ $trainFound = true;
                                             <label for="trainCitySetOffDate" class="col-form-label">出发日期</label>
                                         </div>
                                         <div class="col-7 align-items-center justify-content-center">
-                                            <input type="date" id="trainCitySetOffDate" class="form-control" value="<?php echo date('Y-m-d', strtotime('+1 day', time())); ?>">
+                                            <input type="date" name="trainCitySetOffDate" id="trainCitySetOffDate" class="form-control" value="<?php echo date('Y-m-d', strtotime('+1 day', time())); ?>">
                                         </div>
                                     </div>
                                     <div class="row align-items-center p-1">
@@ -147,12 +147,12 @@ $trainFound = true;
                                             <label for="trainCitySetOffTime" class="col-form-label">出发时间</label>
                                         </div>
                                         <div class="col-7 align-items-center justify-content-center">
-                                            <input type="time" id="trainCitySetOffTime" class="form-control" value="<?php echo date('H:i', strtotime('00:00')); ?>">
+                                            <input type="time" name="trainCitySetOffTime" id="trainCitySetOffTime" class="form-control" value="<?php echo date('H:i', strtotime('00:00')); ?>">
                                         </div>
                                     </div>
                                     <div class="row flex-row justify-content-center align-items-center p-1">
                                         <div class="w-50 d-flex flex-row justify-content-center align-items-center">
-                                            <button type="submit" class="btn btn-primary" form="queryTrainByCityForm">Submit</button>
+                                            <button type="submit" formmethod="post" class="btn btn-primary" form="queryTrainByCityForm">Submit</button>
                                         </div>
                                     </div>
                                 </form>
@@ -164,7 +164,7 @@ $trainFound = true;
                                             <label for="trainFromCityName" class="col-form-label">车次序号</label>
                                         </div>
                                         <div class="col-7 align-items-center justify-content-center">
-                                            <input type="text" id="trainFromCityName" class="form-control">
+                                            <input type="text" name="trainFromCityName" id="trainFromCityName" class="form-control">
                                         </div>
                                     </div>
                                     <div class="row align-items-center p-1">
@@ -172,12 +172,12 @@ $trainFound = true;
                                             <label for="trainSetOffDate" class="col-form-label">出发日期</label>
                                         </div>
                                         <div class="col-7 align-items-center justify-content-center">
-                                            <input type="date" id="trainSetOffDate" class="form-control" value="<?php echo date('Y-m-d', strtotime('+1 day', time())); ?>">
+                                            <input type="date" name="trainSetOffDate" id="trainSetOffDate" class="form-control" value="<?php echo date('Y-m-d', strtotime('+1 day', time())); ?>">
                                         </div>
                                     </div>
                                     <div class="row flex-row justify-content-center align-items-center p-1">
                                         <div class="w-50 d-flex flex-row justify-content-center align-items-center">
-                                            <button type="submit" class="btn btn-primary" form="queryTrainByTrainForm">Submit</button>
+                                            <button type="submit" formmethod="post" class="btn btn-primary" form="queryTrainByTrainForm">Submit</button>
                                         </div>
                                     </div>
                                 </form>

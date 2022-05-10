@@ -27,6 +27,16 @@ class ViewCtrl
         self::includeView('/index', array());
     }
 
+    public static function includeMain(): void
+    {
+        if (array_key_exists('isAdmin', $_SESSION) && !$_SESSION['isAdmin']) {
+            self::includeView('/userMain');
+        }
+        else {
+            self::includeView('/adminMain');
+        }
+    }
+
     #[NoReturn] public static function errorPageNotFound(): void
     {
         http_response_code(404);

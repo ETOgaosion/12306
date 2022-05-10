@@ -1,8 +1,8 @@
 <?php
-namespace routes;
+namespace app\routes;
 
 use Closure;
-use controllers\ViewCtrl;
+use app\controllers\ViewCtrl;
 
 class Route {
     protected static array $routes = array();
@@ -42,32 +42,41 @@ class Route {
     {
         self::pattern('trainNum', '[KTZDGCSYL]?[0-9]{1,20}');
 
-        self::any('/UCAS_Database/public/', 'ViewCtrl@includeIndex');
-        self::any('/UCAS_Database/public/index', 'ViewCtrl@includeIndex');
+        if (!array_key_exists('loggedIn', $_COOKIE) || !$_COOKIE['loggedIn']) {
+            self::any('', 'ViewCtrl@includeIndex');
+            self::any('index', 'ViewCtrl@includeIndex');
+            self::any('index.php', 'ViewCtrl@includeIndex');
+        }
+        else {
+            $_SESSION['loggedIn'] = true;
+            self::any('', 'ViewCtrl@includeMain');
+            self::any('index', 'ViewCtrl@includeMain');
+            self::any('index.php', 'ViewCtrl@includeMain');
+        }
 
-        self::any('/UCAS_Database/public/pageHeader', 'ViewCtrl@includePageHeader');
-        self::any('/UCAS_Database/public/pageFooter', 'ViewCtrl@includePageFooter');
+        self::any('pageHeader', 'ViewCtrl@includePageHeader');
+        self::any('pageFooter', 'ViewCtrl@includePageFooter');
 
-        self::post('/UCAS_Database/public/login', 'AuthCtrl@login');
+        self::post('login', 'AuthCtrl@login');
 
-        self::any('/UCAS_Database/public/logout', 'AuthCtrl@logout');
+        self::any('logout', 'AuthCtrl@logout');
 
-        self::post('/UCAS_Database/public/register', 'AuthCtrl@register');
-        self::get('/UCAS_Database/public/register', 'AuthCtrl@registerPage');
+        self::post('register', 'AuthCtrl@register');
+        self::get('register', 'AuthCtrl@registerPage');
 
-        self::any('/UCAS_Database/public/admin', 'AdminCtrl@index');
-        self::any('/UCAS_Database/public/admin/initSeat', 'AdminCtrl@initSeat');
-        self::any('/UCAS_Database/public/admin/orderList', 'AdminCtrl@orderList');
+        self::any('admin', 'AdminCtrl@index');
+        self::any('admin/initSeat', 'AdminCtrl@initSeat');
+        self::any('admin/orderList', 'AdminCtrl@orderList');
 
-        self::any('/UCAS_Database/public/leftTickets/City', 'LeftTicketCtrl@betweenCity');
-        self::any('/UCAS_Database/public/leftTickets/CityTransfer', 'LeftTicketCtrl@betweenCityTransfer');
-        self::any('/UCAS_Database/public/leftTickets/Train', 'LeftTicketCtrl@byTrainNum');
+        self::any('leftTickets/City', 'LeftTicketCtrl@betweenCity');
+        self::any('leftTickets/CityTransfer', 'LeftTicketCtrl@betweenCityTransfer');
+        self::any('leftTickets/Train', 'LeftTicketCtrl@byTrainNum');
 
-        self::post('/UCAS_Database/public/orderCheck', 'OrderCtrl@orderCheck');
-        self::any('/UCAS_Database/public/orderSubmit', 'OrderCtrl@orderSubmit');
-        self::any('/UCAS_Database/public/orderList', 'OrderCtrl@orderList');
-        self::any('/UCAS_Database/public/orderCancel', 'OrderCtrl@orderCancel');
-        self::any('/UCAS_Database/public/orderPrint', 'OrderCtrl@orderPrint');
+        self::post('orderCheck', 'OrderCtrl@orderCheck');
+        self::any('orderSubmit', 'OrderCtrl@orderSubmit');
+        self::any('orderList', 'OrderCtrl@orderList');
+        self::any('orderCancel', 'OrderCtrl@orderCancel');
+        self::any('orderPrint', 'OrderCtrl@orderPrint');
     }
 
     public static function group(array $attributes, Closure $callback): void
@@ -124,29 +133,12 @@ class Route {
         if (!in_array($request['method'], $route['methods'])) {
             return false;
         }
-
-        $rep_arr = array();
-        foreach (self::$patterns as $name => $pat) {
-            $rep_arr['{'.$name.'}'] = "(?P<$name>$pat)";
+        if ($route['uri'] == $request['uri']) {
+            return true;
         }
-        $rep_arr['/'] = '\/';
-        $rep_arr['.'] = '\.';
-
-        $matches = array();
-
-        $uri_pat = strtr($route['uri'], $rep_arr);
-        if (!preg_match('/^'.$uri_pat.'$/', rtrim($request['path'], '/'), $uri_matches)) {
+        else{
             return false;
         }
-        $matches = array_merge($matches, $uri_matches);
-
-        foreach ($matches as $key => $val) {
-            if (!is_numeric($key)) {
-                $_GET[$key] = $val;
-            }
-        }
-
-        return true;
     }
 
     protected static function runRoute($route): void
@@ -161,6 +153,9 @@ class Route {
             $action = explode('@', $route['action'], 2);
             $controller = '\\app\\controllers\\'.$action[0];
             $method = $action[1];
+            if ($method == 'POST') {
+                echo $controller.' '.$method;
+            }
 
             $controller::$method();
         } else {

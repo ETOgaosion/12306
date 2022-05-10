@@ -17,12 +17,14 @@ $(document).ready(function () {
         if ($(this).is(':checked')) {
             $('#registerAuthorDiv').show();
             $('#registerAuthenDiv').show();
+            $('#registerRealNameInputDiv').hide();
             $('#registerInputRegion').height('75%');
-            $('#indexMainView').height('500px');
+            $('#indexMainView').height('420px');
         }
         else {
             $('#registerAuthorDiv').hide();
             $('#registerAuthenDiv').hide();
+            $('#registerRealNameInputDiv').show();
             $('#registerInputRegion').height('50%');
             $('#indexMainView').height('370px');
         }

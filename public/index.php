@@ -8,11 +8,13 @@ const PHP_INDEX_DIR = __DIR__;
 
 require PHP_APP_DIR . '/bootstrap/init.php';
 
-use routes\Route;
+use app\routes\Route;
+
+$urlpieces = explode('/', $_SERVER['REQUEST_URI']);
 
 $request = array(
     'method' => $_SERVER['REQUEST_METHOD'],
-    'uri' => $_SERVER['REQUEST_URI'],
+    'uri' => end($urlpieces),
     'path' => Route::getRequestPath($_SERVER['REQUEST_URI']),
     'time' => $_SERVER['REQUEST_TIME'],
 );

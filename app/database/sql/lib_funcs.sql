@@ -37,12 +37,12 @@ $$ language plpgsql immutable;
 drop function if exists get_date_from_now cascade;
 
 create or replace function get_date_from_now(
-	in days_interval integer,
-	out date_then date
+	in days_interval integer
 )
+    returns date
 as $$
 begin
-	select now() + (days_interval || 'days')::interval into date_then;
+	return now() + (days_interval || 'days')::interval;
 end;
 $$ language plpgsql;
 
@@ -55,16 +55,18 @@ drop function if exists get_actual_interval_bt_time cascade;
 create or replace function get_actual_interval_bt_time(
     in start_time time,
     in end_time time,
-    in days_added integer,
-    out actual_interval interval
+    in days_added integer
 )
+    returns interval
 as $$
+declare
+    actual_interval interval;
 begin
     if days_added = 0 and start_time > end_time then
         actual_interval := interval '24 hours' + end_time - start_time;
     else
 	    actual_interval := (days_added || 'days')::interval + end_time - start_time;
     end if;
-
+    return actual_interval;
 end
 $$ language plpgsql;
