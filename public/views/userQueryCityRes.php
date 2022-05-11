@@ -28,9 +28,6 @@ if (!isset($queryRes)) {
 <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/build/ol.js"
         type="text/javascript"></script>
 
-<!-- File js link -->
-<script src="<?= $assetsDir?>js/userQueryRes.js"></script>
-
 <div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0"
      style="top: 75px; bottom: 100px">
     <div class="h-100 w-75 d-flex flex-column align-items-center justify-content-start bg-light p-5"
@@ -74,18 +71,18 @@ if (!isset($queryRes)) {
                     <th scope="col" rowspan="2" class="text-center">换乘下半</th>
                     <th colspan="2"">
                     <div class="dropdown d-flex flex-row justify-content-center align-items-center">
-                        <button class="btn btn-primary w-100" disabled id="seatTypeBtn" style="border-bottom-right-radius:0; border-top-right-radius: 0;">硬座</button>
+                        <button class="btn btn-primary w-100" disabled id="seatTypeBtn" style="border-bottom-right-radius:0; border-top-right-radius: 0;">座位</button>
                         <button class="btn btn-primary dropdown-toggle dropdown-toggle-split" style="border-top-left-radius: 0; border-bottom-left-radius: 0" href="#" role="button" id="dropDownSeatTypeBtn" data-bs-toggle="dropdown" aria-expanded="false">
                             <span class="visually-hidden"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="javascript:switchSeatToHardSeat()" id="hardSeatDpItem">硬座</a></li>
-                            <li><a class="dropdown-item" href="javascript:switchSeatToSoftSeat()" id="softSeatDpItem">软座</a></li>
-                            <li><a class="dropdown-item" href="javascript:switchSeatToHardBedTop()" id="hardBedTopDpItem">硬卧上</a></li>
-                            <li><a class="dropdown-item" href="javascript:switchSeatToHardBedMid()" id="hardBedMidDpItem">硬卧中</a></li>
-                            <li><a class="dropdown-item" href="javascript:switchSeatToHardBedDown()" id="hardBedDownDpItem">硬卧下</a></li>
-                            <li><a class="dropdown-item" href="javascript:switchSeatToSoftBedTop()" id="softBedTopDpItem">软卧上</a></li>
-                            <li><a class="dropdown-item" href="javascript:switchSeatToSoftBedDown()" id="softBedDownDpItem">软卧下</a></li>
+                            <li><button class="dropdown-item" onclick="switchSeatToHardSeat()" id="hardSeatDpItem"">硬座</button></li>
+                            <li><button class="dropdown-item" onclick="console.log('soft click');" id="softSeatDpItem"">软座</button></li>
+                            <li><button class="dropdown-item" onclick="switchSeatToHardBedTop()" id="hardBedTopDpItem"">硬卧上</button></li>
+                            <li><button class="dropdown-item" onclick="switchSeatToHardBedMid()" id="hardBedMidDpItem"">硬卧中</button></li>
+                            <li><button class="dropdown-item" onclick="switchSeatToHardBedDown()" id="hardBedDownDpItem"">硬卧下</button></li>
+                            <li><button class="dropdown-item" onclick="switchSeatToSoftBedTop()" id="softBedTopDpItem"">软卧上</button></li>
+                            <li><button class="dropdown-item" onclick="switchSeatToSoftBedDown()" id="softBedDownDpItem"">软卧下</button></li>
                         </ul>
                     </div>
                     </th>
@@ -113,7 +110,9 @@ if (!isset($queryRes)) {
                 $transferLateList = array_column($queryRes, 'transfer_late');
                 for ($i = 0; $i < count($trainNameList); $i++) {
                     for ($j = 0; $j < 7; $j++) {
-                        if ($seatNumList[$i][$j] == 0){
+                        $seatPriceListArray = explode(',', substr($seatPriceList[$i], 1, strlen($seatPriceList[$i]) - 2));
+                        $seatNumListArray = explode(',', substr($seatNumList[$i], 1, strlen($seatNumList[$i]) - 2));
+                        if ($seatNumListArray[$j] == 0){
                             continue;
                         }
                         echo <<<END
@@ -125,10 +124,10 @@ if (!isset($queryRes)) {
                     <td>$arriveTimeList[$i]</td>
                     <td>$duranceList[$i]</td>
                     <td>$distanceList[$i]</td>
-                    <td id="seat-type-{$i}">$seatPriceList[$i][$j]</td>
-                    <td id="seat-type-{$i}"><a href="userGenerateOrder?trainId={$trainIdList[$i]}&trainName={$trainNameList[$i]}&stationFromId={$stationFromIdList[$i]}&stationFrom={$stationFromList[$i]}&stationToId={$stationToIdList[$i]}&stationTo={$stationToList[$i]}&seat_type={$j}&order_date={$date}">$seatNumList[$i][$j]</a></td>
                     <td>$transferFirstList[$i]</td>
                     <td>$transferLateList[$i]</td>
+                    <td id="seat-type-{$j}">$seatPriceListArray[$j]</td>
+                    <td id="seat-type-{$j}"><a href="userGenerateOrder?trainId={$trainIdList[$i]}&trainName={$trainNameList[$i]}&stationFromId={$stationFromIdList[$i]}&stationFrom={$stationFromList[$i]}&stationToId={$stationToIdList[$i]}&stationTo={$stationToList[$i]}&seat_type={$j}&order_date={$date}">$seatNumListArray[$j]</a></td>
                 </tr>
 END;
                     }
@@ -144,6 +143,8 @@ END;
 <!-- File js link -->
 <script src="<?= $assetsDir ?>js/mapAPI.js"></script>
 
+    <!-- File js link -->
+    <script src="<?= $assetsDir?>js/userQueryRes.js"></script>
 
 <?php
 ViewCtrl::includePageFooter();

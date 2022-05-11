@@ -11,10 +11,10 @@ use JetBrains\PhpStorm\NoReturn;
 class QueryCtrl
 {
     #[NoReturn] public static function queryCity(): void {
-        $startCity = $_POST('trainCityFromCityName');
-        $endCity = $_POST('trainCityToCityName');
-        $startDate = $_POST('trainCitySetOffDate');
-        $startTime = $_POST('trainCitySetOffTime');
+        $startCity = $_POST['trainCityFromCityName'];
+        $endCity = $_POST['trainCityToCityName'];
+        $startDate = $_POST['trainCitySetOffDate'];
+        $startTime = $_POST['trainCitySetOffTime'];
         $queryRes = UserQuery::queryCity($startCity, $endCity, $startDate, $startTime);
         ViewCtrl::includeView('/userQueryCityRes', array(
             'date' => $startDate,
