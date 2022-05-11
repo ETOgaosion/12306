@@ -34,7 +34,7 @@ class AuthCtrl
         $loginPassword = $_POST['loginPasswordInput'] ?? '';
         $loginAuth = $_POST['loginAuthInput'] ?? '';
         $loginAsAdmin = $_POST['admin-login'] ?? '';
-        if ($loginAsAdmin != 'on') {
+        if ($loginAsAdmin != 'Yes') {
             $resArray = Auth::userLogin($loginUserName, $loginPassword);
             $_SESSION['isAdmin'] = false;
             setcookie('isAdmin', false, CookieConfig::$expire_time, CookieConfig::$cookie_avail_path);
@@ -64,9 +64,9 @@ class AuthCtrl
                 $_SESSION['loginSucceed'] = true;
                 $_SESSION['loginFailed'] = false;
                 $_SESSION['userName'] = $loginUserName;
-                $_SESSION['uid'] = $resArray['uid'];
+                $_SESSION['uid'] = $resArray['aid'];
                 setcookie('userName', $loginUserName, CookieConfig::$expire_time, CookieConfig::$cookie_avail_path);
-                setcookie('uid', $resArray['uid'], CookieConfig::$expire_time, CookieConfig::$cookie_avail_path);
+                setcookie('uid', $resArray['aid'], CookieConfig::$expire_time, CookieConfig::$cookie_avail_path);
                 $_SESSION['loggedIn'] = true;
                 setcookie('loggedIn', true, CookieConfig::$expire_time, CookieConfig::$cookie_avail_path);
                 $_SESSION['isAdmin'] = true;
@@ -92,7 +92,7 @@ class AuthCtrl
         $registerRealNameInput = $_POST['registerRealNameInput'] ?? '';
         $registerAuth = $_POST['registerAuthInput'] ?? '';
         $registerAsAdmin = $_POST['admin-register'] ?? '';
-        if ($registerAsAdmin != 'on') {
+        if ($registerAsAdmin != 'Yes') {
             $resArray = Auth::userRegister($registerUserName, $registerPassword, $registerRealNameInput, $registerTelNumInput, $registerEmail);
             $_SESSION['isAdmin'] = false;
             if ($resArray['error'] == "NO_ERROR") {

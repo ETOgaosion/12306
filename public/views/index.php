@@ -8,22 +8,10 @@ $assetsDir = 'assets/';
 <script src="<?= $assetsDir ?>js/index.js"></script>
 <div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0" style="top: 75px; bottom: 100px" id="indexMainContainer">
     <?php
-    if ((array_key_exists('loginFailed', $_SESSION) && $_SESSION['loginFailed']) || (array_key_exists('loginSucceed', $_SESSION) && $_SESSION['loginSucceed'])) {
+    if ((array_key_exists('loginFailed', $_SESSION) && $_SESSION['loginFailed']) || (array_key_exists('loginSucceed', $_SESSION) && $_SESSION['loginSucceed']) || (array_key_exists('registerFailed', $_SESSION) && $_SESSION['registerFailed']) || (array_key_exists('registerSucceed', $_SESSION) && $_SESSION['registerSucceed']) || (array_key_exists('preorderFailed', $_SESSION) && $_SESSION['preorderFailed']) || (array_key_exists('orderSucceed', $_SESSION) && $_SESSION['orderSucceed']) || (array_key_exists('orderFailed', $_SESSION) && $_SESSION['orderFailed'])) {
         echo <<<END
     <div class="bg-light position-relative" style="border-radius: 1rem; width: 30%; height: 260px" id="indexMainView">
 END;
-    }
-    elseif ((array_key_exists('registerFailed', $_SESSION) && $_SESSION['registerFailed']) || (array_key_exists('registerSucceed', $_SESSION) && $_SESSION['registerSucceed'])) {
-        if (array_key_exists('isAdmin', $_SESSION) && $_SESSION['isAdmin']) {
-            echo <<<END
-    <div class="bg-light position-relative" style="border-radius: 1rem; width: 30%; height: 470px" id="indexMainView">
-END;
-        }
-        else {
-            echo <<<END
-    <div class="bg-light position-relative" style="border-radius: 1rem; width: 30%; height: 320px" id="indexMainView">
-END;
-        }
     }
     else {
         echo <<<END
@@ -70,6 +58,27 @@ END;
         </div>
 END;
     }
+    if (array_key_exists('preorderFailed', $_SESSION) && $_SESSION['preorderFailed']) {
+        echo <<<END
+        <div class="alert alert-danger" role="alert" id="resInfoDiv">
+        Preorder failed!
+        </div>
+END;
+    }
+    if (array_key_exists('orderSucceed', $_SESSION) && $_SESSION['orderSucceed']) {
+        echo <<<END
+        <div class="alert alert-success" role="alert" id="resInfoDiv">
+        Order Succeed!
+        </div>
+END;
+    }
+    if (array_key_exists('orderFailed', $_SESSION) && $_SESSION['orderFailed']) {
+        echo <<<END
+        <div class="alert alert-danger" role="alert" id="resInfoDiv">
+        Order failed, status: {$_SESSION['orderStatus']}!
+        </div>
+END;
+    }
     ?>
         <div class="tab-content position-absolute start-0 end-0 bottom-0" id="nav-tabContent" style="height: 170px">
             <div class="tab-pane fade show active h-100" id="nav-login" role="tabpanel" aria-labelledby="nav-login-tab">
@@ -106,7 +115,7 @@ END;
                             <button type="submit" formmethod="post" class="btn btn-primary pt-1" id="loginSubmit">Submit</button>
                         </div>
                         <div class="col-6 d-flex justify-content-center align-items-center form-check">
-                            <input class="form-check-input p-1" type="checkbox" value="" id="admin-login"
+                            <input class="form-check-input p-1" type="checkbox" value="Yes" id="admin-login"
                                    name="admin-login">
                             <label class="form-check-label p-1" for="admin-login">
                                 Admin login
@@ -181,7 +190,7 @@ END;
                             <button type="submit" formmethod="post" class="btn btn-primary pt-1" id="registerSubmit">Submit</button>
                         </div>
                         <div class="col-6 d-flex justify-content-center align-items-center form-check">
-                            <input class="form-check-input p-1" type="checkbox" value="" id="admin-register"
+                            <input class="form-check-input p-1" type="checkbox" value="Yes" id="admin-register"
                                    name="admin-register">
                             <label class="form-check-label p-1" for="admin-register">
                                 Admin Register
