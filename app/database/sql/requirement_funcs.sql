@@ -377,6 +377,11 @@ begin
                     return next r;
                 end loop;
         else
+            for r in
+                select * from get_train_bt_cities_directly(from_city_id, to_city_id, q_date, q_time, false, false)
+                loop
+                    return next r;
+                end loop;
             passing_trains := array(select query_train_id_list_from_cid__ct__(from_city_id));
             src_city := array(select getres.next_city_id
                               from get_ct_next_city_list(from_city_id, to_city_id, passing_trains) getres
