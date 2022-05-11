@@ -157,9 +157,10 @@ begin
                           left join station_list s on tfi.tfi_station_id = s.s_station_id
                           left join city c on s.s_station_city_id = c.c_city_id
                           left join train t on tfi.tfi_train_id = t.t_train_id
-                          left join station_tickets stt on tfi.tfi_station_id = stt.stt_station_id
+                          left join station_tickets stt on tfi.tfi_station_id = stt.stt_station_id and tfi.tfi_train_id = stt.stt_train_id
                  where t_train_id = train_id
-                   and stt.stt_date = q_date;
+                   and stt.stt_date = q_date
+                 order by station_order;
 end;
 $$;
 
@@ -206,7 +207,7 @@ declare
     reachable boolean;
 begin
     select c_reach_table into reach_table from city where c_city_id = city_from_id;
-    reachable := reach_table[city_to_id];
+    reachable := reach_table[city_to_id + 1];
     return reachable;
 end;
 $$ language plpgsql;

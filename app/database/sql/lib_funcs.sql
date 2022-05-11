@@ -63,9 +63,9 @@ declare
     actual_interval interval;
 begin
     if days_added = 0 and start_time > end_time then
-        actual_interval := interval '24 hours' + end_time - start_time;
+        actual_interval := interval '24 hours' + (end_time - start_time);
     else
-	    actual_interval := (days_added || 'days')::interval + end_time - start_time;
+	    actual_interval := (days_added || 'days')::interval + (end_time - start_time);
     end if;
     return actual_interval;
 end

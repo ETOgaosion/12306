@@ -94,10 +94,11 @@ def store_info(reach_matrix, pass_station, train_id):
                 end_data = read[end_station_id + 1].strip('\n').split(",")
                 start_city_id = int(start_data[2])
                 end_city_id = int(end_data[2])
-                print("\tstart_station_id: " + str(start_station_id))
-                print("\tend_station_id: " + str(end_station_id))
-                print("\tstart_city_id: " + str(start_city_id) + start_data[1])
-                print("\tend_city_id: " + str(end_city_id) + end_data[1] + "\n")
+                if train_id == 5301:
+                    print("\tstart_station_id: " + str(start_station_id))
+                    print("\tend_station_id: " + str(end_station_id))
+                    print("\tstart_city_id: " + str(start_city_id) + start_data[1])
+                    print("\tend_city_id: " + str(end_city_id) + end_data[1] + "\n")
                 if start_city_id != end_city_id:
                     reach_matrix[start_city_id][end_city_id] = 1
 
@@ -117,12 +118,12 @@ def get_reach_table():
                         pass_station.append(int(data[1]))
             store_info(reach_matrix, pass_station, train_id)
 
-    reach_matrix = np.matmul(reach_matrix, reach_matrix)
+    reach_matrix_square = np.matmul(reach_matrix, reach_matrix)
 
     #   trans the element of the matrix to bool
     for matrix_i in range(reach_matrix.shape[0]):
         for matrix_j in range(reach_matrix.shape[1]):
-            if reach_matrix[matrix_i][matrix_j] > 0:
+            if reach_matrix[matrix_i][matrix_j] > 0 or reach_matrix_square[matrix_i][matrix_j] > 0:
                 reach_matrix[matrix_i][matrix_j] = 1
 
     with open(city_path, "r", encoding="utf8") as city_info:

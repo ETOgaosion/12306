@@ -65,7 +65,7 @@ tfi_price_list = []
 def check_day_from_departure(cur: str, lst: str):
     cur_time = cur.split(':')
     lst_time = lst.split(':')
-    if int(cur_time[0]) * 24 + int(cur_time[1]) < int(lst_time[0]) * 24 + int(lst_time[1]):
+    if int(cur_time[0]) * 60 + int(cur_time[1]) < int(lst_time[0]) * 60 + int(lst_time[1]):
         return 1
     else:
         return 0
