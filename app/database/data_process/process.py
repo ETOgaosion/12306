@@ -126,7 +126,7 @@ for child in os.listdir(raw_data_path):
                         if not check_price(price_list):
                             continue
                         tfi_price_list.append(price_list)
-                        day_from_departure += check_day_from_departure(toks[2], lst_toks2, start_time)
+                        day_from_departure += check_day_from_departure(toks[2], lst_toks2)
                         lst_toks2 = toks[2]
                     else:
                         tfi_price_list.append([0.0,0,0,0,0,0,0])
