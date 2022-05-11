@@ -59,14 +59,14 @@ class OrderCtrl
         for ($i = 0; ; $i++) {
             if (array_key_exists('userName'.strval($i),$_POST)) {
                 $userNameArray[] = $_POST['userName' . strval($i)];
-                $userRealNameArray = $_POST['userRealNum'. strval($i)];
-                $userTelNumList = $_POST['userTelNum'. strval($i)];
+                $userRealNameArray[] = $_POST['userRealName'. strval($i)];
+                $userTelNumList[] = $_POST['userTelNum'. strval($i)];
             }
             else {
                 break;
             }
         }
-        $res = UserOrder::preorderTrain($trainId, $stationFromId, $stationToId, $seatType, $userNameArray);
+        $res = UserOrder::preorderTrain($trainId, $stationFromId, $stationToId, $seatType, $date, $userNameArray);
         $succeed = $res['succeed'] ?? false;
         $seatId = $res['seat_id'] ?? 0;
         $orderId = $res['order_id'] ?? 0;

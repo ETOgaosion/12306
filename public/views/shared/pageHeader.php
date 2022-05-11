@@ -116,7 +116,7 @@ if (empty($isAdmin)) {
                 } else {
                     echo <<<END
                 <li class="nav-item">
-                     <a class="nav-link" href="login"><i class="bi bi-person" style="font-size: 1.5rem;"></i></a>
+                     <a class="nav-link" href="index"><i class="bi bi-person" style="font-size: 1.5rem;"></i></a>
                 </li>
                 END;
                     }

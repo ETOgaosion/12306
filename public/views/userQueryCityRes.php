@@ -60,34 +60,35 @@ if (!isset($queryRes)) {
             <table class="table-light table-striped table-bordered border-secondary">
                 <thead>
                 <tr>
-                    <th scope="col" rowspan="2" class="text-center">车次编号</th>
-                    <th scope="col" rowspan="2" class="text-center">起始站</th>
-                    <th scope="col" rowspan="2" class="text-center">目的站</th>
-                    <th scope="col" rowspan="2" class="text-center">发时</th>
-                    <th scope="col" rowspan="2" class="text-center">到时</th>
-                    <th scope="col" rowspan="2" class="text-center">历时</th>
-                    <th scope="col" rowspan="2" class="text-center">里程</th>
-                    <th scope="col" rowspan="2" class="text-center">换乘上半</th>
-                    <th scope="col" rowspan="2" class="text-center">换乘下半</th>
-                    <th colspan="2"">
-                    <div class="dropdown d-flex flex-row justify-content-center align-items-center">
-                        <button class="btn btn-primary w-100" disabled id="seatTypeBtn" style="border-bottom-right-radius:0; border-top-right-radius: 0;">座位</button>
-                        <button class="btn btn-primary dropdown-toggle dropdown-toggle-split" style="border-top-left-radius: 0; border-bottom-left-radius: 0" href="#" role="button" id="dropDownSeatTypeBtn" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="visually-hidden"></span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><button class="dropdown-item" onclick="switchSeatToHardSeat()" id="hardSeatDpItem"">硬座</button></li>
-                            <li><button class="dropdown-item" onclick="console.log('soft click');" id="softSeatDpItem"">软座</button></li>
-                            <li><button class="dropdown-item" onclick="switchSeatToHardBedTop()" id="hardBedTopDpItem"">硬卧上</button></li>
-                            <li><button class="dropdown-item" onclick="switchSeatToHardBedMid()" id="hardBedMidDpItem"">硬卧中</button></li>
-                            <li><button class="dropdown-item" onclick="switchSeatToHardBedDown()" id="hardBedDownDpItem"">硬卧下</button></li>
-                            <li><button class="dropdown-item" onclick="switchSeatToSoftBedTop()" id="softBedTopDpItem"">软卧上</button></li>
-                            <li><button class="dropdown-item" onclick="switchSeatToSoftBedDown()" id="softBedDownDpItem"">软卧下</button></li>
-                        </ul>
-                    </div>
-                    </th>
-                </tr>
-                <tr>
+                    <th scope="col" class="text-center">车次编号</th>
+                    <th scope="col" class="text-center">起始站</th>
+                    <th scope="col" class="text-center">目的站</th>
+                    <th scope="col" class="text-center">发时</th>
+                    <th scope="col" class="text-center">到时</th>
+                    <th scope="col" class="text-center">历时</th>
+                    <th scope="col" class="text-center">里程</th>
+                    <th scope="col" class="text-center">换乘上半</th>
+                    <th scope="col" class="text-center">换乘下半</th>
+                    <th scope="col" class="text-center">座位类型</th>
+<!--                    <th colspan="2"">-->
+<!--                    <div class="dropdown d-flex flex-row justify-content-center align-items-center">-->
+<!--                        <button class="btn btn-primary w-100" disabled id="seatTypeBtn" style="border-bottom-right-radius:0; border-top-right-radius: 0;">座位</button>-->
+<!--                        <button class="btn btn-primary dropdown-toggle dropdown-toggle-split" style="border-top-left-radius: 0; border-bottom-left-radius: 0" href="#" role="button" id="dropDownSeatTypeBtn" data-bs-toggle="dropdown" aria-expanded="false">-->
+<!--                            <span class="visually-hidden"></span>-->
+<!--                        </button>-->
+<!--                        <ul class="dropdown-menu">-->
+<!--                            <li><button class="dropdown-item" onclick="switchSeatToHardSeat();" id="hardSeatDpItem"">硬座</button></li>-->
+<!--                            <li><button class="dropdown-item" onclick="switchSeatToSoftSeat();" id="softSeatDpItem"">软座</button></li>-->
+<!--                            <li><button class="dropdown-item" onclick="switchSeatToHardBedTop();" id="hardBedTopDpItem"">硬卧上</button></li>-->
+<!--                            <li><button class="dropdown-item" onclick="switchSeatToHardBedMid();" id="hardBedMidDpItem"">硬卧中</button></li>-->
+<!--                            <li><button class="dropdown-item" onclick="switchSeatToHardBedDown();" id="hardBedDownDpItem"">硬卧下</button></li>-->
+<!--                            <li><button class="dropdown-item" onclick="switchSeatToSoftBedTop();" id="softBedTopDpItem"">软卧上</button></li>-->
+<!--                            <li><button class="dropdown-item" onclick="switchSeatToSoftBedDown();" id="softBedDownDpItem"">软卧下</button></li>-->
+<!--                        </ul>-->
+<!--                    </div>-->
+<!--                    </th>-->
+<!--                </tr>-->
+<!--                <tr>-->
                     <th scope="col" class="text-center">票价</th>
                     <th scope="col" class="text-center">余票</th>
                 </tr>
@@ -108,10 +109,12 @@ if (!isset($queryRes)) {
                 $seatNumList = array_column($queryRes, 'seat_nums');
                 $transferFirstList = array_column($queryRes, 'transfer_first');
                 $transferLateList = array_column($queryRes, 'transfer_late');
+                $seatTypeList = array("硬座", "软座", "硬卧上", "硬卧中", "硬卧下", "软卧上", "软卧下");
                 for ($i = 0; $i < count($trainNameList); $i++) {
                     for ($j = 0; $j < 7; $j++) {
                         $seatPriceListArray = explode(',', substr($seatPriceList[$i], 1, strlen($seatPriceList[$i]) - 2));
                         $seatNumListArray = explode(',', substr($seatNumList[$i], 1, strlen($seatNumList[$i]) - 2));
+
                         if ($seatNumListArray[$j] == 0){
                             continue;
                         }
@@ -126,6 +129,7 @@ if (!isset($queryRes)) {
                     <td>$distanceList[$i]</td>
                     <td>$transferFirstList[$i]</td>
                     <td>$transferLateList[$i]</td>
+                    <td>$seatTypeList[$j]</td>
                     <td id="seat-type-{$j}">$seatPriceListArray[$j]</td>
                     <td id="seat-type-{$j}"><a href="userGenerateOrder?trainId={$trainIdList[$i]}&trainName={$trainNameList[$i]}&stationFromId={$stationFromIdList[$i]}&stationFrom={$stationFromList[$i]}&stationToId={$stationToIdList[$i]}&stationTo={$stationToList[$i]}&seat_type={$j}&order_date={$date}">$seatNumListArray[$j]</a></td>
                 </tr>

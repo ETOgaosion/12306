@@ -476,9 +476,9 @@ declare
     seat_id  integer;
     order_id integer;
 begin
-    select succeed, left_seat
+    select tos_res.succeed, tos_res.left_seat
     into succeed, seat_id
-    from try_occupy_seats(train_id, order_date, station_from_id, station_to_id, seat_type, seat_num);
+    from try_occupy_seats(train_id, order_date, station_from_id, station_to_id, seat_type, seat_num) tos_res;
     if succeed then
         foreach uname in array usernamelist
             loop
@@ -514,20 +514,21 @@ create or replace function order_train_seats(
 as
 $$
 declare
+    integer_val integer;
     uidi    integer;
     succeed boolean[];
 begin
     for uidi in 1..uid_num
         loop
             -- atomically --
-            select * from orders where o_oid = order_id + 1 - uidi;
-            if not found then
+            select count(*) into integer_val from orders where o_oid = order_id + 1 - uidi;
+            if integer_val = 0 then
                 select * into succeed from array_append(succeed, false);
             else
                 select * into succeed from array_append(succeed, true);
             end if;
             update orders
-            set (o_status) = ('ORDERED')
+            set o_status = 'COMPLETE'
             where o_oid = order_id + 1 - uidi;
             uidi := uidi + 1;
         end loop;

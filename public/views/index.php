@@ -37,45 +37,45 @@ END;
         </div>
 END;
     }
-    if (array_key_exists('loginSucceed', $_SESSION) && $_SESSION['loginSucceed']) {
-        echo <<<END
-        <div class="alert alert-success" role="alert" id="resInfoDiv">
-        Login Succeed!
-        </div>
-END;
-    }
-    if (array_key_exists('registerFailed', $_SESSION) && $_SESSION['registerFailed']) {
+    elseif (array_key_exists('registerFailed', $_SESSION) && $_SESSION['registerFailed']) {
         echo <<<END
         <div class="alert alert-danger" role="alert" id="resInfoDiv">
         Register Failed becausee {$_SESSION['loginFailReason']}!
         </div>
 END;
     }
-    if (array_key_exists('registerSucceed', $_SESSION) && $_SESSION['registerSucceed']) {
-        echo <<<END
-        <div class="alert alert-success" role="alert" id="resInfoDiv">
-        Register Succeed!
-        </div>
-END;
-    }
-    if (array_key_exists('preorderFailed', $_SESSION) && $_SESSION['preorderFailed']) {
+    elseif (array_key_exists('preorderFailed', $_SESSION) && $_SESSION['preorderFailed']) {
         echo <<<END
         <div class="alert alert-danger" role="alert" id="resInfoDiv">
         Preorder failed!
         </div>
 END;
     }
-    if (array_key_exists('orderSucceed', $_SESSION) && $_SESSION['orderSucceed']) {
+    elseif (array_key_exists('orderSucceed', $_SESSION) && $_SESSION['orderSucceed']) {
         echo <<<END
         <div class="alert alert-success" role="alert" id="resInfoDiv">
         Order Succeed!
         </div>
 END;
     }
-    if (array_key_exists('orderFailed', $_SESSION) && $_SESSION['orderFailed']) {
+    elseif (array_key_exists('orderFailed', $_SESSION) && $_SESSION['orderFailed']) {
         echo <<<END
         <div class="alert alert-danger" role="alert" id="resInfoDiv">
         Order failed, status: {$_SESSION['orderStatus']}!
+        </div>
+END;
+    }
+    elseif (array_key_exists('loginSucceed', $_SESSION) && $_SESSION['loginSucceed']) {
+        echo <<<END
+        <div class="alert alert-success" role="alert" id="resInfoDiv">
+        Login Succeed!
+        </div>
+END;
+    }
+    elseif (array_key_exists('registerSucceed', $_SESSION) && $_SESSION['registerSucceed']) {
+        echo <<<END
+        <div class="alert alert-success" role="alert" id="resInfoDiv">
+        Register Succeed!
         </div>
 END;
     }

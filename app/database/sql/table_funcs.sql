@@ -556,7 +556,7 @@ begin
     -- find min_seat --
     select get_min_seat.seat_num
     into min_seat
-    from get_min_seats(train_id, order_date, station_from_id, station_to_id, array [seat_type::integer]) get_min_seat;
+    from get_min_seats(train_id, order_date, station_from_id, station_to_id, array [seat_type]) get_min_seat;
     -- check satisfiability --
     if min_seat < seat_num then
         succeed := false;
@@ -568,7 +568,7 @@ begin
         while station_order_ptr != station_end_order
             loop
                 update station_tickets
-                set stt_num = (select array_set(stt_num, seat_type, stt_num[seat_type::integer] - seat_num))
+                set stt_num = (select array_set(stt_num, seat_type::integer, stt_num[seat_type::integer] - seat_num))
                 where stt_train_id = train_id
                   and stt_station_id = station_id_ptr
                   and stt_date = order_date;

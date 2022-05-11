@@ -14,4 +14,8 @@ $(document).ready(function(){
         $("table").append(row);
         $('[data-toggle="tooltip"]').tooltip();
     });
+    // Delete row on delete button click
+    $(document).on("click", ".delete", function(){
+        $(this).parents("td").parents("tr").remove();
+    });
 });

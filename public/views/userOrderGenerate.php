@@ -45,7 +45,7 @@ if (!isset($userTelNum)) {
 
 <div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0"
      style="top: 75px; bottom: 100px">
-    <div class="bg-light p-3 d-flex justify-content-center align-items-center" style="border-radius: 1rem; width: 40%; height: 60%">
+    <div class="bg-light p-3 d-flex justify-content-center align-items-center" style="border-radius: 1rem; width: 60%; height: 80%">
         <div class="row w-100 h-100 justify-content-center align-items-center">
             <div class="row w-100  p-1 flex-column justify-content-around align-items-center" style="height: 40%">
                 <div class="row w-100 justify-content-center align-items-center" style="height: 50px">
@@ -53,7 +53,7 @@ if (!isset($userTelNum)) {
                         订单生成
                     </p>
                 </div>
-                <div class="row w-100 h-auto justify-content-center align-items-center">
+                <div class="row w-100 justify-content-center align-items-center" style="height: 150px">
                     <div class="col-6 h-100 justify-content-starts ps-5">
                         <div class="row w-100 ps-5">
                             <p>车次：<?= $trainName?></p>
