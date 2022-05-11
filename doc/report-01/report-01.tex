@@ -619,7 +619,7 @@
         -- find min_seat --
         select get_min_seat.seat_num
             into min_seat
-            from get_min_seats(train_id, order_date, station_from_id, station_to_id, array [seat_type]) get_min_seat
+            from get_min_seats(train_id, order_date, station_from_id, station_to_id, array [seat_type::integer]) get_min_seat
             where in_order = 1;
         -- check satisfiability --
         if min_seat < seat_num then
@@ -632,7 +632,7 @@
             while station_order_ptr != station_end_order
                 loop
                     update station_tickets
-                    set stt_num = (select array_set(stt_num, seat_type, stt_num[seat_type] - seat_num))
+                    set stt_num = (select array_set(stt_num, seat_type, stt_num[seat_type::integer] - seat_num))
                         where stt_train_id = train_id
                           and stt_station_id = station_id_ptr
                           and stt_date = order_date;
@@ -707,7 +707,7 @@
         o_seat_type as seat_type,
         o_seat_id as seat_id,
         o_status as status,
-        tfi_end.tfi_price[o_seat_type] - tfi_start.tfi_price[o_seat_type] + 5 as price
+        tfi_end.tfi_price[o_seat_type::integer] - tfi_start.tfi_price[o_seat_type::integer] + 5 as price
         from orders
                 left join station_list s_start on orders.o_start_station = s_start.s_station_id
                 left join station_list s_arrive on orders.o_end_station = s_arrive.s_station_id
@@ -784,7 +784,7 @@
     /*        : hot_trains */
     begin
         select count(*),
-               sum(tfi_end.tfi_price[o_seat_type] - tfi_start.tfi_price[o_seat_type] + 5)
+               sum(tfi_end.tfi_price[o_seat_type::integer] - tfi_start.tfi_price[o_seat_type::integer] + 5)
             into total_order_num, total_price
             from orders
                      left join train_full_info tfi_start on o_start_station = tfi_start.tfi_station_id

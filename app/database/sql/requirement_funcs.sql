@@ -160,7 +160,8 @@ begin
                           left join station_list s on tfi.tfi_station_id = s.s_station_id
                           left join city c on s.s_station_city_id = c.c_city_id
                           left join train t on tfi.tfi_train_id = t.t_train_id
-                          left join station_tickets stt on tfi.tfi_station_id = stt.stt_station_id and tfi.tfi_train_id = stt.stt_train_id
+                          left join station_tickets stt
+                                    on tfi.tfi_station_id = stt.stt_station_id and tfi.tfi_train_id = stt.stt_train_id
                  where t_train_id = train_id
                    and stt.stt_date = q_date
                  order by station_order;
@@ -224,7 +225,9 @@ create or replace function get_train_bt_cities_directly(
     in from_city_id integer,
     in to_city_id integer,
     in q_date date,
-    in q_time time
+    in q_time time,
+    in query_front bool,
+    in query_post bool
     --,
     -- TODO: in train_type varchar(1)
 )
@@ -266,8 +269,8 @@ begin
                          join city_train to_city_train on from_city_train.ct_train_id = to_city_train.ct_train_id
                 where (select get_ct_priority(from_city_id, from_city_train.ct_train_id)) <
                       (select get_ct_priority(to_city_id, to_city_train.ct_train_id))
-                    and from_city_train.ct_city_id = from_city_id
-                    and to_city_train.ct_city_id = to_city_id
+                  and from_city_train.ct_city_id = from_city_id
+                  and to_city_train.ct_city_id = to_city_id
             );
         <<scan_train_list>>
         foreach train_idi in array train_id_list
@@ -280,7 +283,7 @@ begin
                        q_all_info_leave.day_from_departure,
                        q_all_info_leave.distance,
                        q_all_info_leave.price
-                into station_leave_time, station_leave_day, station_leave_distance, station_arrive_price
+                into station_leave_time, station_leave_day, station_leave_distance, station_leave_price
                 from query_train_all_info_from_tid_sid__tfi__(train_idi, station_leave_id) q_all_info_leave;
                 -- check time --
                 if station_leave_time < q_time then
@@ -294,7 +297,7 @@ begin
                        q_all_info_arrive.day_from_departure,
                        q_all_info_arrive.distance,
                        q_all_info_arrive.price
-                into station_arrive_time, station_arrive_day, station_arrive_distance, station_leave_price
+                into station_arrive_time, station_arrive_day, station_arrive_distance, station_arrive_price
                 from query_train_all_info_from_tid_sid__tfi__(train_idi, station_arrive_id) q_all_info_arrive;
                 -- seats and price calculation --
                 for seat_i in 1..7
@@ -303,10 +306,9 @@ begin
                                          station_arrive_price[seat_i] - station_leave_price[seat_i])
                         into res_price;
                     end loop;
-                select get_min_seat.seat_num
-                into seat_nums
-                from get_min_seats(train_idi, q_date, station_leave_id, station_arrive_id,
-                                   enum_range(null::seat_type)) get_min_seat;
+                seat_nums := array(select get_min_seat.seat_num
+                                   from get_min_seats(train_idi, q_date, station_leave_id, station_arrive_id,
+                                                      enum_range(null::seat_type)) get_min_seat);
                 -- return row --
                 for r in
                     select train_namei                                                                as train_name,
@@ -323,8 +325,8 @@ begin
                            station_arrive_distance - station_leave_distance                           as distance,
                            res_price                                                                  as seat_price,
                            seat_nums                                                                  as seat_nums,
-                           false                                                                      as transfer_first,
-                           false                                                                      as transfer_late
+                           query_front                                                                as transfer_first,
+                           query_post                                                                 as transfer_late
                     loop
                         return next r;
                     end loop;
@@ -343,7 +345,7 @@ create or replace function get_train_bt_cities(
     in city_from varchar(20),
     in city_to varchar(20),
     in q_date date,
-    in q_time date,
+    in q_time time,
     -- TODO: in train_type varchar(1),
     in query_transfer boolean
 )
@@ -352,17 +354,17 @@ as
 $$
 declare
     --
-    from_city_id           integer;
-    to_city_id             integer;
-    city_reachable         boolean;
-    src_city               integer[] := array [from_city_id];
-    neighbour_city         integer[];
-    passing_trains         integer[];
-    current_level_city_num integer   := 0;
-    transfer_interval      interval;
-    city_i                 integer   := 1;
-    r                      train_info%rowtype;
-    j                      train_info%rowtype;
+    from_city_id      integer;
+    to_city_id        integer;
+    city_reachable    boolean;
+    src_city          integer[] := array [from_city_id];
+    neighbour_city    integer[];
+    passing_trains    integer[];
+    transfer_interval interval;
+    tmp_qdate         date      := q_date;
+    tmp_qtime         time      := q_time;
+    r                 train_info%rowtype;
+    j                 train_info%rowtype;
 begin
     select query_city_id_from_name__c__(city_from) into from_city_id;
     select query_city_id_from_name__c__(city_to) into to_city_id;
@@ -370,64 +372,57 @@ begin
     if city_reachable then
         if not query_transfer then
             for r in
-                select * from get_train_bt_cities_directly(from_city_id, to_city_id, q_date, q_time)
+                select * from get_train_bt_cities_directly(from_city_id, to_city_id, q_date, q_time, false, false)
                 loop
                     return next r;
                 end loop;
         else
-            -- first set of transfer trains must be ones passing from city --
-            -- so outside loop --
             passing_trains := array(select query_train_id_list_from_cid__ct__(from_city_id));
-            while (select array_length(src_city, 1)) > 0 and (select array_position(src_city, to_city_id)) is not null
+            src_city := array(select getres.next_city_id
+                              from get_ct_next_city_list(from_city_id, to_city_id, passing_trains) getres
+                              group by getres.next_city_id);
+            while ((select array_length(src_city, 1)) >= 1)
                 loop
-                    select array_length(src_city, 1) into current_level_city_num;
-                    for city_i in 1..current_level_city_num
+                    select array_remove_elem(src_city, 1) into src_city;
+                    for r in
+                        (select *
+                         from get_train_bt_cities_directly(from_city_id,
+                                                           src_city[1],
+                                                           q_date,
+                                                           q_time, true, false))
                         loop
-                            neighbour_city := array(select get_ct_next_city_list(src_city[1], passing_trains));
-                            src_city := array(select array_cat(src_city, neighbour_city));
-                            -- initially from_city_id was in src_city --
-                            -- so remove it first because we have dealt with it --
-                            src_city := array(select array_remove_elem(src_city, 1));
-                            -- then src_city[1] is middle city to transfer --
-                            if (select array_length(src_city, 1)) > 1 then
-                                for r in
-                                    (select *
-                                     from get_train_bt_cities_directly(from_city_id,
-                                                                       src_city[1],
-                                                                       q_date,
-                                                                       q_time))
-                                    loop
-                                        for j in
-                                            (select *
-                                             from get_train_bt_cities_directly(src_city[1],
-                                                                               to_city_id, q_date,
-                                                                               q_time + r.durance +
-                                                                               interval '1 hour'))
-                                            loop
-                                                if r.station_to_id = j.station_from_id then
-                                                    select *
-                                                    from get_actual_interval_bt_time(r.arrive_time, j.leave_time, 0)
-                                                    into transfer_interval;
-                                                    if transfer_interval >= interval '1 hour'
-                                                        and transfer_interval <= interval '4 hours'
-                                                    then
-                                                        return next r;
-                                                        return next j;
-                                                    end if;
-                                                else
-                                                    if transfer_interval >= interval '2 hours'
-                                                        and transfer_interval <= interval '4 hours'
-                                                    then
-                                                        return next r;
-                                                        return next j;
-                                                    end if;
-                                                end if;
-                                            end loop;
-                                    end loop;
+                            if (q_time + r.durance + interval '1 hour' < q_time) then
+                                tmp_qdate := q_date + interval '1 day';
+                                tmp_qtime := q_time + r.durance - interval '23 hours';
                             end if;
+                            for j in
+                                (select *
+                                 from get_train_bt_cities_directly(src_city[1],
+                                                                   to_city_id,
+                                                                   tmp_qdate,
+                                                                   tmp_qtime, false, true))
+                                loop
+                                    select *
+                                    from get_actual_interval_bt_time(r.arrive_time, j.leave_time, 0)
+                                    into transfer_interval;
+                                    if r.station_to_id = j.station_from_id then
+                                        if transfer_interval >= interval '1 hour'
+                                            and transfer_interval <= interval '4 hours'
+                                        then
+                                            return next r;
+                                            return next j;
+                                        end if;
+                                    else
+                                        if transfer_interval >= interval '2 hours'
+                                            and transfer_interval <= interval '4 hours'
+                                        then
+                                            return next r;
+                                            return next j;
+                                        end if;
+                                    end if;
+                                end loop;
                         end loop;
                 end loop;
-            return;
         end if;
     end if;
 end;
@@ -514,7 +509,7 @@ create or replace function order_train_seats(
 as
 $$
 declare
-    uidi integer;
+    uidi    integer;
     succeed boolean[];
 begin
     for uidi in 1..uid_num

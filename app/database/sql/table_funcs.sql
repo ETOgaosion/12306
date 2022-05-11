@@ -426,7 +426,6 @@ create or replace function query_remain_seats__st__(
 )
     returns table
             (
-                in_order integer,
                 seat_num integer
             )
 as
@@ -434,7 +433,6 @@ $$
 declare
     seat_type     seat_type;
     seat_nums_tmp integer[7];
-    ptr           integer := 1;
 begin
     foreach seat_type in array seat_type_list
         loop
@@ -444,9 +442,7 @@ begin
             where stt_station_id = station_id
               and stt_train_id = train_id
               and stt_date = query_date;
-            in_order := ptr;
             seat_num := seat_nums_tmp[seat_type::integer];
-            ptr := ptr + 1;
             return next;
         end loop;
     return;
@@ -474,7 +470,6 @@ create or replace function get_min_seats(
 )
     returns table
             (
-                in_order integer,
                 seat_num integer
             )
 as
@@ -487,30 +482,31 @@ declare
     station_seat_left   integer[7];
     seat_type           seat_type;
     min_seat_nums       integer[7] := array [5, 5, 5, 5, 5, 5, 5];
-    ptr                 int        := 1;
 begin
     select query_station_order_from_tid_sid__tfi__(train_id, station_from_id) into station_start_order;
     station_order_ptr := station_start_order;
     select query_station_order_from_tid_sid__tfi__(train_id, station_to_id) into station_end_order;
-    select query_remain_seats__st__(train_id, query_date, station_id_ptr, seat_type_list) into station_seat_left;
+    station_seat_left := array(select query_res.seat_num
+                               from query_remain_seats__st__(train_id, query_date, station_id_ptr,
+                                                             seat_type_list) query_res);
     while station_order_ptr != station_end_order
         loop
             foreach seat_type in array seat_type_list
                 loop
-                    if station_seat_left[seat_type] < min_seat_nums[seat_type] then
-                        select array_set(min_seat_nums, seat_type, station_seat_left[seat_type]) into min_seat_nums;
+                    if station_seat_left[seat_type::integer] < min_seat_nums[seat_type::integer] then
+                        select array_set(min_seat_nums, seat_type::integer, station_seat_left[seat_type::integer])
+                        into min_seat_nums;
                     end if;
                 end loop;
             station_order_ptr := station_order_ptr + 1;
             select query_station_id_from_tid_so__tfi__(train_id, station_order_ptr) into station_id_ptr;
-            select query_remain_seats__st__(train_id, query_date, station_id_ptr, seat_type_list)
-            into station_seat_left;
+            station_seat_left := array(select query_res.seat_num
+                                       from query_remain_seats__st__(train_id, query_date, station_id_ptr,
+                                                                     seat_type_list) query_res);
         end loop;
     foreach seat_type in array seat_type_list
         loop
-            in_order := ptr;
-            seat_num := min_seat_nums[seat_type];
-            ptr := ptr + 1;
+            seat_num := min_seat_nums[seat_type::integer];
             return next;
         end loop;
     return;
@@ -560,8 +556,7 @@ begin
     -- find min_seat --
     select get_min_seat.seat_num
     into min_seat
-    from get_min_seats(train_id, order_date, station_from_id, station_to_id, array [seat_type]) get_min_seat
-    where in_order = 1;
+    from get_min_seats(train_id, order_date, station_from_id, station_to_id, array [seat_type::integer]) get_min_seat;
     -- check satisfiability --
     if min_seat < seat_num then
         succeed := false;
@@ -573,7 +568,7 @@ begin
         while station_order_ptr != station_end_order
             loop
                 update station_tickets
-                set stt_num = (select array_set(stt_num, seat_type, stt_num[seat_type] - seat_num))
+                set stt_num = (select array_set(stt_num, seat_type, stt_num[seat_type::integer] - seat_num))
                 where stt_train_id = train_id
                   and stt_station_id = station_id_ptr
                   and stt_date = order_date;
@@ -622,7 +617,7 @@ begin
     while station_order_ptr != station_end_order
         loop
             update station_tickets
-            set stt_num = (select array_set(stt_num, seat_type, stt_num[seat_type] + seat_num))
+            set stt_num = (select array_set(stt_num, seat_type, stt_num[seat_type::integer] + seat_num))
             where stt_train_id = train_id
               and stt_station_id = station_id_ptr
               and stt_date = order_date;
@@ -801,8 +796,8 @@ create or replace function query_aid_from_uname_password_auth__ua__(
 as
 $$
 declare
-    aid   integer;
-    error error_type__u__;
+    aid         integer;
+    error       error_type__u__;
     integer_val integer;
 begin
     select * into aid, error from query_uid_from_uname_password__u__(user_name, user_password);
@@ -865,7 +860,8 @@ begin
         from train_full_info
                  left join station_list on station_list.s_station_id = train_full_info.tfi_station_id
         where s_station_city_id = city_id
-          and tfi_train_id = train_id;
+          and tfi_train_id = train_id
+        limit 1;
 end;
 $$ language plpgsql;
 
@@ -891,7 +887,8 @@ begin
         select tfi_station_order
         from train_full_info
         where tfi_train_id = train_id
-          and tfi_station_id = (select get_station_id_from_cid_tid(city_id, train_id));
+          and tfi_station_id = (select get_station_id_from_cid_tid(city_id, train_id))
+        limit 1;
 end;
 $$ language plpgsql;
 
@@ -904,11 +901,11 @@ drop function if exists get_ct_next_city_list cascade;
 
 create or replace function get_ct_next_city_list(
     in city_id integer,
+    in dest_city_id integer,
     in train_id_list integer[]
 )
     returns table
             (
-                in_order     integer,
                 next_city_id integer
             )
     language plpgsql
@@ -917,17 +914,25 @@ $$
 declare
     train_idi  integer;
     station_id integer;
-    ptr        integer := 1;
 begin
+    <<get_ct_next_city_list_loop>>
     foreach train_idi in array train_id_list
         loop
-            in_order := ptr;
+            if ((select tfi_station_id
+                 from train_full_info
+                 where tfi_station_id = dest_city_id and tfi_train_id = train_idi)) then
+                continue ;
+            end if;
             select get_station_id_from_cid_tid(city_id, train_idi) into station_id;
-            select query_city_id_from_sid__s__(
-                               (select get_next_station_id(train_idi, station_id))
-                       )
-            into next_city_id;
-            return next;
+            while ((select * from get_next_station_id(train_idi, station_id)) is not null)
+                loop
+                    select query_city_id_from_sid__s__(
+                                       (select get_next_station_id(train_idi, station_id))
+                               )
+                    into next_city_id;
+                    return next;
+                    station_id := station_id + 1;
+                end loop;
         end loop;
 end
 $$;
