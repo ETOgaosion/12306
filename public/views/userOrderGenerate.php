@@ -2,14 +2,42 @@
 use app\controllers\ViewCtrl;
 ViewCtrl::includePageHeader(array('pageTitle' => "order_generate", 'assetsDir' => "assets/", 'login' => true));
 $assetsDir = 'assets/';
-$trainName = "1055";
-$date = date('Y-m-d', time());
-$start_station = "北京南";
-$end_station = "郑州东";
-$remain_tickets = 5;
-$userName = "007";
-$userRealName = "Blue Space";
-$userTelNum = "19801190365";
+if (!isset($trainId)) {
+    $trainId = 0;
+}
+if (!isset($trainName)) {
+    $trainName = "";
+}
+if (!isset($date)) {
+    $date = "";
+}
+if (!isset($start_station)) {
+    $start_station = "";
+}
+if (!isset($startStationId)) {
+    $startStationId = 0;
+}
+if (!isset($end_station)) {
+    $end_station = "";
+}
+if (!isset($endStationId)) {
+    $endStationId = 0;
+}
+if (!isset($remain_tickets)) {
+    $remain_tickets = "";
+}
+if (!isset($seatType)) {
+    $seatType = 0;
+}
+if (!isset($userName)) {
+    $userName = "";
+}
+if (!isset($userRealName)) {
+    $userRealName = "";
+}
+if (!isset($userTelNum)) {
+    $userTelNum = "";
+}
 ?>
 
 <!-- File js link -->
@@ -75,7 +103,15 @@ $userTelNum = "19801190365";
                         </div>
                     </div>
                 </div>
-                <form class="row w-100" style="overflow: scroll; height: 75%;" id="orderUsersForm">
+                <form class="row w-100" style="overflow: scroll; height: 75%;" id="orderUsersForm" action="preorderTrain" method="post">
+                    <input type="hidden" name="trainId" value="<?= $trainId?>">
+                    <input type="hidden" name="trainName" value="<?= $trainName?>">
+                    <input type="hidden" name="date" value="<?= $date?>">
+                    <input type="hidden" name="stationFromId" value="<?= $startStationId?>">
+                    <input type="hidden" name="stationFrom" value="<?= $start_station?>">
+                    <input type="hidden" name="stationToId" value="<?= $endStationId?>">
+                    <input type="hidden" name="stationTo" value="<?= $end_station?>">
+                    <input type="hidden" name="seatType" value="<?= $seatType?>">
                     <table class="table table-bordered border-secondary">
                         <thead>
                         <tr>
@@ -87,12 +123,10 @@ $userTelNum = "19801190365";
                         </thead>
                         <tbody>
                         <tr>
-                            <td class="align-top p-3" style="height: 50px"><?= $userName?></td>
-                            <td class="align-top p-3" style="height: 50px"><?= $userRealName?></td>
-                            <td class="align-top p-3" style="height: 50px"><?= $userTelNum?></td>
+                            <td class="align-top p-3" style="height: 50px"><?= $userName?><input type="hidden" name="userName0" value="<?= $userName?>"></td>
+                            <td class="align-top p-3" style="height: 50px"><?= $userRealName?><input type="hidden" name="userRealName0" value="<?= $userRealName?>"></td>
+                            <td class="align-top p-3" style="height: 50px"><?= $userTelNum?><input type="hidden" name="userTelNum0" value="<?= $userTelNum?>"></td>
                             <td class="align-top p-3" style="height: 50px">
-                                <a class="add" title="Add" data-toggle="tooltip"><i class="bi bi-plus-square fw-bold fs-5"></i></a>
-                                <a class="edit" title="Edit" data-toggle="tooltip"><i class="bi bi-pencil-square fw-bold fs-5"></i></a>
                                 <a class="delete" title="Delete" data-toggle="tooltip"><i class="bi bi-trash fw-bold fs-5"></i></a>
                             </td>
                         </tr>
@@ -100,7 +134,7 @@ $userTelNum = "19801190365";
                     </table>
                 </form>
                 <div class="row w-100 d-flex flex-row justify-content-center align-items-center" style="height: 10%">
-                    <button form="orderUsersForm" type="submit" class="btn btn-primary w-25">
+                    <button form="orderUsersForm" type="submit" formmethod="post" class="btn btn-primary w-25">
                         Submit
                     </button>
                 </div>

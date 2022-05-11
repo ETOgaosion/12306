@@ -105,6 +105,7 @@ for child in os.listdir(raw_data_path):
             train_name_list.append(train_csv.split('.')[0])
             day_from_departure = 0
             lst_toks2 = '00:00'
+            start_time = '00:00'
             station_order = 0
             with open(train_csv_path, 'r', encoding="utf8") as if_train_csv:
                 lines = if_train_csv.readlines()
@@ -125,11 +126,12 @@ for child in os.listdir(raw_data_path):
                         if not check_price(price_list):
                             continue
                         tfi_price_list.append(price_list)
-                        day_from_departure += check_day_from_departure(toks[2], lst_toks2)
+                        day_from_departure += check_day_from_departure(toks[2], lst_toks2, start_time)
                         lst_toks2 = toks[2]
                     else:
                         tfi_price_list.append([0.0,0,0,0,0,0,0])
                         lst_toks2 = toks[3]
+                        start_time = toks[3]
                     tfi_train_id_list.append(train_id)
                     tfi_station_id_list.append(station_name_list.index(toks[1].strip()))
                     tfi_station_order_list.append(station_order)

@@ -2,14 +2,48 @@
 use app\controllers\ViewCtrl;
 ViewCtrl::includePageHeader(array('pageTitle' => "order_confirm", 'assetsDir' => "assets/", 'login' => true));
 $assetsDir = 'assets/';
-$trainName = "1055";
-$date = date('Y-m-d', time());
-$start_station = "北京南";
-$end_station = "郑州东";
-$remain_tickets = 5;
-$userNameList = array("007");
-$userRealNameList = array("Blue Space");
-$userTelNumList = "19801190365";
+if (!isset($trainId)) {
+    $trainId = 0;
+}
+if (!isset($trainName)) {
+    $trainName = "";
+}
+if (!isset($date)) {
+    $date = date('Y-m-d', time());
+}
+if (!isset($start_station)) {
+    $start_station = "";
+}
+if (!isset($startStationId)) {
+    $startStationId = 0;
+}
+if (!isset($end_station)) {
+    $end_station = "";
+}
+if (!isset($endStationId)) {
+    $endStationId = 0;
+}
+if (!isset($remain_tickets)) {
+    $remain_tickets = "";
+}
+if (!isset($seatType)) {
+    $seatType = 0;
+}
+if (!isset($userNameList)) {
+    $userNameList = array();
+}
+if (!isset($userRealNameList)) {
+    $userRealNameList = array();
+}
+if (!isset($userTelNumList)) {
+    $userTelNumList = array();
+}
+if (!isset($seatNum)) {
+    $seatNum = 0;
+}
+if (!isset($orderId)) {
+    $orderId = 0;
+}
 ?>
 
 <!-- File js link -->
@@ -36,24 +70,7 @@ $userTelNumList = "19801190365";
                         <div class="row w-100 ps-5">
                             <p>始发站: <?= $start_station ?> &nbsp; ~ &nbsp; 终点站：<?= $end_station ?></p>
                         </div>
-                        <div class="row w-100 ps-5">
-                            <p>查询时余票：<?= $remain_tickets ?></p>
-                        </div>
                     </div>
-                    <!--                    <div class="col w-50 h-100 flex-column justify-content-center align-items-center">-->
-                    <!--                        <div class="row w-100 pe-5">-->
-                    <!--                            <p></p>-->
-                    <!--                        </div>-->
-                    <!--                        <div class="row w-100 ps-5">-->
-                    <!--                            <p>用户名：< ?//= $userName?></p>-->
-                    <!--                        </div>-->
-                    <!--                        <div class="row w-100 ps-5">-->
-                    <!--                            <p>真实姓名：< ?//= $userRealName?></p>-->
-                    <!--                        </div>-->
-                    <!--                        <div class="row w-100 ps-5">-->
-                    <!--                            <p>电话号码：< ?//= $remain_tickets ?></p>-->
-                    <!--                        </div>-->
-                    <!--                    </div>-->
                 </div>
             </div>
             <div class="row w-100 p-1 d-flex flex-column justify-content-start align-items-center" style="height: 60%">
@@ -68,19 +85,22 @@ $userTelNumList = "19801190365";
                     <table class="table table-bordered border-secondary">
                         <thead>
                         <tr>
-                            <th style="width: 33%">UserName</th>
-                            <th style="width: 33%">UserRealName</th>
-                            <th style="width: 33%">UserTelNum</th>
+                            <th style="width: 25%">UserName</th>
+                            <th style="width: 25%">UserRealName</th>
+                            <th style="width: 25%">UserTelNum</th>
+                            <th style="width: 25%">SeatNum</th>
                         </tr>
                         </thead>
                         <tbody>
                             <?php
                             for($i = 0; $i < count($userNameList); $i++) {
+                                $seatNumber = $seatNum + $i;
                                 echo <<<END
                             <tr>
                             <td class="align-top p-3" style="height: 50px">{$userNameList[$i]}</td>
                             <td class="align-top p-3" style="height: 50px">{$userRealNameList[$i]}</td>
-                            <td class="align-top p-3" style="height: 50px">$userTelNumList[$i]</td>
+                            <td class="align-top p-3" style="height: 50px">{$userTelNumList[$i]}</td>
+                            <td class="align-top p-3" style="height: 50px">{$seatNumber}</td>
                             </tr>
                             END;
                             }
@@ -88,14 +108,16 @@ $userTelNumList = "19801190365";
                         </tbody>
                     </table>
                 </div>
-                <div class="row w-100 d-flex flex-row justify-content-around align-items-center" style="height: 10%">
+                <form class="row w-100 d-flex flex-row justify-content-around align-items-center" style="height: 10%" action="orderTrain" method="post">
+                    <input type="hidden" name="orderId" value="<?= $orderId?>">
+                    <input type="hidden" name="uidNum" value="<?= count($userTelNumList)?>">
                     <button type="submit" formmethod="post" class="btn btn-success w-25" id="confirmBtn">
                         Confirm
                     </button>
-                    <button type="submit" formmethod="post" class="btn btn-danger w-25" id="cancelBtn">
+                    <a href="index" class="btn btn-danger w-25" id="cancelBtn">
                         Cancel
-                    </button>
-                </div>
+                    </a>
+                </form>
                 <div></div>
             </div>
         </div>

@@ -68,6 +68,9 @@ class Route {
 
         self::post('userQueryCity', 'QueryCtrl@queryCity');
         self::post('userQueryTrain', 'QueryCtrl@queryTrain');
+        self::get('userGenerateOrder', 'OrderCtrl@generateOrder');
+        self::post('preorderTrain', 'OrderCtrl@preOrderTrain');
+        self::post('orderTrain', 'OrderCtrl@orderTrain');
 
         self::get('userSpace', 'UserInfoCtrl@queryAll');
         self::post('userQueryOrder', 'UserInfoCtrl@queryOrder');

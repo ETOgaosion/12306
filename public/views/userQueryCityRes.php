@@ -113,6 +113,9 @@ if (!isset($queryRes)) {
                 $transferLateList = array_column($queryRes, 'transfer_late');
                 for ($i = 0; $i < count($trainNameList); $i++) {
                     for ($j = 0; $j < 7; $j++) {
+                        if ($seatNumList[$i][$j] == 0){
+                            continue;
+                        }
                         echo <<<END
                 <tr>
                     <td>$trainNameList[$i]</td>
@@ -123,7 +126,7 @@ if (!isset($queryRes)) {
                     <td>$duranceList[$i]</td>
                     <td>$distanceList[$i]</td>
                     <td id="seat-type-{$i}">$seatPriceList[$i][$j]</td>
-                    <td id="seat-type-{$i}">$seatNumList[$i][$j]</td>
+                    <td id="seat-type-{$i}"><a href="userGenerateOrder?trainId={$trainIdList[$i]}&trainName={$trainNameList[$i]}&stationFromId={$stationFromIdList[$i]}&stationFrom={$stationFromList[$i]}&stationToId={$stationToIdList[$i]}&stationTo={$stationToList[$i]}&seat_type={$j}&order_date={$date}">$seatNumList[$i][$j]</a></td>
                     <td>$transferFirstList[$i]</td>
                     <td>$transferLateList[$i]</td>
                 </tr>

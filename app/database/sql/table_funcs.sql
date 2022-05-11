@@ -29,16 +29,17 @@ create or replace function query_uid_from_uname_password__u__(
     in user_name varchar(20),
     in user_password varchar(20)
 )
-    returns table (
-        uid integer,
-        error error_type__u__
-                  )
+    returns table
+            (
+                uid   integer,
+                error error_type__u__
+            )
 as
 $$
 declare
     integer_var integer;
-    uid integer;
-    error error_type__u__;
+    uid         integer;
+    error       error_type__u__;
 begin
     select count(*) into integer_var from users where u_user_name = user_name;
     if (integer_var = 0) then
@@ -73,15 +74,16 @@ create or replace function insert_all_info_into__u__(
     in phone_num varchar(11),
     in user_email varchar(50)
 )
-    returns table (
-        uid integer,
-        err error_type__u__
-                  )
+    returns table
+            (
+                uid integer,
+                err error_type__u__
+            )
 as
 $$
 declare
-    uid integer;
-    err error_type__u__;
+    uid         integer;
+    err         error_type__u__;
     integer_val integer;
 begin
     select count(*) into integer_val from users where u_user_name = user_name;
@@ -123,8 +125,8 @@ as
 $$
 begin
     return query select t_train_id
-    from train
-    where t_train_name = train_name;
+                 from train
+                 where t_train_name = train_name;
 end;
 $$ language plpgsql;
 
@@ -137,16 +139,17 @@ drop function if exists query_train_name_from_id__t__ cascade;
 create or replace function query_train_name_from_id__t__(
     in train_id integer
 )
-    returns table(
-        train_name varchar(20)
-                 )
+    returns table
+            (
+                train_name varchar(20)
+            )
 as
 $$
 begin
     return query
-    select t_train_name
-    from train
-    where t_train_id = train_id;
+        select t_train_name
+        from train
+        where t_train_id = train_id;
 end;
 $$ language plpgsql;
 
@@ -167,9 +170,9 @@ as
 $$
 begin
     return query
-    select c_city_id
-    from city
-    where c_city_name = city_name;
+        select c_city_id
+        from city
+        where c_city_name = city_name;
 end;
 $$ language plpgsql;
 
@@ -203,16 +206,17 @@ drop function if exists query_station_name_from_id__s__ cascade;
 create or replace function query_station_name_from_id__s__(
     in station_id integer
 )
-    returns table (
-        station_name  varchar(20)
+    returns table
+            (
+                station_name varchar(20)
             )
 as
 $$
 begin
     return query
-    select s_station_name
-    from station_list
-    where s_station_id = station_id;
+        select s_station_name
+        from station_list
+        where s_station_id = station_id;
 end;
 $$ language plpgsql;
 
@@ -224,8 +228,9 @@ drop function if exists query_city_id_from_sid__s__ cascade;
 create or replace function query_city_id_from_sid__s__(
     in station_id integer
 )
-    returns table (
-        city_id integer
+    returns table
+            (
+                city_id integer
             )
 as
 $$
@@ -254,10 +259,10 @@ as
 $$
 begin
     return query
-    select tfi_leave_time
-    from train_full_info
-    where tfi_train_id = train_id
-      and tfi_station_order = 0;
+        select tfi_leave_time
+        from train_full_info
+        where tfi_train_id = train_id
+          and tfi_station_order = 0;
 end;
 $$ language plpgsql;
 
@@ -280,10 +285,10 @@ as
 $$
 begin
     return query
-    select tfi_day_from_departure
-    from train_full_info
-    where tfi_train_id = train_id
-      and tfi_station_id = station_id;
+        select tfi_day_from_departure
+        from train_full_info
+        where tfi_train_id = train_id
+          and tfi_station_id = station_id;
 end;
 $$ language plpgsql;
 
@@ -305,10 +310,10 @@ as
 $$
 begin
     return query
-    select tfi_station_order
-    from train_full_info
-    where tfi_train_id = train_id
-      and tfi_station_id = station_id;
+        select tfi_station_order
+        from train_full_info
+        where tfi_train_id = train_id
+          and tfi_station_id = station_id;
 end;
 $$ language plpgsql;
 
@@ -322,22 +327,23 @@ create or replace function query_train_all_info_from_tid_sid__tfi__(
     in train_id integer,
     in station_id integer
 )
-    returns table (
-                      station_order integer,
-                      arrive_time time,
-                      leave_time time,
-                      day_from_departure integer,
-                      distance integer,
-                      price decimal
-                  )
+    returns table
+            (
+                station_order      integer,
+                arrive_time        time,
+                leave_time         time,
+                day_from_departure integer,
+                distance           integer,
+                price              decimal
+            )
 as
 $$
 begin
     return query
-    select tfi_station_order, tfi_arrive_time, tfi_leave_time, tfi_day_from_departure, tfi_distance, tfi_price
-    from train_full_info
-    where tfi_train_id = train_id
-      and tfi_station_id = station_id;
+        select tfi_station_order, tfi_arrive_time, tfi_leave_time, tfi_day_from_departure, tfi_distance, tfi_price
+        from train_full_info
+        where tfi_train_id = train_id
+          and tfi_station_id = station_id;
 end;
 $$ language plpgsql;
 
@@ -359,10 +365,10 @@ as
 $$
 begin
     return query
-    select tfi_station_id
-    from train_full_info
-    where tfi_train_id = train_id
-      and tfi_station_order = station_order;
+        select tfi_station_id
+        from train_full_info
+        where tfi_train_id = train_id
+          and tfi_station_order = station_order;
 end;
 $$ language plpgsql;
 
@@ -383,7 +389,7 @@ create or replace function get_next_station_id(
 as
 $$
 declare
-    station_order integer;
+    station_order   integer;
     next_station_id integer;
 begin
     select tfi_station_order
@@ -532,10 +538,11 @@ create or replace function try_occupy_seats(
     in seat_type seat_type,
     in seat_num integer
 )
-    returns table (
-        succeed boolean,
-        left_seat integer
-                  )
+    returns table
+            (
+                succeed   boolean,
+                left_seat integer
+            )
 as
 $$
 declare
@@ -544,8 +551,8 @@ declare
     station_end_order   int;
     station_id_ptr      int := station_from_id;
     min_seat            int := 5;
-    succeed boolean;
-    left_seat integer;
+    succeed             boolean;
+    left_seat           integer;
 begin
     select query_station_order_from_tid_sid__tfi__(train_id, station_from_id) into station_start_order;
     station_order_ptr = station_start_order;
@@ -646,14 +653,15 @@ create or replace function insert_all_info_into__up__(
     in phone_num varchar(11),
     in user_email varchar(50)
 )
-    returns table (
-        pid integer,
-        err error_type__u__
-                  )
+    returns table
+            (
+                pid integer,
+                err error_type__u__
+            )
 as
 $$
-    declare
-        pid integer;
+declare
+    pid integer;
     err error_type__u__;
 begin
     select * into pid, err from insert_all_info_into__u__(user_name, user_password, phone_num, user_email);
@@ -678,10 +686,11 @@ create or replace function query_p_uid_from_uname_password__up__(
     in user_name varchar(20),
     in user_password varchar(20)
 )
-    returns table (
-        pid integer,
-        error error_type__u__
-                  )
+    returns table
+            (
+                pid   integer,
+                error error_type__u__
+            )
 as
 $$
 begin
@@ -709,14 +718,15 @@ create or replace function insert_all_info_into__ua__(
     in phone_num varchar(11),
     in user_email varchar(50)
 )
-    returns table(
-        aid integer,
-        err error_type__u__
-                 )
+    returns table
+            (
+                aid integer,
+                err error_type__u__
+            )
 as
 $$
-    declare
-        aid integer;
+declare
+    aid integer;
     err error_type__u__;
 begin
     select * into aid, err from insert_all_info_into__u__(user_name, user_password, phone_num, user_email);
@@ -744,14 +754,15 @@ create or replace function insert_passengers_into__ua__(
     in authentication varchar(20),
     in authority admin_authority
 )
-    returns table (
-        aid integer,
-        err error_type__u__
-                  )
+    returns table
+            (
+                aid integer,
+                err error_type__u__
+            )
 as
 $$
-    declare
-        aid integer;
+declare
+    aid integer;
     err error_type__u__;
 begin
     select * into aid, err from query_uid_from_uname_password__u__(user_name, user_password);
@@ -782,19 +793,22 @@ create or replace function query_aid_from_uname_password_auth__ua__(
     in user_password varchar(20),
     in authentication varchar(20)
 )
-    returns table (
-        aid integer,
-        error error_type__u__
-                  )
+    returns table
+            (
+                aid   integer,
+                error error_type__u__
+            )
 as
 $$
-    declare
-        aid integer;
+declare
+    aid   integer;
     error error_type__u__;
+    integer_val integer;
 begin
     select * into aid, error from query_uid_from_uname_password__u__(user_name, user_password);
     if error = 'NO_ERROR' then
-        if (select * from admin where a_aid = aid and a_authentication = authentication) is null then
+        select count(*) into integer_val from admin where a_aid = aid and a_authentication = authentication;
+        if (integer_val > 0) then
             error := 'ERROR_NOT_CORRECT_AUTH';
             aid := 0;
         end if;
@@ -847,11 +861,11 @@ as
 $$
 begin
     return query
-    select s_station_id
-    from train_full_info
-             left join station_list on station_list.s_station_id = train_full_info.tfi_station_id
-    where s_station_city_id = city_id
-      and tfi_train_id = train_id;
+        select s_station_id
+        from train_full_info
+                 left join station_list on station_list.s_station_id = train_full_info.tfi_station_id
+        where s_station_city_id = city_id
+          and tfi_train_id = train_id;
 end;
 $$ language plpgsql;
 
@@ -874,10 +888,10 @@ as
 $$
 begin
     return query
-    select tfi_station_order
-    from train_full_info
-    where tfi_train_id = train_id
-      and tfi_station_id = (select get_station_id_from_cid_tid(city_id, train_id));
+        select tfi_station_order
+        from train_full_info
+        where tfi_train_id = train_id
+          and tfi_station_id = (select get_station_id_from_cid_tid(city_id, train_id));
 end;
 $$ language plpgsql;
 
