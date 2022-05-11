@@ -334,7 +334,7 @@ create or replace function query_train_all_info_from_tid_sid__tfi__(
                 leave_time         time,
                 day_from_departure integer,
                 distance           integer,
-                price              decimal
+                price              decimal(5, 1)[7]
             )
 as
 $$

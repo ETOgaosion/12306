@@ -266,6 +266,8 @@ begin
                          join city_train to_city_train on from_city_train.ct_train_id = to_city_train.ct_train_id
                 where (select get_ct_priority(from_city_id, from_city_train.ct_train_id)) <
                       (select get_ct_priority(to_city_id, to_city_train.ct_train_id))
+                    and from_city_train.ct_city_id = from_city_id
+                    and to_city_train.ct_city_id = to_city_id
             );
         <<scan_train_list>>
         foreach train_idi in array train_id_list
