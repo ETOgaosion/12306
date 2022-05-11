@@ -347,7 +347,8 @@ create or replace function get_train_bt_cities(
     in q_date date,
     in q_time time,
     -- TODO: in train_type varchar(1),
-    in query_transfer boolean
+    in query_transfer boolean,
+    in query_directly boolean
 )
     returns setof train_info
 as
@@ -370,18 +371,14 @@ begin
     select query_city_id_from_name__c__(city_to) into to_city_id;
     select check_reach_table(from_city_id, to_city_id) into city_reachable;
     if city_reachable then
-        if not query_transfer then
+        if query_directly then
             for r in
                 select * from get_train_bt_cities_directly(from_city_id, to_city_id, q_date, q_time, false, false)
                 loop
                     return next r;
                 end loop;
-        else
-            for r in
-                select * from get_train_bt_cities_directly(from_city_id, to_city_id, q_date, q_time, false, false)
-                loop
-                    return next r;
-                end loop;
+        end if;
+        if query_transfer then
             passing_trains := array(select query_train_id_list_from_cid__ct__(from_city_id));
             src_city := array(select getres.next_city_id
                               from get_ct_next_city_list(from_city_id, to_city_id, passing_trains) getres
