@@ -9,7 +9,7 @@ $end_station = "郑州东";
 $remain_tickets = 5;
 $userName = "007";
 $userRealName = "Blue Space";
-$userTelNum = array(1,9,8,0,1,1,9,0,3,6,5);
+$userTelNum = "19801190365";
 ?>
 
 <!-- File js link -->
@@ -89,10 +89,7 @@ $userTelNum = array(1,9,8,0,1,1,9,0,3,6,5);
                         <tr>
                             <td class="align-top p-3" style="height: 50px"><?= $userName?></td>
                             <td class="align-top p-3" style="height: 50px"><?= $userRealName?></td>
-                            <td class="align-top p-3" style="height: 50px"><?php foreach ($userTelNum as $num) {
-                                    echo $num;
-                                }
-                                ?></td>
+                            <td class="align-top p-3" style="height: 50px"><?= $userTelNum?></td>
                             <td class="align-top p-3" style="height: 50px">
                                 <a class="add" title="Add" data-toggle="tooltip"><i class="bi bi-plus-square fw-bold fs-5"></i></a>
                                 <a class="edit" title="Edit" data-toggle="tooltip"><i class="bi bi-pencil-square fw-bold fs-5"></i></a>

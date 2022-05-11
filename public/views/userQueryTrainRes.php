@@ -2,10 +2,21 @@
 use app\controllers\ViewCtrl;
 ViewCtrl::includePageHeader(array('pageTitle' => "query_res", 'assetsDir' => "assets/", 'login' => true));
 $assetsDir = 'assets/';
-$trainName = "1055";
-$date = date('Y-m-d', time());
-$start_station = "北京南";
-$end_station = "郑州东";
+if (!isset($date)) {
+    $date = date('Y-m-d', time());
+}
+if (!isset($trainName)) {
+    $trainName = "1055";
+}
+if (!isset($start_station)) {
+    $start_station = "北京南";
+}
+if (!isset($end_station)) {
+    $end_station = "郑州东";
+}
+if (!isset($queryRes)) {
+    $queryRes = array();
+}
 ?>
 
 <!-- free map api: OpenLayers -->
@@ -87,7 +98,36 @@ $end_station = "郑州东";
                 </thead>
                 <tbody>
                 <?php
-                // echo all ticket price and left tickets info about every kind of tickets
+                $stationOrderList = array_column($queryRes, 'station_order');
+                $stationList = array_column($queryRes, 'station');
+                $stationIdList = array_column($queryRes, 'station_id');
+                $cityList = array_column($queryRes, 'city');
+                $cityIdList = array_column($queryRes, 'city_id');
+                $arriveTimeList = array_column($queryRes, 'arrive_time');
+                $leaveTimeList = array_column($queryRes, 'leave_time');
+                $stayTimeList = array_column($queryRes, 'stay_time');
+                $duranceList = array_column($queryRes, 'durance');
+                $distanceList = array_column($queryRes, 'distance');
+                $seatPriceList = array_column($queryRes, 'seat_price');
+                $seatNumList = array_column($queryRes, 'seat_num');
+                for ($i = 0; $i < count($stationList); $i++) {
+                    for ($j = 0; $j < 7; $j++) {
+                        echo <<<END
+                <tr>
+                    <td>$stationList[$i]</td>
+                    <td>$cityList[$i]</td>
+                    <td>$arriveTimeList[$i]</td>
+                    <td>$leaveTimeList[$i]</td>
+                    <td>$stayTimeList[$i]</td>
+                    <td>$duranceList[$i]</td>
+                    <td>$distanceList[$i]</td>
+                    <td id="seat-type-{$i}">$seatPriceList[$i][$j]</td>
+                    <td id="seat-type-{$i}">$seatNumList[$i][$j]</td>
+                </tr>
+END;
+                    }
+
+                }
                 ?>
                 </tbody>
             </table>

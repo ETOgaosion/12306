@@ -1,15 +1,26 @@
 $(document).ready(function () {
-    console.log($(window).height());
     $('input[type=checkbox][name=admin-login]').change(function () {
         if ($(this).is(':checked')) {
             $('#loginAuthDiv').show();
+            $('#nav-tabContent').height('220px');
             $('#loginInputRegion').height('75%');
-            $('#indexMainView').height('270px');
+            if ($('#resInfoDiv').length){
+                $('#indexMainView').height('370px');
+            }
+            else {
+                $('#indexMainView').height('270px');
+            }
         }
         else {
             $('#loginAuthDiv').hide();
+            $('#nav-tabContent').height('170px');
             $('#loginInputRegion').height('50%');
-            $('#indexMainView').height('220px');
+            if ($('#resInfoDiv').length){
+                $('#indexMainView').height('320px');
+            }
+            else {
+                $('#indexMainView').height('220px');
+            }
         }
     });
 
@@ -18,15 +29,27 @@ $(document).ready(function () {
             $('#registerAuthorDiv').show();
             $('#registerAuthenDiv').show();
             $('#registerRealNameInputDiv').hide();
+            $('#nav-tabContent').height('370px');
             $('#registerInputRegion').height('75%');
-            $('#indexMainView').height('420px');
+            if ($('#resInfoDiv').length){
+                $('#indexMainView').height('520px');
+            }
+            else {
+                $('#indexMainView').height('420px');
+            }
         }
         else {
             $('#registerAuthorDiv').hide();
             $('#registerAuthenDiv').hide();
             $('#registerRealNameInputDiv').show();
+            $('#nav-tabContent').height('320px');
             $('#registerInputRegion').height('50%');
-            $('#indexMainView').height('370px');
+            if ($('#resInfoDiv').length){
+                $('#indexMainView').height('470px');
+            }
+            else {
+                $('#indexMainView').height('370px');
+            }
         }
     });
 
@@ -34,13 +57,25 @@ $(document).ready(function () {
         $('input[type=checkbox][name=admin-login]').prop('checked',false);
         $('#registerAuthorDiv').hide();
         $('#registerAuthenDiv').hide();
-        $('#indexMainView').height('220px');
+        $('#nav-tabContent').height('170px');
+        if ($('#resInfoDiv').length){
+            $('#indexMainView').height('260px');
+        }
+        else {
+            $('#indexMainView').height('220px');
+        }
     });
 
     $('#nav-register-tab').click(function () {
         $('input[type=checkbox][name=admin-register]').prop('checked',false);
         $('#loginAuthDiv').hide();
-        $('#indexMainView').height('370px');
+        $('#nav-tabContent').height('320px');
+        if ($('#resInfoDiv').length){
+            $('#indexMainView').height('470px');
+        }
+        else {
+            $('#indexMainView').height('370px');
+        }
     });
 });
 

@@ -10,24 +10,24 @@ $assetsDir = 'assets/';
     <?php
     if ((array_key_exists('loginFailed', $_SESSION) && $_SESSION['loginFailed']) || (array_key_exists('loginSucceed', $_SESSION) && $_SESSION['loginSucceed'])) {
         echo <<<END
-    <div class="bg-light" style="border-radius: 1rem; width: 30%; height: 270px" id="indexMainView">
+    <div class="bg-light position-relative" style="border-radius: 1rem; width: 30%; height: 260px" id="indexMainView">
 END;
     }
     elseif ((array_key_exists('registerFailed', $_SESSION) && $_SESSION['registerFailed']) || (array_key_exists('registerSucceed', $_SESSION) && $_SESSION['registerSucceed'])) {
         if (array_key_exists('isAdmin', $_SESSION) && $_SESSION['isAdmin']) {
             echo <<<END
-    <div class="bg-light" style="border-radius: 1rem; width: 30%; height: 470px" id="indexMainView">
+    <div class="bg-light position-relative" style="border-radius: 1rem; width: 30%; height: 470px" id="indexMainView">
 END;
         }
         else {
             echo <<<END
-    <div class="bg-light" style="border-radius: 1rem; width: 30%; height: 420px" id="indexMainView">
+    <div class="bg-light position-relative" style="border-radius: 1rem; width: 30%; height: 320px" id="indexMainView">
 END;
         }
     }
     else {
         echo <<<END
-    <div class="bg-light" style="border-radius: 1rem; width: 30%; height: 220px" id="indexMainView">
+    <div class="bg-light position-relative" style="border-radius: 1rem; width: 30%; height: 220px" id="indexMainView">
 END;
     }
     ?>
@@ -42,36 +42,36 @@ END;
             </div>
         </nav>
     <?php
-    if (array_key_exists('login', $_SESSION) && $_SESSION['loginFailed']) {
+    if (array_key_exists('loginFailed', $_SESSION) && $_SESSION['loginFailed']) {
         echo <<<END
-        <div class="alert alert-danger" role="alert">
+        <div class="alert alert-danger" role="alert" id="resInfoDiv">
         Login failed because {$_SESSION['loginFailReason']}!
         </div>
 END;
     }
     if (array_key_exists('loginSucceed', $_SESSION) && $_SESSION['loginSucceed']) {
         echo <<<END
-        <div class="alert alert-success" role="alert">
+        <div class="alert alert-success" role="alert" id="resInfoDiv">
         Login Succeed!
         </div>
 END;
     }
     if (array_key_exists('registerFailed', $_SESSION) && $_SESSION['registerFailed']) {
         echo <<<END
-        <div class="alert alert-danger" role="alert">
+        <div class="alert alert-danger" role="alert" id="resInfoDiv">
         Register Failed becausee {$_SESSION['loginFailReason']}!
         </div>
 END;
     }
     if (array_key_exists('registerSucceed', $_SESSION) && $_SESSION['registerSucceed']) {
         echo <<<END
-        <div class="alert alert-success" role="alert">
+        <div class="alert alert-success" role="alert" id="resInfoDiv">
         Register Succeed!
         </div>
 END;
     }
     ?>
-        <div class="tab-content" id="nav-tabContent" style="height: 85%">
+        <div class="tab-content position-absolute start-0 end-0 bottom-0" id="nav-tabContent" style="height: 170px">
             <div class="tab-pane fade show active h-100" id="nav-login" role="tabpanel" aria-labelledby="nav-login-tab">
                 <form class="h-100 p-3 d-flex flex-column justify-content-between" id="loginForm" action="login" method="post">
                     <div class="p-1 position-relative" style="height: 50%" id="loginInputRegion">
@@ -116,7 +116,7 @@ END;
                 </form>
             </div>
             <div class="tab-pane fade h-100" id="nav-register" role="tabpanel" aria-labelledby="nav-register-tab">
-                <form class="h-100 ps-3 pe-3 d-flex flex-column justify-content-between" id="registerForm" action="login" method="post">
+                <form class="h-100 ps-3 pe-3 d-flex flex-column justify-content-between" id="registerForm" action="register" method="post">
                     <div class="p-1 position-relative" style="height: 75%" id="registerInputRegion">
                         <div class="row align-items-center p-1">
                             <div class="col-5 align-items-center">

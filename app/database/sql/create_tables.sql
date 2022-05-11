@@ -23,8 +23,8 @@ create table if not exists users (
 	u_uid       serial primary key,
 	u_user_name varchar(20) unique,
 	u_password  varchar(20) not null,
-	u_email     varchar(20) not null,
-	u_tel_num   integer[11] unique
+	u_email     varchar(50) not null,
+	u_tel_num   varchar(11)
 );
 
 create table if not exists passengers (

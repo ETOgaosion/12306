@@ -9,7 +9,7 @@ $end_station = "郑州东";
 $remain_tickets = 5;
 $userNameList = array("007");
 $userRealNameList = array("Blue Space");
-$userTelNumList = array(array(1,9,8,0,1,1,9,0,3,6,5));
+$userTelNumList = "19801190365";
 ?>
 
 <!-- File js link -->
@@ -80,13 +80,10 @@ $userTelNumList = array(array(1,9,8,0,1,1,9,0,3,6,5));
                             <tr>
                             <td class="align-top p-3" style="height: 50px">{$userNameList[$i]}</td>
                             <td class="align-top p-3" style="height: 50px">{$userRealNameList[$i]}</td>
-                            <td class="align-top p-3" style="height: 50px">
+                            <td class="align-top p-3" style="height: 50px">$userTelNumList[$i]</td>
+                            </tr>
                             END;
-                                foreach ($userTelNumList[$i] as $num){
-                                    echo $num;
-                                }
                             }
-                            echo "</td> </tr>";
                             ?>
                         </tbody>
                     </table>

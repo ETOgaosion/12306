@@ -70,8 +70,8 @@ drop function if exists insert_all_info_into__u__ cascade;
 create or replace function insert_all_info_into__u__(
     in user_name varchar(20),
     in user_password varchar(20),
-    in phone_num integer[11],
-    in user_email varchar(20)
+    in phone_num varchar(11),
+    in user_email varchar(50)
 )
     returns table (
         uid integer,
@@ -82,12 +82,15 @@ $$
 declare
     uid integer;
     err error_type__u__;
+    integer_val integer;
 begin
-    if (select * from users where u_user_name = user_name) is not null then
+    select count(*) into integer_val from users where u_user_name = user_name;
+    if integer_val != 0 then
         uid := 0;
         err := 'ERROR_DUPLICATE_UNAME';
     else
-        if (select * from users where u_tel_num = phone_num) is not null then
+        select count(*) into integer_val from users where u_tel_num = phone_num;
+        if integer_val != 0 then
             uid := 0;
             err := 'ERROR_DUPLICATE_U_TEL_NUM';
         else
@@ -640,8 +643,8 @@ create or replace function insert_all_info_into__up__(
     in user_name varchar(20),
     in user_password varchar(20),
     in name varchar(20),
-    in phone_num integer[11],
-    in user_email varchar(20)
+    in phone_num varchar(11),
+    in user_email varchar(50)
 )
     returns table (
         pid integer,
@@ -703,8 +706,8 @@ create or replace function insert_all_info_into__ua__(
     in user_password varchar(20),
     in authentication varchar(20),
     in authority admin_authority,
-    in phone_num integer[11],
-    in user_email varchar(20)
+    in phone_num varchar(11),
+    in user_email varchar(50)
 )
     returns table(
         aid integer,

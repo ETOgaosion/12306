@@ -2,11 +2,6 @@
 use app\controllers\ViewCtrl;
 ViewCtrl::includePageHeader(array('pageTitle' => "user_main", 'assetsDir' => "assets/", 'login' => true));
 $assetsDir = 'assets/';
-$inputCityName = "北京";
-$cityFound = false;
-$cityStationList = [];
-$inputTrainName = "1055";
-$trainFound = true;
 ?>
 
 <!-- free map api: OpenLayers -->
@@ -26,7 +21,7 @@ $trainFound = true;
 <!--<script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>-->
 
 <div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0" style="top: 75px; bottom: 100px">
-    <div class="d-flex align-items-center justify-content-center" style="height: 60%; width: 60%">
+    <div class="d-flex align-items-center justify-content-center" style="height: 60%; width: 80%">
         <div class="row w-100 h-100">
             <div class="col-7 h-100 pe-3">
                 <div class="row h-100">
@@ -34,82 +29,7 @@ $trainFound = true;
                 </div>
             </div>
             <div class="col-5 h-100 d-flex flex-column align-items-center justify-content-center">
-                <div class="row w-100 h-50 pb-3">
-                    <div class="row bg-light flex-column justify-content-start align-items-center h-100" style="border-radius: 1rem">
-                        <div class="row align-items-center justify-content-center p-2">
-                            <p class="text-center text-break text-wrap  fs-5 fw-bold">
-                                Search city, trains, stations
-                            </p>
-                        </div>
-                        <form class="row p-2 w-100 d-flex align-items-center" style="height: 15%" id="queryCityNameForm">
-                            <div class="col-3 p-1">
-                                <label for="queryCityName" class="col-form-label">City Name:</label>
-                            </div>
-                            <div class="col-6 p-1">
-                                <input type="text" name="queryCityName" id="queryCityName" class="form-control">
-                            </div>
-                            <div class="col-3 p-1">
-                                <button type="submit" formmethod="post" class="btn btn-primary" form="queryCityNameForm">Submit</button>
-                            </div>
-                        </form>
-                        <form class="row p-2 w-100 d-flex align-items-center" style="height: 15%" id="queryTrainNameForm">
-                            <div class="col-3 p-1">
-                                <label for="queryTrainName" class="col-form-label">Train Name:</label>
-                            </div>
-                            <div class="col-6 p-1">
-                                <input type="text" name="queryTrainName" id="queryTrainName" class="form-control">
-                            </div>
-                            <div class="col-3 p-1">
-                                <button type="submit" formmethod="post" class="btn btn-primary" form="queryTrainNameForm">Submit</button>
-                            </div>
-                        </form>
-                        <div class="row p-2 w-100 h-auto">
-                            <div class="col-4 p-1 h-100 d-flex justify-content-center align-items-center">
-                                <?php
-                                echo $inputCityName;
-                                ?>
-                            </div>
-                            <div class="col-8 p-1 h-100 d-flex justify-content-center align-items-center" style="overflow:scroll;">
-                                <?php
-                                if ($cityFound) {
-                                    foreach ($cityStationList as $station) {
-                                        echo <<<END
-                                    <div class="row w-100">$station</div>
-                                    END;
-                                    }
-                                }
-                                else {
-                                    echo <<<END
-                                <div class="row w-100">city not found</div>
-                                END;
-                                }
-                                ?>
-                            </div>
-                        </div>
-                        <div class="row p-2 w-100 h-auto">
-                            <div class="col-4 p-1 h-100 d-flex justify-content-center align-items-center">
-                                <?php
-                                echo $inputTrainName;
-                                ?>
-                            </div>
-                            <div class="col-8 p-1 h-100 d-flex justify-content-center align-items-center">
-                                <?php
-                                if ($trainFound) {
-                                    echo <<<END
-                                <div class="row w-100">train was found</div>
-                                END;
-                                }
-                                else {
-                                    echo <<<END
-                                <div class="row w-100">train not found</div>
-                                END;
-                                }
-                                ?>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row h-50 w-100">
+                <div class="row h-100 w-100">
                     <div class="row flex-row align-items-center bg-light h-100" style="border-radius: 1rem">
                         <div class="nav col-4 nav-pills h-100 flex-column justify-content-center align-items-center" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                             <button class="nav-link active" id="v-pills-city-tab" data-bs-toggle="pill" data-bs-target="#v-pills-city" type="button" role="tab" aria-controls="v-pills-city" aria-selected="true">两地查询</button>
@@ -117,7 +37,7 @@ $trainFound = true;
                         </div>
                         <div class="tab-content col-8 h-100 p-3" id="v-pills-tabContent">
                             <div class="tab-pane fade show active h-100" id="v-pills-city" role="tabpanel" aria-labelledby="v-pills-city-tab">
-                                <form class="h-100 d-flex flex-column justify-content-evenly" id="queryTrainByCityForm">
+                                <form class="h-100 d-flex flex-column justify-content-evenly" id="queryTrainByCityForm" action="userQueryCity" method="post">
                                     <div class="row align-items-center p-1">
                                         <div class="col-5 align-items-center justify-content-center">
                                             <label for="trainCityFromCityName" class="col-form-label">出发城市</label>
@@ -158,13 +78,13 @@ $trainFound = true;
                                 </form>
                             </div>
                             <div class="tab-pane fade h-100" id="v-pills-train" role="tabpanel" aria-labelledby="v-pills-train-tab">
-                                <form class="h-100 d-flex flex-column justify-content-evenly" id="queryTrainByTrainForm">
+                                <form class="h-100 d-flex flex-column justify-content-evenly" id="queryTrainByTrainForm" action="userQueryTrain" method="post">
                                     <div class="row align-items-center p-1">
                                         <div class="col-5 align-items-center justify-content-center">
                                             <label for="trainFromCityName" class="col-form-label">车次序号</label>
                                         </div>
                                         <div class="col-7 align-items-center justify-content-center">
-                                            <input type="text" name="trainFromCityName" id="trainFromCityName" class="form-control">
+                                            <input type="text" name="trainFromCityName" id="trainName" class="form-control">
                                         </div>
                                     </div>
                                     <div class="row align-items-center p-1">

@@ -2,5 +2,5 @@
 if (empty($display)) {
     $display = 'hello';
 }
-echo $display;
+print_r($display);
 ?>

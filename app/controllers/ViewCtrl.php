@@ -1,5 +1,8 @@
 <?php
-namespace app\controllers;
+namespace  app\controllers;
+if (session_status() != PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 use JetBrains\PhpStorm\NoReturn;
 

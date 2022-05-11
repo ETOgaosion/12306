@@ -1,5 +1,8 @@
 <?php
-namespace app\config;
+namespace  app\config;
+if (session_status() != PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 class DBConfig
 {

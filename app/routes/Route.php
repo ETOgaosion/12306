@@ -1,5 +1,8 @@
 <?php
-namespace app\routes;
+namespace  app\routes;
+if (session_status() != PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 use Closure;
 use app\controllers\ViewCtrl;
@@ -42,7 +45,7 @@ class Route {
     {
         self::pattern('trainNum', '[KTZDGCSYL]?[0-9]{1,20}');
 
-        if (!array_key_exists('loggedIn', $_COOKIE) || !$_COOKIE['loggedIn']) {
+        if ((!array_key_exists('loggedIn', $_COOKIE) || !$_COOKIE['loggedIn']) && (!isset($_SESSION) || !array_key_exists('loggedIn', $_SESSION) || !$_SESSION['loggedIn'])) {
             self::any('', 'ViewCtrl@includeIndex');
             self::any('index', 'ViewCtrl@includeIndex');
             self::any('index.php', 'ViewCtrl@includeIndex');
@@ -62,21 +65,17 @@ class Route {
         self::any('logout', 'AuthCtrl@logout');
 
         self::post('register', 'AuthCtrl@register');
-        self::get('register', 'AuthCtrl@registerPage');
 
-        self::any('admin', 'AdminCtrl@index');
-        self::any('admin/initSeat', 'AdminCtrl@initSeat');
-        self::any('admin/orderList', 'AdminCtrl@orderList');
+        self::post('userQueryCity', 'QueryCtrl@queryCity');
+        self::post('userQueryTrain', 'QueryCtrl@queryTrain');
 
-        self::any('leftTickets/City', 'LeftTicketCtrl@betweenCity');
-        self::any('leftTickets/CityTransfer', 'LeftTicketCtrl@betweenCityTransfer');
-        self::any('leftTickets/Train', 'LeftTicketCtrl@byTrainNum');
+        self::get('userSpace', 'UserInfoCtrl@queryAll');
+        self::post('userQueryOrder', 'UserInfoCtrl@queryOrder');
+        self::get('cancelOrder', 'UserInfoCtrl@cancelOrder');
 
-        self::post('orderCheck', 'OrderCtrl@orderCheck');
-        self::any('orderSubmit', 'OrderCtrl@orderSubmit');
-        self::any('orderList', 'OrderCtrl@orderList');
-        self::any('orderCancel', 'OrderCtrl@orderCancel');
-        self::any('orderPrint', 'OrderCtrl@orderPrint');
+        self::get('adminMain', 'AdminCtrl@adminQueryAll');
+        self::any('adminRefreshInfo', 'AdminCtrl@adminRefreshOrders');
+        self::post('adminQueryUserInfo', 'AdminCtrl@adminQueryUser');
     }
 
     public static function group(array $attributes, Closure $callback): void
@@ -133,7 +132,10 @@ class Route {
         if (!in_array($request['method'], $route['methods'])) {
             return false;
         }
-        if ($route['uri'] == $request['uri']) {
+        if (($request['uri'] == '' || $request['uri'] == 'index') && $route['uri'] == '') {
+            return true;
+        }
+        if (($route['uri'] != '') && str_starts_with($request['uri'], $route['uri'])) {
             return true;
         }
         else{
@@ -153,9 +155,6 @@ class Route {
             $action = explode('@', $route['action'], 2);
             $controller = '\\app\\controllers\\'.$action[0];
             $method = $action[1];
-            if ($method == 'POST') {
-                echo $controller.' '.$method;
-            }
 
             $controller::$method();
         } else {

@@ -81,6 +81,24 @@ if (empty($isAdmin)) {
         <div class="navbar-collapse collapse" id="collapseNavbar">
             <ul class="navbar-nav ms-auto">
                 <?php
+                if (array_key_exists('userName', $_SESSION)) {
+                    $uname = $_SESSION['userName'];
+                }
+                else {
+                    $uname = '';
+                }
+                if (array_key_exists('uid', $_SESSION)) {
+                    $uid = $_SESSION['uid'];
+                }
+                else {
+                    $uid = 0;
+                }
+                if (array_key_exists('isAdmin', $_SESSION)) {
+                    $isAdmin = $_SESSION['isAdmin'];
+                }
+                else {
+                    $uname = false;
+                }
                 if ($login) {
                     echo <<<END
                 <li class="nav-item dropdown">
@@ -88,6 +106,7 @@ if (empty($isAdmin)) {
                         <i class="bi bi-person-circle" style="font-size: 1.5rem;"></i>
                      </a>
                      <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                     <?php
                      <li><a class="dropdown-item" href="logout">Log out</a></li>
                      <li><hr class="dropdown-divider"></li>
                      <li><a class="dropdown-item" href="userSpace">UserInfo Space</a></li>

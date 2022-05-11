@@ -1,5 +1,5 @@
 <?php
-namespace app\tools;
+namespace  app\tools;
 
 use app\config\SessionConfig;
 
@@ -7,14 +7,15 @@ class Session
 {
     public static function init(): void
     {
-        session_name('PHPSESSID');
-        session_set_cookie_params(SessionConfig::getSessionLifeTimeOrOptions(), SessionConfig::getSessionCookiePath());
-        session_save_path(SessionConfig::getSessionSavePath());
-
-        session_start();
+        if (session_status() != PHP_SESSION_ACTIVE) {
+            session_name('PHPSESSID');
+            session_set_cookie_params(SessionConfig::getSessionLifeTimeOrOptions(), SessionConfig::getSessionCookiePath());
+            session_save_path(SessionConfig::getSessionSavePath());
+            session_start();
+        }
 
         register_shutdown_function(function() {
-            if (empty($_SESSION)) {
+            if (session_status() != PHP_SESSION_ACTIVE) {
                 session_unset();
                 session_destroy();
             }

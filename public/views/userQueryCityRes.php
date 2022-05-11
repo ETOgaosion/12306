@@ -2,10 +2,21 @@
 use app\controllers\ViewCtrl;
 ViewCtrl::includePageHeader(array('pageTitle' => "query_res", 'assetsDir' => "assets/", 'login' => true));
 $assetsDir = 'assets/';
-$date = date('Y-m-d', time());
-$time = date('H:i', time());;
-$start_city = "北京";
-$end_city = "郑州";
+if (!isset($date)) {
+    $date = date('Y-m-d', time());
+}
+if (!isset($date)) {
+    $time = date('H:i', time());;
+}
+if (!isset($start_city)) {
+    $start_city = "北京";
+}
+if (!isset($end_city)) {
+    $end_city = "郑州";
+}
+if (!isset($queryRes)) {
+    $queryRes = array();
+}
 ?>
 
 <!-- free map api: OpenLayers -->
@@ -59,6 +70,8 @@ $end_city = "郑州";
                     <th scope="col" rowspan="2" class="text-center">到时</th>
                     <th scope="col" rowspan="2" class="text-center">历时</th>
                     <th scope="col" rowspan="2" class="text-center">里程</th>
+                    <th scope="col" rowspan="2" class="text-center">换乘上半</th>
+                    <th scope="col" rowspan="2" class="text-center">换乘下半</th>
                     <th colspan="2"">
                     <div class="dropdown d-flex flex-row justify-content-center align-items-center">
                         <button class="btn btn-primary w-100" disabled id="seatTypeBtn" style="border-bottom-right-radius:0; border-top-right-radius: 0;">硬座</button>
@@ -84,7 +97,39 @@ $end_city = "郑州";
                 </thead>
                 <tbody>
                 <?php
-                // echo all ticket price and left tickets info about every kind of tickets
+                $trainNameList =  array_column($queryRes, 'train_name');
+                $trainIdList = array_column($queryRes, 'train_id');
+                $stationFromList = array_column($queryRes, 'station_from_name');
+                $stationFromIdList = array_column($queryRes, 'station_from_id');
+                $stationToList = array_column($queryRes, 'station_to_name');
+                $stationToIdList = array_column($queryRes, 'station_to_id');
+                $leaveTimeList = array_column($queryRes, 'leave_time');
+                $arriveTimeList = array_column($queryRes, 'arrive_time');
+                $duranceList = array_column($queryRes, 'durance');
+                $distanceList = array_column($queryRes, 'distance');
+                $seatPriceList = array_column($queryRes, 'seat_prices');
+                $seatNumList = array_column($queryRes, 'seat_nums');
+                $transferFirstList = array_column($queryRes, 'transfer_first');
+                $transferLateList = array_column($queryRes, 'transfer_late');
+                for ($i = 0; $i < count($trainNameList); $i++) {
+                    for ($j = 0; $j < 7; $j++) {
+                        echo <<<END
+                <tr>
+                    <td>$trainNameList[$i]</td>
+                    <td>$stationFromList[$i]</td>
+                    <td>$stationToList[$i]</td>
+                    <td>$leaveTimeList[$i]</td>
+                    <td>$arriveTimeList[$i]</td>
+                    <td>$duranceList[$i]</td>
+                    <td>$distanceList[$i]</td>
+                    <td id="seat-type-{$i}">$seatPriceList[$i][$j]</td>
+                    <td id="seat-type-{$i}">$seatNumList[$i][$j]</td>
+                    <td>$transferFirstList[$i]</td>
+                    <td>$transferLateList[$i]</td>
+                </tr>
+END;
+                    }
+                }
                 ?>
                 </tbody>
             </table>

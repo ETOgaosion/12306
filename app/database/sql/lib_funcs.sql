@@ -70,3 +70,22 @@ begin
     return actual_interval;
 end
 $$ language plpgsql;
+
+drop function if exists enum_to_position();
+
+CREATE OR REPLACE FUNCTION enum_to_position(anyenum) RETURNS integer AS $$
+SELECT enumpos::integer FROM (
+                                 SELECT row_number() OVER (order by enumsortorder) AS enumpos,
+                                        enumsortorder,
+                                        enumlabel
+                                 FROM pg_catalog.pg_enum
+                                 WHERE enumtypid = pg_typeof($1)
+                             ) enum_ordering
+WHERE enumlabel = ($1::text);
+$$ LANGUAGE sql STABLE STRICT;
+
+CREATE CAST (admin_authority AS integer) WITH FUNCTION enum_to_position(anyenum);
+CREATE CAST (error_type__u__ AS integer) WITH FUNCTION enum_to_position(anyenum);
+CREATE CAST (error_type AS integer) WITH FUNCTION enum_to_position(anyenum);
+CREATE CAST (order_status AS integer) WITH FUNCTION enum_to_position(anyenum);
+CREATE CAST (seat_type AS integer) WITH FUNCTION enum_to_position(anyenum);

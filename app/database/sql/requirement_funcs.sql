@@ -27,8 +27,8 @@ create or replace function passenger_register(
     in user_name varchar(20),
     in user_password varchar(20),
     in user_realname varchar(20),
-    in phone_num integer[11],
-    in user_email varchar(20)
+    in phone_num varchar(11),
+    in user_email varchar(50)
 )
     returns table
             (
@@ -65,8 +65,8 @@ drop function if exists admin_register cascade;
 create or replace function admin_register(
     in user_name varchar(20),
     in user_password varchar(20),
-    in phone_num integer[11],
-    in user_email varchar(20),
+    in phone_num varchar(11),
+    in user_email varchar(50),
     in authentication varchar(20),
     in authority admin_authority
 )
@@ -540,8 +540,8 @@ create or replace function user_query_info(
     returns table (
                       user_name varchar(20),
                       user_real_name varchar(20),
-                      user_email varchar(20),
-                      user_telnum integer[]
+                      user_email varchar(50),
+                      user_telnum varchar(11)
                   )
 as
 $$
@@ -567,6 +567,7 @@ create or replace function user_query_order(
     returns table
             (
                 order_id       integer,
+                date           date,
                 train_name     varchar(10),
                 train_id       integer,
                 station_leave  varchar(20),
@@ -585,6 +586,7 @@ as
 $$
 begin
     return query select o_oid                                                                 as order_id,
+                        o_date                                                                as date,
                         t_train_name                                                          as train_name,
                         o_train_id                                                            as train_id,
                         s_start.s_station_name                                                as station_leave,
@@ -600,7 +602,7 @@ begin
                         o_seat_type                                                           as seat_type,
                         o_seat_id                                                             as seat_id,
                         o_status                                                              as status,
-                        tfi_end.tfi_price[o_seat_type] - tfi_start.tfi_price[o_seat_type] + 5 as price
+                        tfi_end.tfi_price[o_seat_type::integer] - tfi_start.tfi_price[o_seat_type::integer] + 5 as price
                  from orders
                           left join station_list s_start on orders.o_start_station = s_start.s_station_id
                           left join station_list s_arrive on orders.o_end_station = s_arrive.s_station_id
@@ -701,7 +703,7 @@ $$
         hot_trains varchar(10)[];
 begin
     select count(*),
-           sum(tfi_end.tfi_price[o_seat_type] - tfi_start.tfi_price[o_seat_type] + 5)
+           sum(tfi_end.tfi_price[o_seat_type::int] - tfi_start.tfi_price[o_seat_type::int] + 5)
     into total_order_num, total_price
     from orders
              left join train_full_info tfi_start on o_start_station = tfi_start.tfi_station_id
@@ -735,5 +737,59 @@ begin
                         u_user_name as uname
                  from passengers
                           left join users u on passengers.p_pid = u.u_uid;
-end;
-$$ language plpgsql
+end
+$$ language plpgsql;
+
+drop function if exists admin_query_user_info;
+
+create or replace function admin_query_user_info (
+    in in_user_name varchar(20)
+)
+    returns table (
+                      user_name varchar(20),
+                      user_real_name varchar(20),
+                      user_email varchar(50),
+                      user_telnum varchar(11)
+                  )
+as
+$$
+declare uid integer;
+begin
+    select u_uid into uid from users where u_user_name = in_user_name;
+    return query select * from user_query_info(uid);
+end
+$$ language plpgsql;
+
+drop function if exists admin_query_user_orders;
+
+create or replace function admin_query_user_orders (
+    in user_name varchar(20),
+    in start_date date,
+    in end_date date
+)
+    returns table
+            (
+                order_id       integer,
+                date           date,
+                train_name     varchar(10),
+                train_id       integer,
+                station_leave  varchar(20),
+                station_id     integer,
+                station_arrive varchar(20),
+                start_time     time,
+                arrive_time    time,
+                durance        interval,
+                distance       integer,
+                seat_type      seat_type,
+                seat_id        integer,
+                status         order_status,
+                price          decimal(5, 1)
+            )
+as
+    $$
+    declare uid integer;
+begin
+    select u_uid into uid from users where u_user_name = user_name;
+    return query select * from user_query_order(uid, start_date, end_date);
+end
+$$ language plpgsql;

@@ -2,21 +2,54 @@
 use app\controllers\ViewCtrl;
 ViewCtrl::includePageHeader(array('pageTitle' => "admin_Main", 'assetsDir' => "assets/", 'login' => true));
 $assetsDir = 'assets/';
-$totalOrder = 0;
-$totalPrice = 0;
-$hotTrains = array("1055", "1055", "1055", "1055", "1055", "1055", "1055", "1055", "1055", "1055");
-$registerUserIdList = array("007");
-$registerUserNameList = array("Blue Space");
-$userName = "007";
-$userRealName = "Blue Space";
-$userEmail = "gaoziyuan19@mails.ucas.ac.cn";
-$userTelNumber = array(1, 9, 8, 0, 1, 1, 9, 0, 3, 6, 5);
-$orderIDList = array(0);
-$dateList = array(date('Y-m-d', time()));
-$startStationList = array("北京南");
-$arriveStationList = array("郑州东");
-$priceList = array(0);
-$orderStatusList = array('COMPLETE');
+if (!isset($totalOrder)) {
+    $totalOrder = 0;
+}
+if (!isset($totalPrice)) {
+    $totalPrice = 0;
+}
+if (!isset($totalOrder)) {
+    $totalOrder = 0;
+}
+if (!isset($hotTrains)) {
+    $hotTrains = array();
+}
+if (!isset($registerUserIdList)) {
+    $registerUserIdList = array();
+}
+if (!isset($registerUserNameList)) {
+    $registerUserNameList = array();
+}
+if (!array_key_exists('adminQueryUserInfoResArray', $_SESSION)) {
+    $userName = "";
+    $userRealName = "";
+    $userEmail = "";
+    $userTelNumber = "";
+}
+else {
+    $infoResArray = $_SESSION['adminQueryUserInfoResArray'];
+    $userName = $infoResArray['user_name'];
+    $userRealName = $infoResArray['user_real_name'];
+    $userTelNumber = $infoResArray['user_telnum'];
+    $userEmail = $infoResArray['user_email'];
+}
+if(!array_key_exists('adminQueryUserOrdersResArray', $_SESSION)) {
+    $orderIDList = array();
+    $dateList = "";
+    $startStationList = array();
+    $arriveStationList = array();
+    $priceList = array();
+    $orderStatusList = array();
+}
+else {
+    $orderResArray = $_SESSION['adminQueryUserOrdersResArray'];
+    $orderIDList = array_column($orderResArray, 'order_id');
+    $dateList = array_column($orderResArray, 'date');
+    $startStationList = array_column($orderResArray, 'station_leave');
+    $arriveStationList = array_column($orderResArray, 'station_arrive');
+    $priceList = array_column($orderResArray, 'price');
+    $orderStatusList = array_column($orderResArray, 'status');
+}
 ?>
 
 <div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0"
@@ -80,9 +113,11 @@ $orderStatusList = array('COMPLETE');
                 <div class="col-5 h-100 d-flex flex-column justify-content-start align-items-center"
                      style="overflow: scroll">
                 </div>
-                <div class="col-1 h-100 d-flex flex-column justify-content-center align-items-center">
-                    <a class="btn btn-primary" href="#">Search Info</a>
-                </div>
+                <form class="col-1 h-100 d-flex flex-column justify-content-center align-items-center" action="adminQueryUserInfo" method="post">
+                    <label for="queryUserNameInput" class="form-label">User Name:</label>
+                    <input type="text" name="queryUserNameInput" id="queryUserNameInput" class="form-control">
+                    <button class="btn btn-primary" type="submit" formmethod="post">Search Info</button>
+                </form>
                 <div class="col-6 h-100 d-flex flex-column justify-content-start align-items-center position-relative">
                     <div class="row w-100" style="height: 50px;">
                         <div class="col h-100 w-50 p-3">UserName: <?= $userName?></div>
@@ -125,11 +160,6 @@ $orderStatusList = array('COMPLETE');
                         <td class="align-top p-3" style="height: 50px">$priceList[$i]</td>
                         <td class="align-top p-3" style="height: 50px">$orderStatusList[$i]
                         END;
-                                if ($orderStatusList[$i] == 2){
-                                    echo <<<END
-                            <a href="#" id="cancelOrder"><i class="bi bi-trash fw-bold fs-5"></i></a>
-                            END;
-                                }
                                 echo "</td></tr>";
                             }
                             ?>

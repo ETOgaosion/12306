@@ -1,5 +1,8 @@
 <?php
-namespace app\database\interfaces;
+namespace  app\database\interfaces;
+if (session_status() != PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 use app\config\DBConfig;
 use JetBrains\PhpStorm\NoReturn;
