@@ -299,14 +299,14 @@ begin
                 -- seats and price calculation --
                 for seat_i in 1..7
                     loop
-                        select array_set(station_arrive_price, station_arrive_price[seat_i],
+                        select array_set(station_arrive_price, seat_i,
                                          station_arrive_price[seat_i] - station_leave_price[seat_i])
                         into res_price;
                     end loop;
                 select get_min_seat.seat_num
                 into seat_nums
                 from get_min_seats(train_idi, q_date, station_leave_id, station_arrive_id,
-                                   array ['YZ', 'RZ', 'YW_S', 'YW_Z', 'YW_X', 'RW_S', 'RW_X']) get_min_seat;
+                                   enum_range(null::seat_type)) get_min_seat;
                 -- return row --
                 for r in
                     select train_namei                                                                as train_name,

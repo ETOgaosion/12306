@@ -445,7 +445,7 @@ begin
               and stt_train_id = train_id
               and stt_date = query_date;
             in_order := ptr;
-            seat_num := seat_nums_tmp[seat_type];
+            seat_num := seat_nums_tmp[seat_type::integer];
             ptr := ptr + 1;
             return next;
         end loop;
