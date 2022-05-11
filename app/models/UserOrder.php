@@ -28,4 +28,9 @@ class UserOrder
     {
         return Database::selectFirst("select * from order_train_seats({$orderId}, {$uidNum})");
     }
+
+    public static function removeOutDateOrder(): void
+    {
+        Database::query("select remove_outdated_order()");
+    }
 }
