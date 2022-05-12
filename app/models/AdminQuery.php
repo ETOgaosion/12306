@@ -21,7 +21,7 @@ class AdminQuery
 
     public static function queryUserInfo($uname): array
     {
-        return Database::selectFirst("select * from admin_query_user_info($uname)");
+        return Database::selectFirst("select * from admin_query_user_info('$uname')");
     }
 
     public static function queryUserOrders($uname): array
@@ -30,6 +30,6 @@ class AdminQuery
         $startDate = $startDate->format('Y-m-d');
         $endDate = time();
         $endDate = date('Y-m-d', strtotime('+14 days') + $endDate);
-        return Database::selectAll("select * from admin_query_user_orders({$uname}, {$startDate}, {$endDate})");
+        return Database::selectAll("select * from admin_query_user_orders('{$uname}', '{$startDate}', '{$endDate}')");
     }
 }

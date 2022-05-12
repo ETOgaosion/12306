@@ -75,6 +75,7 @@ class Route
         self::post('register', 'AuthCtrl@register');
 
         self::post('userQueryCity', 'QueryCtrl@queryCity');
+        self::post('ReverseUserQueryCity', 'QueryCtrl@queryCityReverse');
         self::post('userQueryTrain', 'QueryCtrl@queryTrain');
         self::get('userGenerateOrder', 'OrderCtrl@generateOrder');
         self::post('preorderTrain', 'OrderCtrl@preOrderTrain');
@@ -86,7 +87,7 @@ class Route
 
         self::get('adminMain', 'AdminCtrl@adminQueryAll');
         self::any('adminRefreshInfo', 'AdminCtrl@adminRefreshOrders');
-        self::post('adminQueryUserInfo', 'AdminCtrl@adminQueryUser');
+        self::any('adminQueryUserInfo', 'AdminCtrl@adminQueryUser');
     }
 
     public static function group(array $attributes, Closure $callback): void

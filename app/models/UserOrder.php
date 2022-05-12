@@ -38,6 +38,6 @@ class UserOrder
 
     public static function removeOutDateOrder(): void
     {
-        Database::query("select remove_outdated_order()");
+        Database::selectFirst("select remove_outdated_order()");
     }
 }

@@ -52,7 +52,7 @@ $assetsDir = 'assets/';
                                 <div class="tab-pane fade show active h-100" id="v-pills-city" role="tabpanel"
                                      aria-labelledby="v-pills-city-tab">
                                     <form class="h-100 d-flex flex-column justify-content-evenly"
-                                          id="queryTrainByCityForm" action="userQueryCity" method="post">
+                                          id="queryTrainByCityForm" method="post">
                                         <div class="row align-items-center p-1">
                                             <div class="col-5 align-items-center justify-content-center">
                                                 <label for="trainCityFromCityName" class="col-form-label">出发城市</label>
@@ -93,8 +93,13 @@ $assetsDir = 'assets/';
                                         </div>
                                         <div class="row flex-row justify-content-center align-items-center p-1">
                                             <div class="w-50 d-flex flex-row justify-content-center align-items-center">
-                                                <button type="submit" formmethod="post" class="btn btn-primary"
+                                                <button type="submit" formmethod="post" formaction=" userQueryCity" class="btn btn-primary"
                                                         form="queryTrainByCityForm">Submit
+                                                </button>
+                                            </div>
+                                            <div class="w-50 d-flex flex-row justify-content-center align-items-center">
+                                                <button type="submit" formmethod="post" formaction=" ReverseUserQueryCity" class="btn btn-primary"
+                                                        form="queryTrainByCityForm">返程
                                                 </button>
                                             </div>
                                         </div>
@@ -106,10 +111,10 @@ $assetsDir = 'assets/';
                                           id="queryTrainByTrainForm" action="userQueryTrain" method="post">
                                         <div class="row align-items-center p-1">
                                             <div class="col-5 align-items-center justify-content-center">
-                                                <label for="trainFromCityName" class="col-form-label">车次序号</label>
+                                                <label for="trainName" class="col-form-label">车次序号</label>
                                             </div>
                                             <div class="col-7 align-items-center justify-content-center">
-                                                <input type="text" name="trainFromCityName" id="trainFromCityName"
+                                                <input type="text" name="trainName" id="trainName"
                                                        class="form-control">
                                             </div>
                                         </div>

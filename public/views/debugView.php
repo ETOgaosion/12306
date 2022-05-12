@@ -1,5 +1,5 @@
 <?php
-if (isset($display)) {
+if (!isset($display)) {
     $display = 'hello';
 }
 print_r($display);

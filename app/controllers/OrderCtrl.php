@@ -16,6 +16,7 @@ class OrderCtrl
 {
     #[NoReturn] public static function generateOrder(): void
     {
+        UserOrder::removeOutDateOrder();
         $trainId = $_GET['trainId'];
         $trainName = $_GET['trainName'];
         $stationFromId = $_GET['stationFromId'];
@@ -46,6 +47,7 @@ class OrderCtrl
 
     #[NoReturn] public static function preorderTrain(): void
     {
+        UserOrder::removeOutDateOrder();
         $trainId = $_POST['trainId'];
         $trainName = $_POST['trainName'];
         $date = $_POST['date'];
@@ -95,6 +97,7 @@ class OrderCtrl
 
     #[NoReturn] public static function orderTrain(): void
     {
+        UserOrder::removeOutDateOrder();
         $orderId = $_POST['orderId'];
         $uidNum = $_POST['uidNum'];
         $res = UserOrder::orderTrain($orderId, $uidNum);

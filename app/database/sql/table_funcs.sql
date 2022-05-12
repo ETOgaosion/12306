@@ -266,6 +266,33 @@ begin
 end;
 $$ language plpgsql;
 
+-- train full info --
+-- start <-> leave --
+-- end <-> arrive --
+/* @table: train_full_info */
+/* @param: train_id */
+/* @return: leave_time */
+/* @note: train_id in station -> leave time */
+drop function if exists query_start_station_from_id__tfi__ cascade;
+
+create or replace function query_start_station_from_id__tfi__(
+    in train_id integer
+)
+    returns table
+            (
+                start_station integer
+            )
+as
+$$
+begin
+    return query
+        select tfi_station_id
+        from train_full_info
+        where tfi_train_id = train_id
+          and tfi_station_order = 0;
+end;
+$$ language plpgsql;
+
 /* @table: train_full_info */
 /* @param: train_id */
 /*       : station_id */
@@ -406,6 +433,27 @@ begin
     return query select next_station_id;
 end;
 $$ language plpgsql;
+
+drop function if exists get_station_price;
+
+create or replace function get_station_price(
+    in train_id integer,
+    in start_station_id integer,
+    in end_station_id integer,
+    in in_seat_type seat_type
+)
+returns table(
+    price   decimal(5,1)
+)
+    as
+    $$
+    begin
+        return query select end_tfi.tfi_price[in_seat_type::integer] - start_tfi.tfi_price[in_seat_type::integer] from train_full_info end_tfi
+        left join train_full_info start_tfi on end_tfi.tfi_train_id = start_tfi.tfi_train_id
+        where end_tfi.tfi_station_id = end_station_id and start_tfi.tfi_station_id = start_station_id
+        and end_tfi.tfi_train_id = train_id;
+    end;
+    $$ language plpgsql;
 
 -- station tickets --
 /* @table: station_tickets */
@@ -617,7 +665,7 @@ begin
     while station_order_ptr != station_end_order
         loop
             update station_tickets
-            set stt_num = (select array_set(stt_num, seat_type, stt_num[seat_type::integer] + seat_num))
+            set stt_num = (select array_set(stt_num, seat_type::integer, stt_num[seat_type::integer] + seat_num))
             where stt_train_id = train_id
               and stt_station_id = station_id_ptr
               and stt_date = order_date;

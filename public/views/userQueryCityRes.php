@@ -61,7 +61,7 @@ if (!isset($queryRes)) {
             </div>
             <hr/>
             <div class="row w-100" style="height: 70%; overflow: scroll">
-                <table class="table-light table-striped table-bordered border-secondary">
+                <table class="table-striped table-bordered border-secondary">
                     <thead>
                     <tr>
                         <th scope="col" class="text-center">车次编号</th>
@@ -115,14 +115,14 @@ if (!isset($queryRes)) {
                     $transferLateList = array_column($queryRes, 'transfer_late');
                     $seatTypeList = array("硬座", "软座", "硬卧上", "硬卧中", "硬卧下", "软卧上", "软卧下");
                     for ($i = 0; $i < count($trainNameList); $i++) {
+                        $seatPriceListArray = explode(',', substr($seatPriceList[$i], 1, strlen($seatPriceList[$i]) - 2));
+                        $seatNumListArray = explode(',', substr($seatNumList[$i], 1, strlen($seatNumList[$i]) - 2));
                         for ($j = 0; $j < 7; $j++) {
-                            $seatPriceListArray = explode(',', substr($seatPriceList[$i], 1, strlen($seatPriceList[$i]) - 2));
-                            $seatNumListArray = explode(',', substr($seatNumList[$i], 1, strlen($seatNumList[$i]) - 2));
-
                             if ($seatNumListArray[$j] == 0) {
                                 continue;
                             }
-                            echo <<<END
+                            if ($transferFirstList[$i] == 'f' && $transferLateList[$i] == 'f') {
+                                echo <<<END
                 <tr>
                     <td>$trainNameList[$i]</td>
                     <td>$stationFromList[$i]</td>
@@ -138,6 +138,43 @@ if (!isset($queryRes)) {
                     <td id="seat-type-{$j}"><a href="userGenerateOrder?trainId={$trainIdList[$i]}&trainName={$trainNameList[$i]}&stationFromId={$stationFromIdList[$i]}&stationFrom={$stationFromList[$i]}&stationToId={$stationToIdList[$i]}&stationTo={$stationToList[$i]}&seat_type={$j}&order_date={$date}">$seatNumListArray[$j]</a></td>
                 </tr>
 END;
+                            }
+                            elseif ($transferFirstList[$i] == 'f' && $transferLateList[$i] == 't') {
+                                    echo <<<END
+                <tr>
+                    <td class="text-success">$trainNameList[$i]</td>
+                    <td class="text-success">$stationFromList[$i]</td>
+                    <td class="text-success">$stationToList[$i]</td>
+                    <td class="text-success">$leaveTimeList[$i]</td>
+                    <td class="text-success">$arriveTimeList[$i]</td>
+                    <td class="text-success">$duranceList[$i]</td>
+                    <td class="text-success">$distanceList[$i]</td>
+                    <td class="text-success">$transferFirstList[$i]</td>
+                    <td class="text-success">$transferLateList[$i]</td>
+                    <td class="text-success">$seatTypeList[$j]</td>
+                    <td class="text-success" id="seat-type-{$j}">$seatPriceListArray[$j]</td>
+                    <td class="text-success" id="seat-type-{$j}"><a href="userGenerateOrder?trainId={$trainIdList[$i]}&trainName={$trainNameList[$i]}&stationFromId={$stationFromIdList[$i]}&stationFrom={$stationFromList[$i]}&stationToId={$stationToIdList[$i]}&stationTo={$stationToList[$i]}&seat_type={$j}&order_date={$date}">$seatNumListArray[$j]</a></td>
+                </tr>
+END;
+                                }
+                            elseif ($transferFirstList[$i] == 't' && $transferLateList[$i] == 'f') {
+                                echo <<<END
+                <tr>
+                    <td class="text-danger">$trainNameList[$i]</td>
+                    <td class="text-danger">$stationFromList[$i]</td>
+                    <td class="text-danger">$stationToList[$i]</td>
+                    <td class="text-danger">$leaveTimeList[$i]</td>
+                    <td class="text-danger">$arriveTimeList[$i]</td>
+                    <td class="text-danger">$duranceList[$i]</td>
+                    <td class="text-danger">$distanceList[$i]</td>
+                    <td class="text-danger">$transferFirstList[$i]</td>
+                    <td class="text-danger">$transferLateList[$i]</td>
+                    <td class="text-danger">$seatTypeList[$j]</td>
+                    <td class="text-danger" id="seat-type-{$j}">$seatPriceListArray[$j]</td>
+                    <td class="text-danger" id="seat-type-{$j}"><a href="userGenerateOrder?trainId={$trainIdList[$i]}&trainName={$trainNameList[$i]}&stationFromId={$stationFromIdList[$i]}&stationFrom={$stationFromList[$i]}&stationToId={$stationToIdList[$i]}&stationTo={$stationToList[$i]}&seat_type={$j}&order_date={$date}">$seatNumListArray[$j]</a></td>
+                </tr>
+END;
+                            }
                         }
                     }
                     ?>

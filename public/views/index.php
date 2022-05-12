@@ -12,7 +12,6 @@ $assetsDir = 'assets/';
     <div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0"
          style="top: 75px; bottom: 100px" id="indexMainContainer">
         <?php
-        print_r($_SESSION);
         if ((array_key_exists('loginFailed', $_SESSION) && $_SESSION['loginFailed']) ||
             (array_key_exists('loginSucceed', $_SESSION) && $_SESSION['loginSucceed']) ||
             (array_key_exists('registerFailed', $_SESSION) && $_SESSION['registerFailed']) ||

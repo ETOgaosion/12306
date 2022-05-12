@@ -120,7 +120,7 @@ if (!array_key_exists('userQueryResArray', $_SESSION)) {
                     </div>
                 </form>
                 <div class="row position-absolute" style="overflow: scroll; top: 200px; bottom: 0; right: 0; left: 0">
-                    <table class="table-light table-striped table-bordered border-secondary">
+                    <table class="table-striped table-bordered border-secondary">
                         <thead>
                         <tr>
                             <th scope="col" class="text-center">订单号</th>
@@ -143,7 +143,7 @@ if (!array_key_exists('userQueryResArray', $_SESSION)) {
                         <td class="align-top p-3" style="height: 50px">$priceList[$i]</td>
                         <td class="align-top p-3" style="height: 50px">$orderStatusList[$i]
                         END;
-                            if ($orderStatusList[$i] == 2) {
+                            if ($orderStatusList[$i] == 'COMPLETE' || $orderStatusList[$i] == 'PRE_ORDERED') {
                                 echo <<<END
                             <a href="cancelOrder?oid={$orderIDList[$i]}" id="cancelOrder"><i class="bi bi-trash fw-bold fs-5"></i></a>
                             END;

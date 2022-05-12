@@ -119,6 +119,7 @@ create or replace function get_train_info(
 )
     returns table
             (
+                train_id_ret  integer,
                 station_order integer,
                 station       varchar(20),
                 station_id    integer,
@@ -136,12 +137,15 @@ create or replace function get_train_info(
 as
 $$
 declare
-    train_id   integer;
-    start_time time;
+    train_id         integer;
+    start_time       time;
+    start_station_id integer;
 begin
     select query_train_id_from_name__t__(train_name) into train_id;
     select query_start_time_from_id__tfi__(train_id) into start_time;
-    return query select tfi_station_order                                                                                              as station_order,
+    select query_start_station_from_id__tfi__(train_id) into start_station_id;
+    return query select train_id                                                                                                       as train_id_ret,
+                        tfi_station_order                                                                                              as station_order,
                         s_station_name                                                                                                 as station,
                         s_station_id                                                                                                   as station_id,
                         c_city_name                                                                                                    as city_name,
@@ -155,7 +159,9 @@ begin
                                                           (select query_day_from_departure_from_id__tfi__(train_id, tfi_station_id)))) as durance,
                         tfi_distance                                                                                                   as distance,
                         tfi_price                                                                                                      as seat_price,
-                        stt_num                                                                                                        as seat_num
+                        (array(select *
+                         from get_min_seats(train_id, q_date, start_station_id, s_station_id,
+                                            enum_range(null::seat_type))))                                                              as seat_num
                  from train_full_info tfi
                           left join station_list s on tfi.tfi_station_id = s.s_station_id
                           left join city c on s.s_station_city_id = c.c_city_id
@@ -616,7 +622,7 @@ begin
                           left join train on orders.o_train_id = train.t_train_id
                           left join train_full_info tfi_start on s_start.s_station_id = tfi_start.tfi_station_id
                      and orders.o_train_id = tfi_start.tfi_train_id
-                          left join train_full_info tfi_end on s_start.s_station_id = tfi_end.tfi_station_id
+                          left join train_full_info tfi_end on s_arrive.s_station_id = tfi_end.tfi_station_id
                      and orders.o_train_id = tfi_end.tfi_train_id
                  where o_uid = uid
                    and o_date >= start_query_date
@@ -640,7 +646,7 @@ as
 $$
 declare
     train_id      integer;
-    order_date    integer;
+    order_date    date;
     start_station integer;
     end_station   integer;
     seat_type     seat_type;
@@ -649,8 +655,8 @@ begin
     into train_id, order_date, start_station, end_station, seat_type
     from orders
     where o_oid = order_id
-      and o_status = 'COMPLETE';
-    select release_seats(train_id, order_date, start_station, end_station, seat_type, 1);
+      and (o_status = 'COMPLETE' or o_status = 'PRE_ORDERED');
+    perform release_seats(train_id, order_date, start_station, end_station, seat_type, 1);
     update orders
     set o_status = 'CANCELED'
     where o_oid = order_id;
@@ -670,7 +676,7 @@ $$
 begin
     delete
     from orders
-    where (select * from get_actual_interval_bt_time(orders.o_effect_time, now(), 0))
+    where now() - orders.o_effect_time
         > interval '30 minutes'
       and orders.o_status = 'PRE_ORDERED';
 end;
@@ -719,10 +725,10 @@ begin
         and orders.o_train_id = tfi_start.tfi_train_id
              left join train_full_info tfi_end on o_end_station = tfi_end.tfi_station_id
         and orders.o_train_id = tfi_end.tfi_train_id
-        and orders.o_status = 'COMPLETE';
+    where orders.o_status = 'COMPLETE';
     hot_trains := array(select t_train_name
-                        from train
-                                 left join top_10_train_ids on train.t_train_id = top_10_train_ids.train_id);
+                        from top_10_train_ids
+                                 left join train on train.t_train_id = top_10_train_ids.train_id);
     return query select total_order_num, total_price, hot_trains;
 end;
 $$ language plpgsql;

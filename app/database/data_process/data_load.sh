@@ -1,5 +1,5 @@
-python process.py
-python main.py
+#python process.py
+#python main.py
 
 path=`pwd`
 city_path=$path'/postprocess_data/city.csv'

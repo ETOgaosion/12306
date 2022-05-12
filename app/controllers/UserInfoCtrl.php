@@ -5,8 +5,10 @@ if (session_status() != PHP_SESSION_ACTIVE) {
     session_start();
 }
 
+use app\models\AdminQuery;
 use app\models\UserInfo;
 use app\controllers\ViewCtrl;
+use DateTime;
 use JetBrains\PhpStorm\NoReturn;
 use app\tools\Session;
 
@@ -27,7 +29,7 @@ class UserInfoCtrl
         die();
     }
 
-    public static function queryOrder(): void
+    #[NoReturn] public static function queryOrder(): void
     {
         $uid = Session::get('uid');
         $startQueryDate = $_POST['inputStartQueryDate'];
@@ -37,9 +39,16 @@ class UserInfoCtrl
         self::queryAll();
     }
 
-    public static function cancelOrder(): void
+    #[NoReturn] public static function cancelOrder(): void
     {
         $oid = $_GET['oid'];
         UserInfo::userCancelOrder($oid);
+        $startDate = (new DateTime())->setTimestamp(0);
+        $startDate = $startDate->format('Y-m-d');
+        $endDate = time();
+        $endDate = date('Y-m-d', strtotime('+14 days') + $endDate);
+        $_POST['inputStartQueryDate'] = $startDate;
+        $_POST['inputEndQueryDate'] = $endDate;
+        self::queryOrder();
     }
 }

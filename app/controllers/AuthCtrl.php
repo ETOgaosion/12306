@@ -9,6 +9,7 @@ use app\routes\Route;
 use app\tools\Session;
 use JetBrains\PhpStorm\NoReturn;
 use app\models\Auth;
+use app\controllers\AdminCtrl;
 use app\config\CookieConfig;
 
 define('NO_ERROR', 1);
@@ -72,7 +73,7 @@ class AuthCtrl
                 Session::set('isAdmin', true);
                 setcookie('isAdmin', true);
                 Route::init();
-                ViewCtrl::includeMain();
+                AdminCtrl::adminQueryAll();
                 die();
             }
             else {
@@ -111,6 +112,7 @@ class AuthCtrl
             $resArray = Auth::adminRegister($registerUserName, $registerPassword, $registerTelNumInput, $registerEmail, $registerAuth);
             Session::set('isAdmin', true);
             if ($resArray['error'] == "NO_ERROR") {
+                Session::unsetAll();
                 Session::set('registerSucceed', true);
                 Session::set('registerFailed', false);
                 ViewCtrl::includeIndex();

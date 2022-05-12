@@ -59,21 +59,9 @@ if (empty($isAdmin)) {
     <div class="container-fluid">
         <div class="navbar-header">
             <?php
-            if (!$isAdmin) {
-                if ($login) {
-                    echo <<<END
-            <a class="navbar-brand" href="userMain">Train Database</a>
-            END;
-                } else {
                     echo <<<END
             <a class="navbar-brand" href="index">Train Database</a>
             END;
-                }
-            } else {
-                echo <<<END
-            <a class="navbar-brand" href="adminMain">Train Database</a>
-            END;
-            }
             ?>
         </div>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"

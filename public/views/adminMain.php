@@ -15,7 +15,10 @@ if (!isset($totalOrder)) {
     $totalOrder = 0;
 }
 if (!isset($hotTrains)) {
-    $hotTrains = array();
+    $hotTrains = "";
+    $hotTrainsArray = array();
+} else {
+    $hotTrainsArray = explode(',', substr($hotTrains, 1, strlen($hotTrains) - 2));
 }
 if (!isset($registerUserIdList)) {
     $registerUserIdList = array();
@@ -55,8 +58,8 @@ if (!array_key_exists('adminQueryUserOrdersResArray', $_SESSION)) {
 
     <div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0"
          style="top: 75px; bottom: 100px">
-        <div class="h-100 w-75 d-flex flex-column align-items-center justify-content-start bg-light position-relative"
-             style="--bs-bg-opacity: 0.8">
+        <div class="h-100 d-flex flex-column align-items-center justify-content-start bg-light position-relative"
+             style="--bs-bg-opacity: 0.8; width: 90%;">
             <div class="row w-100 d-flex flex-row align-items-center justify-content-center p-3" style="height: 50px">
                 <p class="fw-bold fs-2 text-center">管理员空间</p>
             </div>
@@ -65,7 +68,7 @@ if (!array_key_exists('adminQueryUserOrdersResArray', $_SESSION)) {
                     <div class="nav nav-tabs border-dark d-flex flex-row align-items-center justify-content-center">
                         <p>Order and Train Info</p>
                     </div>
-                    <table class="table table-light table-striped table-borderless" style="--bs-bg-opacity: 0">
+                    <table class="table table-striped table-borderless" style="--bs-bg-opacity: 0">
                         <thead>
                         <tr>
                             <th class="text-center" style="width: 33%">Total Orders</th>
@@ -96,11 +99,14 @@ if (!array_key_exists('adminQueryUserOrdersResArray', $_SESSION)) {
                                     <button class="btn btn-danger text-dark text-center"
                                             style="border-radius: 2rem; width: 100%; height: 100px">
                                         <?php
-                                        if (!empty($hotTrains)) {
-                                            for ($i = 0; $i < 3; $i++) {
-                                                echo $hotTrains[$i * 3] . "&nbsp;" . $hotTrains[$i * 3 + 1] . "&nbsp;" . $hotTrains[$i * 3 + 2] . "<br>";
+                                        for ($i = 0; $i < 3 && $i * 3 < count($hotTrainsArray); $i++) {
+                                            for ($j = 0; $j < 3 && $i * 3 + $j < count($hotTrainsArray); $j++) {
+                                                echo $hotTrainsArray[$i * 3 + $j] . "&nbsp;";
                                             }
-                                            echo $hotTrains[9];
+                                            echo "<br>";
+                                        }
+                                        if (count($hotTrainsArray) == 10) {
+                                            echo $hotTrainsArray[9];
                                         }
                                         ?>
                                     </button>
@@ -114,16 +120,30 @@ if (!array_key_exists('adminQueryUserOrdersResArray', $_SESSION)) {
                     <div class="nav nav-tabs border-dark d-flex flex-row align-items-center justify-content-center">
                         <p>User Info</p>
                     </div>
-                    <div class="col-4 h-100 d-flex flex-column justify-content-start align-items-center"
+                    <div class="col-5 h-100 d-flex flex-column justify-content-start align-items-center"
                          style="overflow: scroll">
+                        <table class="table table-striped table-bordered border-secondary">
+                            <thead>
+                            <tr>
+                                <th style="width: 50%">用户ID</th>
+                                <th style="width: 50%">用户名</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+                            for ($i = 0; $i < count($registerUserIdList); $i++) {
+                                echo <<<END
+                            <tr>
+                                <td><a href="adminQueryUserInfo?userId={$registerUserIdList[$i]}&userName={$registerUserNameList[$i]}">{$registerUserIdList[$i]}</a></td>
+                                <td><a href="adminQueryUserInfo?userId={$registerUserIdList[$i]}&userName={$registerUserNameList[$i]}">{$registerUserNameList[$i]}</a></td>
+                            </tr>
+END;
+                            }
+                            ?>
+                            </tbody>
+                        </table>
                     </div>
-                    <form class="col-2 h-100 d-flex flex-column justify-content-center align-items-center"
-                          action="adminQueryUserInfo" method="post">
-                        <label for="queryUserNameInput" class="form-label">User Name:</label>
-                        <input type="text" name="queryUserNameInput" id="queryUserNameInput" class="form-control">
-                        <button class="btn btn-primary" type="submit" formmethod="post">Search Info</button>
-                    </form>
-                    <div class="col-6 h-100 d-flex flex-column justify-content-start align-items-center position-relative">
+                    <div class="col-7 h-100 d-flex flex-column justify-content-start align-items-center position-relative">
                         <div class="row w-100" style="height: 30px;">
                             <div class="col h-100 w-50 p-3">UserName: <?= $userName ?></div>
                             <div class="col h-100 w-50 p-3">UserRealName: <?= $userRealName ?></div>
@@ -138,7 +158,7 @@ if (!array_key_exists('adminQueryUserOrdersResArray', $_SESSION)) {
                             </button>
                         </div>
                         <div class="row w-100 position-absolute bottom-0 p-2" style="top:150px; overflow: scroll">
-                            <table class="table-light table-striped table-bordered border-secondary">
+                            <table class="table-striped table-bordered border-secondary">
                                 <thead>
                                 <tr>
                                     <th scope="col" class="text-center">订单号</th>
