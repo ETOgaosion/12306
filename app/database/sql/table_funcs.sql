@@ -968,7 +968,7 @@ begin
         loop
             if ((select tfi_station_id
                  from train_full_info
-                 where tfi_station_id = dest_city_id and tfi_train_id = train_idi)) then
+                 where tfi_station_id = dest_city_id and tfi_train_id = train_idi) is not null) then
                 continue ;
             end if;
             select get_station_id_from_cid_tid(city_id, train_idi) into station_id;

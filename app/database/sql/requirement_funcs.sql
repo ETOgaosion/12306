@@ -160,8 +160,8 @@ begin
                         tfi_distance                                                                                                   as distance,
                         tfi_price                                                                                                      as seat_price,
                         (array(select *
-                         from get_min_seats(train_id, q_date, start_station_id, s_station_id,
-                                            enum_range(null::seat_type))))                                                              as seat_num
+                               from get_min_seats(train_id, q_date, start_station_id, s_station_id,
+                                                  enum_range(null::seat_type))))                                                       as seat_num
                  from train_full_info tfi
                           left join station_list s on tfi.tfi_station_id = s.s_station_id
                           left join city c on s.s_station_city_id = c.c_city_id
@@ -187,6 +187,8 @@ drop table if exists train_info cascade;
 
 create table if not exists train_info
 (
+    start_date        date,
+    arrive_date       date,
     train_name        varchar(10),
     train_id          integer,
     station_from_name varchar(20),
@@ -242,8 +244,6 @@ as
 $$
 declare
     --
-    city_reachable          boolean;
-    --
     train_id_list           integer[];
     train_idi               integer;
     train_namei             varchar(10);
@@ -267,77 +267,76 @@ declare
     seat_i                  integer := 1;
     r                       train_info%rowtype;
 begin
-    select check_reach_table(from_city_id, to_city_id) into city_reachable;
-    if city_reachable then
-        train_id_list := array(
-                select from_city_train.ct_train_id
-                from city_train from_city_train
-                         join city_train to_city_train on from_city_train.ct_train_id = to_city_train.ct_train_id
-                where (select get_ct_priority(from_city_id, from_city_train.ct_train_id)) <
-                      (select get_ct_priority(to_city_id, to_city_train.ct_train_id))
-                  and from_city_train.ct_city_id = from_city_id
-                  and to_city_train.ct_city_id = to_city_id
-            );
-        <<scan_train_list>>
-        foreach train_idi in array train_id_list
-            loop
-            -- 2 ways of accomplishment --
-            -- leave station --
-                select get_station_id_from_cid_tid(from_city_id, train_idi) into station_leave_id;
-                select query_station_name_from_id__s__(station_leave_id) into station_leave_name;
-                select q_all_info_leave.leave_time,
-                       q_all_info_leave.day_from_departure,
-                       q_all_info_leave.distance,
-                       q_all_info_leave.price
-                into station_leave_time, station_leave_day, station_leave_distance, station_leave_price
-                from query_train_all_info_from_tid_sid__tfi__(train_idi, station_leave_id) q_all_info_leave;
-                -- check time --
-                if station_leave_time < q_time then
-                    continue scan_train_list;
-                end if;
-                select query_train_name_from_id__t__(train_idi) into train_namei;
-                -- arrive station --
-                select get_station_id_from_cid_tid(to_city_id, train_idi) into station_arrive_id;
-                select query_station_name_from_id__s__(station_arrive_id) into station_arrive_name;
-                select q_all_info_arrive.leave_time,
-                       q_all_info_arrive.day_from_departure,
-                       q_all_info_arrive.distance,
-                       q_all_info_arrive.price
-                into station_arrive_time, station_arrive_day, station_arrive_distance, station_arrive_price
-                from query_train_all_info_from_tid_sid__tfi__(train_idi, station_arrive_id) q_all_info_arrive;
-                -- seats and price calculation --
-                for seat_i in 1..7
-                    loop
-                        select array_set(station_arrive_price, seat_i,
-                                         station_arrive_price[seat_i] - station_leave_price[seat_i])
-                        into res_price;
-                    end loop;
-                seat_nums := array(select get_min_seat.seat_num
-                                   from get_min_seats(train_idi, q_date, station_leave_id, station_arrive_id,
-                                                      enum_range(null::seat_type)) get_min_seat);
-                -- return row --
-                for r in
-                    select train_namei                                                                as train_name,
-                           train_idi                                                                  as train_id,
-                           station_leave_name                                                         as station_from_name,
-                           station_leave_id                                                           as station_from_id,
-                           station_arrive_name                                                        as station_to_name,
-                           station_arrive_id                                                          as station_to_id,
-                           station_leave_time                                                         as leave_time,
-                           station_arrive_time                                                        as arrive_time,
-                           (select *
-                            from get_actual_interval_bt_time(station_leave_time, station_arrive_time,
-                                                             station_arrive_day - station_leave_day)) as durance,
-                           station_arrive_distance - station_leave_distance                           as distance,
-                           res_price                                                                  as seat_price,
-                           seat_nums                                                                  as seat_nums,
-                           query_front                                                                as transfer_first,
-                           query_post                                                                 as transfer_late
-                    loop
-                        return next r;
-                    end loop;
-            end loop;
-    end if;
+    train_id_list := array(
+            select from_city_train.ct_train_id
+            from city_train from_city_train
+                     join city_train to_city_train on from_city_train.ct_train_id = to_city_train.ct_train_id
+            where (select get_ct_priority(from_city_id, from_city_train.ct_train_id)) <
+                  (select get_ct_priority(to_city_id, to_city_train.ct_train_id))
+              and from_city_train.ct_city_id = from_city_id
+              and to_city_train.ct_city_id = to_city_id
+        );
+    <<scan_train_list>>
+    foreach train_idi in array train_id_list
+        loop
+        -- 2 ways of accomplishment --
+        -- leave station --
+            select get_station_id_from_cid_tid(from_city_id, train_idi) into station_leave_id;
+            select query_station_name_from_id__s__(station_leave_id) into station_leave_name;
+            select q_all_info_leave.leave_time,
+                   q_all_info_leave.day_from_departure,
+                   q_all_info_leave.distance,
+                   q_all_info_leave.price
+            into station_leave_time, station_leave_day, station_leave_distance, station_leave_price
+            from query_train_all_info_from_tid_sid__tfi__(train_idi, station_leave_id) q_all_info_leave;
+            -- check time --
+            if station_leave_time < q_time then
+                continue scan_train_list;
+            end if;
+            select query_train_name_from_id__t__(train_idi) into train_namei;
+            -- arrive station --
+            select get_station_id_from_cid_tid(to_city_id, train_idi) into station_arrive_id;
+            select query_station_name_from_id__s__(station_arrive_id) into station_arrive_name;
+            select q_all_info_arrive.leave_time,
+                   q_all_info_arrive.day_from_departure,
+                   q_all_info_arrive.distance,
+                   q_all_info_arrive.price
+            into station_arrive_time, station_arrive_day, station_arrive_distance, station_arrive_price
+            from query_train_all_info_from_tid_sid__tfi__(train_idi, station_arrive_id) q_all_info_arrive;
+            -- seats and price calculation --
+            for seat_i in 1..7
+                loop
+                    select array_set(station_arrive_price, seat_i,
+                                     station_arrive_price[seat_i] - station_leave_price[seat_i])
+                    into res_price;
+                end loop;
+            seat_nums := array(select get_min_seat.seat_num
+                               from get_min_seats(train_idi, q_date, station_leave_id, station_arrive_id,
+                                                  enum_range(null::seat_type)) get_min_seat);
+            -- return row --
+            for r in
+                select q_date                                                                     as start_date,
+                       (station_arrive_time - station_leave_time + q_date)                        as arrive_date,
+                       train_namei                                                                as train_name,
+                       train_idi                                                                  as train_id,
+                       station_leave_name                                                         as station_from_name,
+                       station_leave_id                                                           as station_from_id,
+                       station_arrive_name                                                        as station_to_name,
+                       station_arrive_id                                                          as station_to_id,
+                       station_leave_time                                                         as leave_time,
+                       station_arrive_time                                                        as arrive_time,
+                       (select *
+                        from get_actual_interval_bt_time(station_leave_time, station_arrive_time,
+                                                         station_arrive_day - station_leave_day)) as durance,
+                       station_arrive_distance - station_leave_distance                           as distance,
+                       res_price                                                                  as seat_price,
+                       seat_nums                                                                  as seat_nums,
+                       query_front                                                                as transfer_first,
+                       query_post                                                                 as transfer_late
+                loop
+                    return next r;
+                end loop;
+        end loop;
     return;
 end;
 $$ language plpgsql;
@@ -376,8 +375,8 @@ begin
     select query_city_id_from_name__c__(city_to) into to_city_id;
     select check_reach_table(from_city_id, to_city_id) into city_reachable;
     if query_directly then
-        for r in
-            select * from get_train_bt_cities_directly(from_city_id, to_city_id, q_date, q_time, false, false)
+        for r in select *
+                 from get_train_bt_cities_directly(from_city_id, to_city_id, q_date, q_time, false, false)
             loop
                 return next r;
             end loop;
@@ -399,7 +398,7 @@ begin
                                                            q_time, true, false))
                         loop
                             if (q_time + r.durance + interval '1 hour' < q_time) then
-                                tmp_qdate := q_date + interval '1 day';
+                                tmp_qdate := q_date + r.durance + interval '1 day';
                                 tmp_qtime := q_time + r.durance - interval '23 hours';
                             end if;
                             for j in
@@ -430,7 +429,6 @@ begin
                                 end loop;
                         end loop;
                 end loop;
-
         end if;
     end if;
 end;
@@ -707,14 +705,14 @@ create or replace function admin_query_orders()
     returns table
             (
                 total_order_num integer,
-                total_price     integer,
+                total_price     numeric(5, 1),
                 hot_trains      varchar(10)[]
             )
 as
 $$
 declare
     total_order_num integer;
-    total_price     integer;
+    total_price     numeric(5, 1);
     hot_trains      varchar(10)[];
 begin
     select count(*),

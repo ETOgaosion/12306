@@ -19,6 +19,7 @@ if (!isset($userTelNum)) {
 }
 if (!array_key_exists('userQueryResArray', $_SESSION)) {
     $orderIDList = array();
+    $trainNameList = array();
     $dateList = array();
     $startStationList = array();
     $arriveStationList = array();
@@ -26,6 +27,7 @@ if (!array_key_exists('userQueryResArray', $_SESSION)) {
     $orderStatusList = array();
 } else {
     $resArray = Session::get('userQueryResArray');
+    $trainNameList = array_column($resArray, 'train_name');
     $orderIDList = array_column($resArray, 'order_id');
     $dateList = array_column($resArray, 'date');
     $startStationList = array_column($resArray, 'station_leave');
@@ -124,6 +126,7 @@ if (!array_key_exists('userQueryResArray', $_SESSION)) {
                         <thead>
                         <tr>
                             <th scope="col" class="text-center">订单号</th>
+                            <th scope="col" class="text-center">车次</th>
                             <th scope="col" class="text-center">日期</th>
                             <th scope="col" class="text-center">出发站</th>
                             <th scope="col" class="text-center">到达站</th>
@@ -137,6 +140,7 @@ if (!array_key_exists('userQueryResArray', $_SESSION)) {
                             echo <<<END
                         <tr>
                         <td class="align-top p-3" style="height: 50px">$orderIDList[$i]</td>
+                        <td class="align-top p-3" style="height: 50px">$trainNameList[$i]</td>
                         <td class="align-top p-3" style="height: 50px">$dateList[$i]</td>
                         <td class="align-top p-3" style="height: 50px">$startStationList[$i]</td>
                         <td class="align-top p-3" style="height: 50px">$arriveStationList[$i]</td>

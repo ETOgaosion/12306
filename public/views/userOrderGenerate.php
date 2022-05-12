@@ -5,41 +5,41 @@ use app\controllers\ViewCtrl;
 
 ViewCtrl::includePageHeader(array('pageTitle' => "order_generate", 'assetsDir' => "assets/", 'login' => true));
 $assetsDir = 'assets/';
-if (!isset($trainId)) {
-    $trainId = 0;
+if (!isset($trainIdList)) {
+    $trainIdList = array(0);
 }
-if (!isset($trainName)) {
-    $trainName = "";
+if (!isset($trainNameList)) {
+    $trainNameList = array("");
 }
-if (!isset($date)) {
-    $date = "";
+if (!isset($dateList)) {
+    $dateList = array("");
 }
-if (!isset($start_station)) {
-    $start_station = "";
+if (!isset($start_stationList)) {
+    $start_stationList = array("");
 }
-if (!isset($startStationId)) {
-    $startStationId = 0;
+if (!isset($startStationIdList)) {
+    $startStationIdList = array(0);
 }
-if (!isset($end_station)) {
-    $end_station = "";
+if (!isset($end_stationList)) {
+    $end_stationList = array("");
 }
-if (!isset($endStationId)) {
-    $endStationId = 0;
+if (!isset($endStationIdList)) {
+    $endStationIdList = array(0);
 }
-if (!isset($remain_tickets)) {
-    $remain_tickets = "";
+if (!isset($remain_ticketsList)) {
+    $remain_ticketsList = array("");
 }
-if (!isset($seatType)) {
-    $seatType = 0;
+if (!isset($seatTypeList)) {
+    $seatTypeList = array(0);
 }
 if (!isset($userName)) {
-    $userName = "";
+    $userName = array("");
 }
 if (!isset($userRealName)) {
-    $userRealName = "";
+    $userRealName = array("");
 }
 if (!isset($userTelNum)) {
-    $userTelNum = "";
+    $userTelNum = array("");
 }
 ?>
 
@@ -58,32 +58,38 @@ if (!isset($userTelNum)) {
                         </p>
                     </div>
                     <div class="row w-100 justify-content-center align-items-center" style="height: 150px">
-                        <div class="col-6 h-100 justify-content-starts ps-5">
-                            <div class="row w-100 ps-5">
-                                <p>车次：<?= $trainName ?></p>
+                        <?php
+                        for ($i = 0; $i < count($trainNameList); $i++) {
+                            echo <<<END
+                            <div class="col h-100 justify-content-starts ps-5" style="width: 250px;">
+                                <div class="row w-100 ps-5">
+                                    <p>车次：$trainNameList[$i]</p>
+                                </div>
+                                <div class="row w-100 ps-5">
+                                    <p>日期：$dateList[$i]</p>
+                                </div>
+                                <div class="row w-100 ps-5">
+                                    <p>始发站: $start_stationList[$i]&nbsp; ~ &nbsp; 终点站：$end_stationList[$i]</p>
+                                </div>
+                                <div class="row w-100 ps-5">
+                                    <p>查询时余票：$remain_ticketsList[$i]</p>
+                                </div>
                             </div>
-                            <div class="row w-100 ps-5">
-                                <p>日期：<?= $date ?></p>
-                            </div>
-                            <div class="row w-100 ps-5">
-                                <p>始发站: <?= $start_station ?> &nbsp; ~ &nbsp; 终点站：<?= $end_station ?></p>
-                            </div>
-                            <div class="row w-100 ps-5">
-                                <p>查询时余票：<?= $remain_tickets ?></p>
-                            </div>
-                        </div>
+                            END;
+                        }
+                        ?>
                         <!--                    <div class="col w-50 h-100 flex-column justify-content-center align-items-center">-->
                         <!--                        <div class="row w-100 pe-5">-->
                         <!--                            <p></p>-->
                         <!--                        </div>-->
                         <!--                        <div class="row w-100 ps-5">-->
-                        <!--                            <p>用户名：< ?//= $userName?></p>-->
+                        <!--                            <p>用户名：< ?//= $userNameList?></p>-->
                         <!--                        </div>-->
                         <!--                        <div class="row w-100 ps-5">-->
-                        <!--                            <p>真实姓名：< ?//= $userRealName?></p>-->
+                        <!--                            <p>真实姓名：< ?//= $userRealNameList?></p>-->
                         <!--                        </div>-->
                         <!--                        <div class="row w-100 ps-5">-->
-                        <!--                            <p>电话号码：< ?//= $remain_tickets ?></p>-->
+                        <!--                            <p>电话号码：< ?//= $remain_ticketsList ?></p>-->
                         <!--                        </div>-->
                         <!--                    </div>-->
                     </div>
@@ -112,14 +118,20 @@ if (!isset($userTelNum)) {
                     </div>
                     <form class="row w-100" style="overflow: scroll; height: 75%;" id="orderUsersForm"
                           action="preorderTrain" method="post">
-                        <input type="hidden" name="trainId" value="<?= $trainId ?>">
-                        <input type="hidden" name="trainName" value="<?= $trainName ?>">
-                        <input type="hidden" name="date" value="<?= $date ?>">
-                        <input type="hidden" name="stationFromId" value="<?= $startStationId ?>">
-                        <input type="hidden" name="stationFrom" value="<?= $start_station ?>">
-                        <input type="hidden" name="stationToId" value="<?= $endStationId ?>">
-                        <input type="hidden" name="stationTo" value="<?= $end_station ?>">
-                        <input type="hidden" name="seatType" value="<?= $seatType ?>">
+                        <?php
+                        for ($i = 0; $i < count($trainNameList); $i++) {
+                            echo <<<END
+                        <input type="hidden" name="trainId-{$i}" value="$trainIdList[$i]">
+                        <input type="hidden" name="trainName-{$i}" value="$trainNameList[$i]">
+                        <input type="hidden" name="date-{$i}" value="$dateList[$i]">
+                        <input type="hidden" name="stationFromId-{$i}" value="$startStationIdList[$i]">
+                        <input type="hidden" name="stationFrom-{$i}" value="$start_stationList[$i]">
+                        <input type="hidden" name="stationToId-{$i}" value="$endStationIdList[$i]">
+                        <input type="hidden" name="stationTo-{$i}" value="$end_stationList[$i]">
+                        <input type="hidden" name="seatType-{$i}" value="$seatTypeList[$i]">
+END;
+                        }
+                        ?>
                         <table class="table table-bordered border-secondary">
                             <thead>
                             <tr>
@@ -150,6 +162,12 @@ if (!isset($userTelNum)) {
                             </tr>
                             </tbody>
                         </table>
+                        <?php
+                        $count = count($trainNameList);
+                        echo <<<END
+                        <input type="hidden" name="count" id="count" value="$count"">
+END;
+                        ?>
                     </form>
                     <div class="row w-100 d-flex flex-row justify-content-center align-items-center"
                          style="height: 10%">

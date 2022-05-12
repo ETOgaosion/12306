@@ -55,4 +55,18 @@ class QueryCtrl
         ));
         die();
     }
+
+    #[NoReturn] public static function queryTrainFromGet(): void {
+        $trainName = $_GET['trainName'];
+        $setOffDate = $_GET['date'];
+        $queryRes = UserQuery::querytrain($trainName, $setOffDate);
+        ViewCtrl::includeView('/userQueryTrainRes', array(
+            'trainName' =>  $trainName,
+            'date' => $setOffDate,
+            'start_station' => $queryRes[0]['station'],
+            'end_station' => end($queryRes)['station'],
+            'queryRes' => $queryRes
+        ));
+        die();
+    }
 }

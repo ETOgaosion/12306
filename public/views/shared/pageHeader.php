@@ -69,7 +69,7 @@ if (empty($isAdmin)) {
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="navbar-collapse collapse" id="collapseNavbar">
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav ms-auto pe-5">
                 <?php
                 if (array_key_exists('userName', $_SESSION)) {
                     $uname = Session::get('userName');
@@ -96,7 +96,7 @@ if (empty($isAdmin)) {
                      <?php
                      <li><a class="dropdown-item" href="logout">Log out</a></li>
                      <li><hr class="dropdown-divider"></li>
-                     <li><a class="dropdown-item" href="userSpace">UserInfo Space</a></li>
+                     <li><a class="dropdown-item" href="userSpace">User Space</a></li>
                      </ul>
                 </li>
                 END;

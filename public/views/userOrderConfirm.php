@@ -5,47 +5,44 @@ use app\controllers\ViewCtrl;
 
 ViewCtrl::includePageHeader(array('pageTitle' => "order_confirm", 'assetsDir' => "assets/", 'login' => true));
 $assetsDir = 'assets/';
-if (!isset($trainId)) {
-    $trainId = 0;
+if (!isset($trainIdList)) {
+    $trainIdList = array(0);
 }
-if (!isset($trainName)) {
-    $trainName = "";
+if (!isset($trainNameList)) {
+    $trainNameList = array("");
 }
-if (!isset($date)) {
-    $date = date('Y-m-d', time());
+if (!isset($dateList)) {
+    $dateList = array("");
 }
-if (!isset($start_station)) {
-    $start_station = "";
+if (!isset($start_stationList)) {
+    $start_stationList = array("");
 }
-if (!isset($startStationId)) {
-    $startStationId = 0;
+if (!isset($startStationIdList)) {
+    $startStationIdList = array(0);
 }
-if (!isset($end_station)) {
-    $end_station = "";
+if (!isset($end_stationList)) {
+    $end_stationList = array("");
 }
-if (!isset($endStationId)) {
-    $endStationId = 0;
+if (!isset($endStationIdList)) {
+    $endStationIdList = array(0);
 }
-if (!isset($remain_tickets)) {
-    $remain_tickets = "";
-}
-if (!isset($seatType)) {
-    $seatType = 0;
+if (!isset($seatTypeList)) {
+    $seatTypeList = array(0);
 }
 if (!isset($userNameList)) {
-    $userNameList = array();
+    $userNameList = array("");
 }
 if (!isset($userRealNameList)) {
-    $userRealNameList = array();
+    $userRealNameList = array("");
 }
 if (!isset($userTelNumList)) {
-    $userTelNumList = array();
+    $userTelNumList = array("");
 }
-if (!isset($seatNum)) {
-    $seatNum = 0;
+if (!isset($seatNumList)) {
+    $seatNumList = array();
 }
-if (!isset($orderId)) {
-    $orderId = 0;
+if (!isset($orderIdList)) {
+    $orderIdList = array();
 }
 ?>
 
@@ -64,17 +61,23 @@ if (!isset($orderId)) {
                         </p>
                     </div>
                     <div class="row w-100 h-auto justify-content-center align-items-center">
-                        <div class="col-6 h-100 justify-content-starts ps-5">
-                            <div class="row w-100 ps-5">
-                                <p>车次：<?= $trainName ?></p>
+                        <?php
+                        for ($i = 0; $i < count($trainNameList); $i++) {
+                            echo <<<END
+                            <div class="col h-100 justify-content-starts ps-5" style="width: 250px;">
+                                <div class="row w-100 ps-5">
+                                    <p>车次：$trainNameList[$i]</p>
+                                </div>
+                                <div class="row w-100 ps-5">
+                                    <p>日期：$dateList[$i]</p>
+                                </div>
+                                <div class="row w-100 ps-5">
+                                    <p>始发站: $start_stationList[$i]&nbsp; ~ &nbsp; 终点站：$end_stationList[$i]</p>
+                                </div>
                             </div>
-                            <div class="row w-100 ps-5">
-                                <p>日期：<?= $date ?></p>
-                            </div>
-                            <div class="row w-100 ps-5">
-                                <p>始发站: <?= $start_station ?> &nbsp; ~ &nbsp; 终点站：<?= $end_station ?></p>
-                            </div>
-                        </div>
+                            END;
+                        }
+                        ?>
                     </div>
                 </div>
                 <div class="row w-100 p-1 d-flex flex-column justify-content-start align-items-center"
@@ -93,21 +96,25 @@ if (!isset($orderId)) {
                                 <th style="width: 25%">UserName</th>
                                 <th style="width: 25%">UserRealName</th>
                                 <th style="width: 25%">UserTelNum</th>
+                                <th style="width: 25%">trainName</th>
                                 <th style="width: 25%">SeatNum</th>
                             </tr>
                             </thead>
                             <tbody>
                             <?php
-                            for ($i = 0; $i < count($userNameList); $i++) {
-                                $seatNumber = $seatNum + $i;
-                                echo <<<END
+                            for($j = 0; $j < count($trainNameList); $j++) {
+                                for ($i = 0; $i < count($userNameList); $i++) {
+                                    $seatNumber = end($seatNumList[$j]) + $i;
+                                    echo <<<END
                             <tr>
                             <td class="align-top p-3" style="height: 50px">{$userNameList[$i]}</td>
                             <td class="align-top p-3" style="height: 50px">{$userRealNameList[$i]}</td>
                             <td class="align-top p-3" style="height: 50px">{$userTelNumList[$i]}</td>
+                            <td class="align-top p-3" style="height: 50px">{$trainNameList[$j]}</td>
                             <td class="align-top p-3" style="height: 50px">{$seatNumber}</td>
                             </tr>
                             END;
+                                }
                             }
                             ?>
                             </tbody>
@@ -115,8 +122,15 @@ if (!isset($orderId)) {
                     </div>
                     <form class="row w-100 d-flex flex-row justify-content-around align-items-center"
                           style="height: 10%" action="orderTrain" method="post">
-                        <input type="hidden" name="orderId" value="<?= $orderId ?>">
-                        <input type="hidden" name="uidNum" value="<?= count($userTelNumList) ?>">
+                        <?php
+                        for($i = 0; $i < count(end($orderIdList)); $i++) {
+                            $orderArray = end($orderIdList);
+                            echo <<<END
+                        <input type="hidden" name="orderId[]" value="$orderArray[$i]">
+END;
+                        }
+                        ?>
+                        <input type="hidden" name="uidNum" value="<?php echo count($userTelNumList) ?>">
                         <button type="submit" formmethod="post" class="btn btn-success w-25" id="confirmBtn">
                             Confirm
                         </button>

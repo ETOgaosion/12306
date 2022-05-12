@@ -12,8 +12,6 @@ var map = new ol.Map({
     })
 });
 
-console.log("reach");
-
 // // set up containers for the map  + panel
 // var mapContainer = document.getElementById('mapContainer'),
 //     routeInstructionsContainer = document.getElementById('panel');

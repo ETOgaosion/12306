@@ -77,7 +77,10 @@ class Route
         self::post('userQueryCity', 'QueryCtrl@queryCity');
         self::post('ReverseUserQueryCity', 'QueryCtrl@queryCityReverse');
         self::post('userQueryTrain', 'QueryCtrl@queryTrain');
+        self::get('userQueryTrain', 'QueryCtrl@queryTrainFromGet');
         self::get('userGenerateOrder', 'OrderCtrl@generateOrder');
+        self::get('userPostGenerateOrder', 'OrderCtrl@generateOrder');
+        self::post('userPostGenerateOrder', 'OrderCtrl@generateOrderByPost');
         self::post('preorderTrain', 'OrderCtrl@preOrderTrain');
         self::post('orderTrain', 'OrderCtrl@orderTrain');
 
