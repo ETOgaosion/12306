@@ -36,49 +36,49 @@ class AuthCtrl
         $loginAsAdmin = $_POST['admin-login'] ?? '';
         if ($loginAsAdmin != 'Yes') {
             $resArray = Auth::userLogin($loginUserName, $loginPassword);
-            $_SESSION['isAdmin'] = false;
+            Session::set('isAdmin', false);
             setcookie('isAdmin', false, CookieConfig::$expire_time, CookieConfig::$cookie_avail_path);
             if ($resArray['error'] == "NO_ERROR") {
-                $_SESSION['loginSucceed'] = true;
-                $_SESSION['loginFailed'] = false;
-                $_SESSION['userName'] = $loginUserName;
-                $_SESSION['uid'] = $resArray['uid'];
+                Session::set('loginSucceed', true);
+                Session::set('loginFailed', false);
+                Session::set('userName', $loginUserName);
+                Session::set('uid', $resArray['uid']);
                 setcookie('userName', $loginUserName, CookieConfig::$expire_time, CookieConfig::$cookie_avail_path);
                 setcookie('uid', $resArray['uid'], CookieConfig::$expire_time, CookieConfig::$cookie_avail_path);
-                $_SESSION['loggedIn'] = true;
+                Session::set('loggedIn', true);
                 setcookie('loggedIn', true, CookieConfig::$expire_time, CookieConfig::$cookie_avail_path);
                 Route::init();
                 ViewCtrl::includeMain();
                 die();
             }
             else {
-                $_SESSION['loginSucceed'] = false;
-                $_SESSION['loginFailed'] = true;
-                $_SESSION['loginFailReason'] = $resArray['error'];
+                Session::set('loginSucceed', false);
+                Session::set('loginFailed', true);
+                Session::set('loginFailReason', $resArray['error']);
                 ViewCtrl::includeIndex();
             }
         }
         else {
             $resArray = Auth::adminLogin($loginUserName, $loginPassword, $loginAuth);
             if ($resArray['error'] == "NO_ERROR") {
-                $_SESSION['loginSucceed'] = true;
-                $_SESSION['loginFailed'] = false;
-                $_SESSION['userName'] = $loginUserName;
-                $_SESSION['uid'] = $resArray['aid'];
+                Session::set('loginSucceed', true);
+                Session::set('loginFailed', false);
+                Session::set('userName', $loginUserName);
+                Session::set('uid', $resArray['aid']);
                 setcookie('userName', $loginUserName, CookieConfig::$expire_time, CookieConfig::$cookie_avail_path);
                 setcookie('uid', $resArray['aid'], CookieConfig::$expire_time, CookieConfig::$cookie_avail_path);
-                $_SESSION['loggedIn'] = true;
+                Session::set('loggedIn', true);
                 setcookie('loggedIn', true, CookieConfig::$expire_time, CookieConfig::$cookie_avail_path);
-                $_SESSION['isAdmin'] = true;
+                Session::set('isAdmin', true);
                 setcookie('isAdmin', true);
                 Route::init();
                 ViewCtrl::includeMain();
                 die();
             }
             else {
-                $_SESSION['loginSucceed'] = false;
-                $_SESSION['loginFailed'] = true;
-                $_SESSION['loginFailReason'] = $resArray['error'];
+                Session::set('loginSucceed', false);
+                Session::set('loginFailed', true);
+                Session::set('loginFailReason', $resArray['error']);
             }
         }
     }
@@ -94,30 +94,31 @@ class AuthCtrl
         $registerAsAdmin = $_POST['admin-register'] ?? '';
         if ($registerAsAdmin != 'Yes') {
             $resArray = Auth::userRegister($registerUserName, $registerPassword, $registerRealNameInput, $registerTelNumInput, $registerEmail);
-            $_SESSION['isAdmin'] = false;
+            Session::set('isAdmin', false);
             if ($resArray['error'] == "NO_ERROR") {
-                $_SESSION['registerSucceed'] = true;
-                $_SESSION['registerFailed'] = false;
+                Session::set('registerSucceed', true);
+                Session::set('registerFailed', false);
                 ViewCtrl::includeIndex();
             }
             else {
-                $_SESSION['registerSucceed'] = false;
-                $_SESSION['registerFailed'] = true;
-                $_SESSION['registerFailReason'] = $resArray['error'];
+                Session::set('registerSucceed', false);
+                Session::set('registerFailed', true);
+                Session::set('registerFailReason', $resArray['error']);
                 ViewCtrl::includeIndex();
             }
         }
         else {
             $resArray = Auth::adminRegister($registerUserName, $registerPassword, $registerTelNumInput, $registerEmail, $registerAuth);
-            $_SESSION['isAdmin'] = true;
+            Session::set('isAdmin', true);
             if ($resArray['error'] == "NO_ERROR") {
-                $_SESSION['registerSucceed'] = true;
-                $_SESSION['registerFailed'] = false;
+                Session::set('registerSucceed', true);
+                Session::set('registerFailed', false);
+                ViewCtrl::includeIndex();
             }
             else {
-                $_SESSION['registerSucceed'] = false;
-                $_SESSION['registerFailed'] = true;
-                $_SESSION['registerFailReason'] = $resArray['error'];
+                Session::set('registerSucceed', false);
+                Session::set('registerFailed', true);
+                Session::set('registerFailReason', $resArray['error']);
                 ViewCtrl::includeIndex();
             }
         }
@@ -125,9 +126,7 @@ class AuthCtrl
 
     #[NoReturn] public static function logout(): void
     {
-        Session::unset('userName');
-        Session::unset('loggedIn');
-        Session::unset('loginSucceed');
+        Session::unsetAll();
         Route::init();
         ViewCtrl::includeIndex();
         die();

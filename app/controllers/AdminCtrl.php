@@ -27,20 +27,20 @@ class AdminCtrl
     public static function adminRefreshOrders(): void
     {
         $resArray = AdminQuery::adminQueryOrders();
-        $_SESSION['totalOrder'] = $resArray['total_order_num'];
-        $_SESSION['totalPrice'] = $resArray['total_price'];
-        $_SESSION['hotTrains'] = $resArray['hot_trains'];
+        Session::set('totalOrder', $resArray['total_order_num']);
+        Session::set('totalPrice', $resArray['total_price']);
+        Session::set('hotTrains', $resArray['hot_trains']);
     }
 
     public static function adminQueryUserInfo($uname): void
     {
-         $_SESSION['adminQueryUserInfoResArray'] = AdminQuery::queryUserInfo($uname);
+         Session::set('adminQueryUserInfoResArray', AdminQuery::queryUserInfo($uname));
     }
 
     public static function adminQueryUserOrders($uname): void
     {
         $resArray = AdminQuery::queryUserOrders($uname);
-        $_SESSION['adminQueryUserOrdersResArray'] = $resArray;
+        Session::set('adminQueryUserOrdersResArray', $resArray);
     }
 
     public static function adminQueryUser(): void

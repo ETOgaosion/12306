@@ -12,6 +12,7 @@ class Session
             session_set_cookie_params(SessionConfig::getSessionLifeTimeOrOptions(), SessionConfig::getSessionCookiePath());
             session_save_path(SessionConfig::getSessionSavePath());
             session_start();
+            self::unsetAll();
         }
 
         register_shutdown_function(function() {
@@ -30,6 +31,13 @@ class Session
     public static function unset($name): void
     {
         unset($_SESSION[$name]);
+    }
+
+    public static function unsetAll(): void
+    {
+        foreach ($_SESSION as $key => $value) {
+            unset($_SESSION[$key]);
+        }
     }
 
     public static function get($name) {

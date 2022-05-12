@@ -51,7 +51,7 @@ class Route {
             self::any('index.php', 'ViewCtrl@includeIndex');
         }
         else {
-            $_SESSION['loggedIn'] = true;
+            Session::set('loggedIn', true);
             self::any('', 'ViewCtrl@includeMain');
             self::any('index', 'ViewCtrl@includeMain');
             self::any('index.php', 'ViewCtrl@includeMain');

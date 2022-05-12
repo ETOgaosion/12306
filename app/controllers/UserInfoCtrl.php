@@ -12,9 +12,9 @@ class UserInfoCtrl
 {
     #[NoReturn] public static function queryAll(): void
     {
-        $userName = $_SESSION['userName'];
-        $uid = $_SESSION['uid'];
-        $isAdmin = $_SESSION['isAdmin'];
+        $userName = Session::get('userName');
+        $uid = Session::get('uid');
+        $isAdmin = Session::get('isAdmin');
         $resArray = UserInfo::userQueryAllInfo($uid);
         ViewCtrl::includeView('/userSpace', array(
             'userName' => $userName,
@@ -27,11 +27,11 @@ class UserInfoCtrl
 
     public static function queryOrder(): void
     {
-        $uid = $_SESSION['uid'];
+        $uid = Session::get('uid');
         $startQueryDate = $_POST['inputStartQueryDate'];
         $endQueryDate = $_POST['inputEndQueryDate'];
         $resArray = UserInfo::userQueryOrder($uid, $startQueryDate, $endQueryDate);
-        $_SESSION['userQueryResArray'] = $resArray;
+        Session::set('userQueryResArray', $resArray);
         self::queryAll();
     }
 

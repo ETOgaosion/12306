@@ -71,7 +71,7 @@ class OrderCtrl
         $seatId = $res['seat_id'] ?? 0;
         $orderId = $res['order_id'] ?? 0;
         if (!$succeed) {
-            $_SESSION['preorderFailed'] = true;
+            Session::set('preorderFailed', true);
             ViewCtrl::includeIndex();
             die();
         }
@@ -100,13 +100,13 @@ class OrderCtrl
         $uidNum = $_POST['uidNum'];
         $res = UserOrder::orderTrain($orderId, $uidNum);
         if (in_array(false, $res)) {
-            $_SESSION['orderFailed'] = true;
-            $_SESSION['orderSucceed'] = false;
-            $_SESSION['orderStatus'] = $res;
+            Session::set('orderFailed', true);
+            Session::set('orderSucceed', false);
+            Session::set('orderStatus', $res);
         }
         else {
-            $_SESSION['orderFailed'] = false;
-            $_SESSION['orderSucceed'] = true;
+            Session::set('orderFailed', false);
+            Session::set('orderSucceed', true);
         }
         ViewCtrl::includeIndex();
         die();

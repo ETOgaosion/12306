@@ -1,4 +1,7 @@
 <?php
+
+use app\tools\Session;
+
 if (empty($pageTitle)) {
     $pageTitle = "index";
 }
@@ -56,7 +59,7 @@ if (empty($isAdmin)) {
     <div class="container-fluid">
         <div class="navbar-header">
             <?php
-            if (!$isAdmin){
+            if (!$isAdmin) {
                 if ($login) {
                     echo <<<END
             <a class="navbar-brand" href="userMain">Train Database</a>
@@ -66,8 +69,7 @@ if (empty($isAdmin)) {
             <a class="navbar-brand" href="index">Train Database</a>
             END;
                 }
-            }
-            else {
+            } else {
                 echo <<<END
             <a class="navbar-brand" href="adminMain">Train Database</a>
             END;
@@ -82,21 +84,18 @@ if (empty($isAdmin)) {
             <ul class="navbar-nav ms-auto">
                 <?php
                 if (array_key_exists('userName', $_SESSION)) {
-                    $uname = $_SESSION['userName'];
-                }
-                else {
+                    $uname = Session::get('userName');
+                } else {
                     $uname = '';
                 }
                 if (array_key_exists('uid', $_SESSION)) {
-                    $uid = $_SESSION['uid'];
-                }
-                else {
+                    $uid = Session::get('uid');
+                } else {
                     $uid = 0;
                 }
                 if (array_key_exists('isAdmin', $_SESSION)) {
-                    $isAdmin = $_SESSION['isAdmin'];
-                }
-                else {
+                    $isAdmin = Session::get('isAdmin');
+                } else {
                     $uname = false;
                 }
                 if ($login) {
@@ -119,7 +118,7 @@ if (empty($isAdmin)) {
                      <a class="nav-link" href="index"><i class="bi bi-person" style="font-size: 1.5rem;"></i></a>
                 </li>
                 END;
-                    }
+                }
                 ?>
             </ul>
         </div>

@@ -123,7 +123,7 @@ def get_reach_table():
     #   trans the element of the matrix to bool
     for matrix_i in range(reach_matrix.shape[0]):
         for matrix_j in range(reach_matrix.shape[1]):
-            if reach_matrix[matrix_i][matrix_j] > 0 or reach_matrix_square[matrix_i][matrix_j] > 0:
+            if reach_matrix_square[matrix_i][matrix_j] > 0:
                 reach_matrix[matrix_i][matrix_j] = 1
 
     with open(city_path, "r", encoding="utf8") as city_info:
