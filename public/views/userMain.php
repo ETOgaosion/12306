@@ -109,7 +109,7 @@ $assetsDir = 'assets/';
                                                 <label for="trainFromCityName" class="col-form-label">车次序号</label>
                                             </div>
                                             <div class="col-7 align-items-center justify-content-center">
-                                                <input type="text" name="trainFromCityName" id="trainName"
+                                                <input type="text" name="trainFromCityName" id="trainFromCityName"
                                                        class="form-control">
                                             </div>
                                         </div>

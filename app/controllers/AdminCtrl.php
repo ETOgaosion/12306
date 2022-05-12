@@ -1,15 +1,18 @@
 <?php
-namespace  app\controllers;
+
+namespace app\controllers;
 if (session_status() != PHP_SESSION_ACTIVE) {
     session_start();
 }
 
 use app\controllers\ViewCtrl;
 use app\models\AdminQuery;
+use app\tools\Session;
 
 class AdminCtrl
 {
-    public static function adminQueryAll() {
+    public static function adminQueryAll()
+    {
         $resArray = AdminQuery::adminQueryOrders();
         $totalOrder = $resArray['total_order_num'];
         $totalPrice = $resArray['total_price'];
@@ -34,7 +37,7 @@ class AdminCtrl
 
     public static function adminQueryUserInfo($uname): void
     {
-         Session::set('adminQueryUserInfoResArray', AdminQuery::queryUserInfo($uname));
+        Session::set('adminQueryUserInfoResArray', AdminQuery::queryUserInfo($uname));
     }
 
     public static function adminQueryUserOrders($uname): void

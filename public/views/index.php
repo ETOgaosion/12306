@@ -220,7 +220,6 @@ END;
             </div>
         </div>
     </div>
-    </div>
 
 <?php
 ViewCtrl::includePageFooter();

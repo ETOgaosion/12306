@@ -1,5 +1,6 @@
 <?php
-namespace  app\controllers;
+
+namespace app\controllers;
 if (session_status() != PHP_SESSION_ACTIVE) {
     session_start();
 }
@@ -7,6 +8,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
 use app\models\UserInfo;
 use app\controllers\ViewCtrl;
 use JetBrains\PhpStorm\NoReturn;
+use app\tools\Session;
 
 class UserInfoCtrl
 {

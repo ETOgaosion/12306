@@ -70,45 +70,46 @@ if (!isset($queryRes)) {
                 <table class="table-light table-striped table-bordered border-secondary">
                     <thead>
                     <tr>
-                        <th scope="col" rowspan="2" class="text-center">车站</th>
-                        <th scope="col" rowspan="2" class="text-center">城市</th>
-                        <th scope="col" rowspan="2" class="text-center">到时</th>
-                        <th scope="col" rowspan="2" class="text-center">发时</th>
-                        <th scope="col" rowspan="2" class="text-center">停留</th>
-                        <th scope="col" rowspan="2" class="text-center">历时</th>
-                        <th scope="col" rowspan="2" class="text-center">里程</th>
-                        <th colspan="2"
-                        ">
-                        <div class="dropdown d-flex flex-row justify-content-center align-items-center">
-                            <button class="btn btn-primary w-100" disabled id="seatTypeBtn"
-                                    style="border-bottom-right-radius:0; border-top-right-radius: 0;">硬座
-                            </button>
-                            <button class="btn btn-primary dropdown-toggle dropdown-toggle-split"
-                                    style="border-top-left-radius: 0; border-bottom-left-radius: 0" href="#"
-                                    role="button" id="dropDownSeatTypeBtn" data-bs-toggle="dropdown"
-                                    aria-expanded="false">
-                                <span class="visually-hidden"></span>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="javascript:switchSeatToHardSeat()"
-                                       id="hardSeatDpItem">硬座</a></li>
-                                <li><a class="dropdown-item" href="javascript:switchSeatToSoftSeat()"
-                                       id="softSeatDpItem">软座</a></li>
-                                <li><a class="dropdown-item" href="javascript:switchSeatToHardBedTop()"
-                                       id="hardBedTopDpItem">硬卧上</a></li>
-                                <li><a class="dropdown-item" href="javascript:switchSeatToHardBedMid()"
-                                       id="hardBedMidDpItem">硬卧中</a></li>
-                                <li><a class="dropdown-item" href="javascript:switchSeatToHardBedDown()"
-                                       id="hardBedDownDpItem">硬卧下</a></li>
-                                <li><a class="dropdown-item" href="javascript:switchSeatToSoftBedTop()"
-                                       id="softBedTopDpItem">软卧上</a></li>
-                                <li><a class="dropdown-item" href="javascript:switchSeatToSoftBedDown()"
-                                       id="softBedDownDpItem">软卧下</a></li>
-                            </ul>
-                        </div>
-                        </th>
-                    </tr>
-                    <tr>
+                        <th scope="col" class="text-center">车站</th>
+                        <th scope="col" class="text-center">城市</th>
+                        <th scope="col" class="text-center">到时</th>
+                        <th scope="col" class="text-center">发时</th>
+                        <th scope="col" class="text-center">停留</th>
+                        <th scope="col" class="text-center">历时</th>
+                        <th scope="col" class="text-center">里程</th>
+                        <th scope="col" class="text-center">座位类型</th>
+<!--                        <th colspan="2"-->
+<!--                        ">-->
+<!--                        <div class="dropdown d-flex flex-row justify-content-center align-items-center">-->
+<!--                            <button class="btn btn-primary w-100" disabled id="seatTypeBtn"-->
+<!--                                    style="border-bottom-right-radius:0; border-top-right-radius: 0;">硬座-->
+<!--                            </button>-->
+<!--                            <button class="btn btn-primary dropdown-toggle dropdown-toggle-split"-->
+<!--                                    style="border-top-left-radius: 0; border-bottom-left-radius: 0" href="#"-->
+<!--                                    role="button" id="dropDownSeatTypeBtn" data-bs-toggle="dropdown"-->
+<!--                                    aria-expanded="false">-->
+<!--                                <span class="visually-hidden"></span>-->
+<!--                            </button>-->
+<!--                            <ul class="dropdown-menu">-->
+<!--                                <li><a class="dropdown-item" href="javascript:switchSeatToHardSeat()"-->
+<!--                                       id="hardSeatDpItem">硬座</a></li>-->
+<!--                                <li><a class="dropdown-item" href="javascript:switchSeatToSoftSeat()"-->
+<!--                                       id="softSeatDpItem">软座</a></li>-->
+<!--                                <li><a class="dropdown-item" href="javascript:switchSeatToHardBedTop()"-->
+<!--                                       id="hardBedTopDpItem">硬卧上</a></li>-->
+<!--                                <li><a class="dropdown-item" href="javascript:switchSeatToHardBedMid()"-->
+<!--                                       id="hardBedMidDpItem">硬卧中</a></li>-->
+<!--                                <li><a class="dropdown-item" href="javascript:switchSeatToHardBedDown()"-->
+<!--                                       id="hardBedDownDpItem">硬卧下</a></li>-->
+<!--                                <li><a class="dropdown-item" href="javascript:switchSeatToSoftBedTop()"-->
+<!--                                       id="softBedTopDpItem">软卧上</a></li>-->
+<!--                                <li><a class="dropdown-item" href="javascript:switchSeatToSoftBedDown()"-->
+<!--                                       id="softBedDownDpItem">软卧下</a></li>-->
+<!--                            </ul>-->
+<!--                        </div>-->
+<!--                        </th>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
                         <th scope="col" class="text-center">票价</th>
                         <th scope="col" class="text-center">余票</th>
                     </tr>
@@ -127,6 +128,7 @@ if (!isset($queryRes)) {
                     $distanceList = array_column($queryRes, 'distance');
                     $seatPriceList = array_column($queryRes, 'seat_price');
                     $seatNumList = array_column($queryRes, 'seat_num');
+                    $seatTypeList = array("硬座", "软座", "硬卧上", "硬卧中", "硬卧下", "软卧上", "软卧下");
                     for ($i = 0; $i < count($stationList); $i++) {
                         for ($j = 0; $j < 7; $j++) {
                             echo <<<END
@@ -138,6 +140,7 @@ if (!isset($queryRes)) {
                     <td>$stayTimeList[$i]</td>
                     <td>$duranceList[$i]</td>
                     <td>$distanceList[$i]</td>
+                    <td>$seatTypeList[$j]</td>
                     <td id="seat-type-{$i}">$seatPriceList[$i][$j]</td>
                     <td id="seat-type-{$i}">$seatNumList[$i][$j]</td>
                 </tr>

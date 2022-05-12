@@ -359,7 +359,6 @@ declare
     to_city_id        integer;
     city_reachable    boolean;
     src_city          integer[] := array [from_city_id];
-    neighbour_city    integer[];
     passing_trains    integer[];
     transfer_interval interval;
     tmp_qdate         date      := q_date;

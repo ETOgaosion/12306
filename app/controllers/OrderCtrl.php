@@ -9,6 +9,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
 use app\models\UserOrder;
 use app\models\UserInfo;
 use app\controllers\ViewCtrl;
+use app\tools\Session;
 use JetBrains\PhpStorm\NoReturn;
 
 class OrderCtrl
@@ -57,12 +58,11 @@ class OrderCtrl
         $userRealNameArray = array();
         $userTelNumList = array();
         for ($i = 0; ; $i++) {
-            if (array_key_exists('userName'.strval($i),$_POST)) {
+            if (array_key_exists('userName' . strval($i), $_POST)) {
                 $userNameArray[] = $_POST['userName' . strval($i)];
-                $userRealNameArray[] = $_POST['userRealName'. strval($i)];
-                $userTelNumList[] = $_POST['userTelNum'. strval($i)];
-            }
-            else {
+                $userRealNameArray[] = $_POST['userRealName' . strval($i)];
+                $userTelNumList[] = $_POST['userTelNum' . strval($i)];
+            } else {
                 break;
             }
         }
@@ -74,8 +74,7 @@ class OrderCtrl
             Session::set('preorderFailed', true);
             ViewCtrl::includeIndex();
             die();
-        }
-        else {
+        } else {
             ViewCtrl::includeView('/userOrderConfirm', array(
                 'trainId' => $trainId,
                 'trainName' => $trainName,
@@ -103,8 +102,7 @@ class OrderCtrl
             Session::set('orderFailed', true);
             Session::set('orderSucceed', false);
             Session::set('orderStatus', $res);
-        }
-        else {
+        } else {
             Session::set('orderFailed', false);
             Session::set('orderSucceed', true);
         }
