@@ -10,6 +10,6 @@ UI show:
 <img src="https://user-images.githubusercontent.com/57280232/225227751-715f10d2-52d3-4210-a116-9bea1b145ca2.jpg" style="width:50%"/>
 </cemter
 
-This work is strictly forbidden any action of copy, usage or modification, we use CC-BY-NC-ND-4.0 License.
+This work strictly prohibitates any action of copy, usage or modification, we use CC-BY-NC-ND-4.0 License.
 
 This repository will be archived.
