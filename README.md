@@ -1,4 +1,4 @@
-# Train_Database
+# HandMake 12306
 
 It's a train query program like Chinese 12306 for UCAS Database course. Train data is from 2016 Chinese train source data (No Public License).
 
