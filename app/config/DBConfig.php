@@ -6,7 +6,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
 
 class DBConfig
 {
-    private static string $pgConnectionString = "host=localhost port=5432 dbname=postgres user=gzy password=123456";
+    private static string $pgConnectionString = "host=localhost port=5432 dbname=postgres user=postgres password=123456";
 
     public static function getPgConnectionString(): string {
         return  self::$pgConnectionString;
