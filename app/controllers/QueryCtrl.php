@@ -13,33 +13,13 @@ class QueryCtrl
     #[NoReturn] public static function queryCity(): void {
         $startCity = $_POST['trainCityFromCityName'];
         $endCity = $_POST['trainCityToCityName'];
-        $startDate = $_POST['trainCitySetOffDate'];
-        $startTime = $_POST['trainCitySetOffTime'];
-        $queryRes = UserQuery::queryCity($startCity, $endCity, $startDate, $startTime);
-        ViewCtrl::includeView('/userQueryCityRes', array(
-            'date' => $startDate,
-            'time' => $startTime,
-            'start_city' => $startCity,
-            'end_city' => $endCity,
-            'queryRes' => $queryRes
-        ));
-        die();
+        self::sendQueryCity($startCity, $endCity);
     }
 
     #[NoReturn] public static function queryCityReverse(): void {
         $startCity = $_POST['trainCityToCityName'];
         $endCity = $_POST['trainCityFromCityName'];
-        $startDate = $_POST['trainCitySetOffDate'];
-        $startTime = $_POST['trainCitySetOffTime'];
-        $queryRes = UserQuery::queryCity($startCity, $endCity, $startDate, $startTime);
-        ViewCtrl::includeView('/userQueryCityRes', array(
-            'date' => $startDate,
-            'time' => $startTime,
-            'start_city' => $startCity,
-            'end_city' => $endCity,
-            'queryRes' => $queryRes
-        ));
-        die();
+        self::sendQueryCity($startCity, $endCity);
     }
 
     #[NoReturn] public static function queryTrain(): void {
@@ -65,6 +45,27 @@ class QueryCtrl
             'date' => $setOffDate,
             'start_station' => $queryRes[0]['station'],
             'end_station' => end($queryRes)['station'],
+            'queryRes' => $queryRes
+        ));
+        die();
+    }
+
+    /**
+     * @param mixed $startCity
+     * @param mixed $endCity
+     * @return void
+     */
+    #[NoReturn] public static function sendQueryCity(mixed $startCity, mixed $endCity): void
+    {
+        $startDate = $_POST['trainCitySetOffDate'];
+        $startTime = $_POST['trainCitySetOffTime'];
+        $queryTransfer = isset($_POST['trainCityQueryTransfer']) && ($_POST['trainCityQueryTransfer'] == 'true');
+        $queryRes = UserQuery::queryCity($startCity, $endCity, $startDate, $startTime, $queryTransfer);
+        ViewCtrl::includeView('/userQueryCityRes', array(
+            'date' => $startDate,
+            'time' => $startTime,
+            'start_city' => $startCity,
+            'end_city' => $endCity,
             'queryRes' => $queryRes
         ));
         die();

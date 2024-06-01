@@ -221,6 +221,21 @@ Use your UCAS account to register Jetbrains and get a free student license. Down
 
 On right bar there is a `Database` tab, click it and press `+` button to add a new data source, choose `PostgreSQL`, fill in the information as [before, when you connect to pgAdmin](#configure-pgadmin)
 
+#### Preprocess Data
+
+If you have the latest `postprocess_data` directory, use it directly, otherwise, you need to preprocess the data by running the python script in `app/database` folder.
+
+```bash
+python pre_process.py
+python main.py
+```
+
+You should refresh data every day by:
+
+```bash
+python refresh_data.py
+```
+
 #### Input data into database
 
 Check whether the paths in `data_load.sql` match your project path, if not, modify them to the real `postprocess_data`.
@@ -246,3 +261,9 @@ psql -f data_load.sql -U postgres -d postgres
 Open pgAdmin and refresh, navigate to `Server` $\rightarrow$ `Databases` $\rightarrow$ `postgres` $\rightarrow$ `Schemas` $\rightarrow$ `public` $\rightarrow$ `Tables`, you should see all the tables we have created. 
 
 Click any table twice will show you the data in it, almost any table related with train and city should have data. If there is no data, please check the sql outputs and try to run them again.
+
+#### Install Node Modules
+
+```bash
+npm install ol
+```

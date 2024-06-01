@@ -50,3 +50,7 @@ Thumbs.db
 *.aux
 *.synctex.gz
 *.out
+
+node_modules
+app/database/data_process/data_load.sql
+

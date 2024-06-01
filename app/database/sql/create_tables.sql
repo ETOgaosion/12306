@@ -79,7 +79,7 @@ create table if not exists station_tickets (
 	stt_station_id integer,
 	stt_train_id   integer,
 	stt_date       date       not null,
-	stt_num        integer[7] not null default array [5, 5, 5, 5, 5, 5, 5],
+	stt_num        integer[7] not null default array [0, 0, 0, 0, 0, 0, 0],
 	primary key (stt_station_id, stt_train_id, stt_date),
 	foreign key (stt_station_id) references station_list (s_station_id),
 	foreign key (stt_train_id) references train (t_train_id),

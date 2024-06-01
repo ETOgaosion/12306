@@ -1,4 +1,4 @@
-#python process.py
+#python pre_process.py
 #python main.py
 
 path=`pwd`

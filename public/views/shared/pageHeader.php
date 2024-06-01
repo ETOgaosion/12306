@@ -5,9 +5,7 @@ use app\tools\Session;
 if (empty($pageTitle)) {
     $pageTitle = "index";
 }
-if (empty($assetsDir)) {
-    $assetsDir = "../assets";
-}
+$assetsDir = "assets/";
 if (empty($login)) {
     $login = false;
 }
@@ -50,17 +48,15 @@ if (empty($isAdmin)) {
     <title><?= $pageTitle ?></title>
 </head>
 <body>
-<video autoplay muted loop id="video-background" class="position-fixed"
-       style="height: 100vh; width: 100%; object-fit: cover">
-    <source src="<?= $assetsDir ?>media/videos/train-bg.mp4" type="video/mp4">
-    Your browser is old
-</video>
-<nav class="navbar navbar-expand fixed-top navbar-dark bg-blueviolet" style="height: 75px">
+<nav class="navbar navbar-expand fixed-top navbar-dark apple-navbar" style="height: 44px">
     <div class="container-fluid">
+        <a class="navbar-brand ms-3" href="index">
+            <img src="<?= $assetsDir ?>media/icons/logo-light.svg" width="30" height="30" alt="">
+        </a>
         <div class="navbar-header">
             <?php
                     echo <<<END
-            <a class="navbar-brand" href="index">Train Database</a>
+            <a class="navbar-brand" href="index">1230666</a>
             END;
             ?>
         </div>

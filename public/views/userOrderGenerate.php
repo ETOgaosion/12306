@@ -48,7 +48,7 @@ if (!isset($userTelNum)) {
 
     <div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0"
          style="top: 75px; bottom: 100px">
-        <div class="bg-light p-3 d-flex justify-content-center align-items-center"
+        <div class="apple-block p-3 d-flex justify-content-center align-items-center"
              style="border-radius: 1rem; width: 60%; height: 80%">
             <div class="row w-100 h-100 justify-content-center align-items-center">
                 <div class="row w-100  p-1 flex-column justify-content-around align-items-center" style="height: 40%">

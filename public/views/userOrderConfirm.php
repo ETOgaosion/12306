@@ -38,8 +38,8 @@ if (!isset($userRealNameList)) {
 if (!isset($userTelNumList)) {
     $userTelNumList = array("");
 }
-if (!isset($seatNumList)) {
-    $seatNumList = array();
+if (!isset($seatNumsList)) {
+    $seatNumsList = array();
 }
 if (!isset($orderIdList)) {
     $orderIdList = array();
@@ -51,7 +51,7 @@ if (!isset($orderIdList)) {
 
     <div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0"
          style="top: 75px; bottom: 100px">
-        <div class="bg-light p-3 d-flex justify-content-center align-items-center"
+        <div class="apple-block p-3 d-flex justify-content-center align-items-center"
              style="border-radius: 1rem; width: 60%; height: 80%">
             <div class="row w-100 h-100 justify-content-center align-items-center">
                 <div class="row w-100  p-1 flex-column justify-content-around align-items-center" style="height: 40%">
@@ -104,7 +104,7 @@ if (!isset($orderIdList)) {
                             <?php
                             for($j = 0; $j < count($trainNameList); $j++) {
                                 for ($i = 0; $i < count($userNameList); $i++) {
-                                    $seatNumber = end($seatNumList[$j]) + $i;
+                                    $seatNumber = $seatNumsList[$j] + $i;
                                     echo <<<END
                             <tr>
                             <td class="align-top p-3" style="height: 50px">{$userNameList[$i]}</td>
@@ -123,8 +123,8 @@ if (!isset($orderIdList)) {
                     <form class="row w-100 d-flex flex-row justify-content-around align-items-center"
                           style="height: 10%" action="orderTrain" method="post">
                         <?php
-                        for($i = 0; $i < count(end($orderIdList)); $i++) {
-                            $orderArray = end($orderIdList);
+                        for($i = 0; $i < count($orderIdList); $i++) {
+                            $orderArray = $orderIdList;
                             echo <<<END
                         <input type="hidden" name="orderId[]" value="$orderArray[$i]">
 END;

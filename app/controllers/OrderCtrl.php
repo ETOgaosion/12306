@@ -52,6 +52,15 @@ class OrderCtrl
     {
         UserOrder::removeOutDateOrder();
         $count = $_POST["count"];
+        $trainIdList = array();
+        $trainNameList = array();
+        $stationFromIdList = array();
+        $stationFromList = array();
+        $stationToIdList = array();
+        $stationToList = array();
+        $seat_typeList = array();
+        $order_dateList = array();
+        $remainSeatsArrayList = array();
         for($i = 0; $i < $count; $i++) {
             for($j = 0; $j < 7; $j++) {
                 if (array_key_exists("seat-type-{$i}-{$j}-check", $_POST) && $_POST["seat-type-{$i}-{$j}-check"] == 'Yes'){
@@ -92,6 +101,14 @@ class OrderCtrl
     {
         UserOrder::removeOutDateOrder();
         $count = $_POST["count"];
+        $trainIdList = array();
+        $trainNameList = array();
+        $dateList = array();
+        $stationFromIdList = array();
+        $stationFromList = array();
+        $stationToIdList = array();
+        $stationToList = array();
+        $seatTypeList = array();
         for ($i = 0; $i < $count; $i++) {
             $trainIdList[] = $_POST["trainId-{$i}"];
             $trainNameList[] = $_POST["trainName-{$i}"];
@@ -114,16 +131,18 @@ class OrderCtrl
                 break;
             }
         }
+        $succeedList = array();
+        $seatIdList = array();
+        $orderIdList = array();
         for($i = 0; $i < $count; $i++) {
-            $resList[] = UserOrder::preorderTrain($trainIdList[$i], $stationFromIdList[$i], $stationToIdList[$i], $seatTypeList[$i], $dateList[$i], $userNameArrayList);
-            $succeedList[] = array_column($resList, 'succeed') ?? false;
-            $seatIdList[] = array_column($resList, 'seat_id') ?? 0;
-            $orderIdList[] = array_column($resList, 'order_id') ?? 0;
+            $resList = UserOrder::preorderTrain($trainIdList[$i], $stationFromIdList[$i], $stationToIdList[$i], $seatTypeList[$i], $dateList[$i], $userNameArrayList);
+            $succeedList[] = $resList['succeed'];
+            $seatIdList[] = $resList['seat_id'];
+            $orderIdList[] = $resList['order_id'];
         }
         if (in_array(false, $succeedList)) {
             Session::set('preorderFailed', true);
             ViewCtrl::includeIndex();
-            die();
         } else {
             ViewCtrl::includeView('/userOrderConfirm', array(
                 'trainIdList' => $trainIdList,
@@ -137,10 +156,10 @@ class OrderCtrl
                 'userRealNameList' => $userRealNameArrayList,
                 'userTelNumList' => $userTelNumListList,
                 'orderIdList' => $orderIdList,
-                'seatNumList' => $seatIdList,
+                'seatNumsList' => $seatIdList,
             ));
-            die();
         }
+        die();
     }
 
     #[NoReturn] public static function orderTrain(): void

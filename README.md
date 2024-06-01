@@ -26,6 +26,8 @@ Please refer to [windows INSTALL guide](doc/getstart/INSTALL_win.md)
 
 Please refer to [MacOS INSTALL guide](doc/getstart/INSTALL_mac.md)
 
+Note that we do not support Safari, please use chrome or edge instead.
+
 ## Versions
 
 This project use:
@@ -41,3 +43,9 @@ After installation, you can visit `http://localhost/12306/public` to see the pro
 ## Development
 
 Check the [Development Document](doc/getstart/DEVELOPMENT.md)
+
+### Tasks
+
+Development TODOS is in [Development TODO doc](doc/TODOS/developement.md)
+
+Testing TODOS is in [Testing TODO doc](doc/TODOS/testing.md)

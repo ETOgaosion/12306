@@ -58,7 +58,7 @@ if (!array_key_exists('adminQueryUserOrdersResArray', $_SESSION)) {
 
     <div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0"
          style="top: 75px; bottom: 100px">
-        <div class="h-100 d-flex flex-column align-items-center justify-content-start bg-light position-relative"
+        <div class="h-100 d-flex flex-column align-items-center justify-content-start apple-block position-relative"
              style="--bs-bg-opacity: 0.8; width: 90%;">
             <div class="row w-100 d-flex flex-row align-items-center justify-content-center p-3" style="height: 50px">
                 <p class="fw-bold fs-2 text-center">管理员空间</p>

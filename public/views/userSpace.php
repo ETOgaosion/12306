@@ -39,7 +39,7 @@ if (!array_key_exists('userQueryResArray', $_SESSION)) {
 
     <div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0"
          style="top: 75px; bottom: 100px">
-        <div class="h-100 w-75 d-flex flex-column align-items-center justify-content-start bg-light pt-3 ps-3 pe-3 pb-0"
+        <div class="h-100 w-75 d-flex flex-column align-items-center justify-content-start apple-block pt-3 ps-3 pe-3 pb-0"
              style="--bs-bg-opacity: 0.8">
             <div class="row w-100 d-flex flex-row align-items-center justify-content-center" style="height: 50px">
                 <p class="fw-bold fs-2 text-center">用户空间</p>

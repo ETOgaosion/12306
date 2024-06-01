@@ -20,11 +20,11 @@ $assetsDir = 'assets/';
             (array_key_exists('orderSucceed', $_SESSION) && $_SESSION['orderSucceed']) ||
             (array_key_exists('orderFailed', $_SESSION) && $_SESSION['orderFailed'])) {
             echo <<<END
-    <div class="bg-light position-relative" style="border-radius: 1rem; width: 30%; height: 260px" id="indexMainView">
+    <div class="apple-block position-relative" style="border-radius: 1rem; width: 100%; max-width: 500px; height: 260px" id="indexMainView">
 END;
         } else {
             echo <<<END
-    <div class="bg-light position-relative" style="border-radius: 1rem; width: 30%; height: 220px" id="indexMainView">
+    <div class="apple-block position-relative" style="border-radius: 1rem; width: 100%; max-width: 500px; height: 220px" id="indexMainView">
 END;
         }
         ?>

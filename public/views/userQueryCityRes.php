@@ -24,17 +24,17 @@ if (!isset($queryRes)) {
 
     <!-- free map api: OpenLayers -->
     <!-- Map css api link -->
-    <link href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/css/ol.css"
+    <link href="https://cdn.jsdelivr.net/npm/ol@v9.2.4/ol.css"
           rel="stylesheet"
           type="text/css">
 
     <!-- Map js api link -->
-    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/build/ol.js"
+    <script src="https://cdn.jsdelivr.net/npm/ol@v9.2.4/dist/ol.js"
             type="text/javascript"></script>
 
     <div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0"
          style="top: 75px; bottom: 100px">
-        <form class="h-100 w-75 d-flex flex-column align-items-center justify-content-start bg-light p-5"
+        <form class="h-100 w-75 d-flex flex-column align-items-center justify-content-start apple-block p-5"
              style="--bs-bg-opacity: 0.8" method="post" action="userPostGenerateOrder" id="queryTrainByCityForm" name="queryTrainByCityForm">
             <div class="row flex-row justify-content-center align-items-center w-100" style="height: 50px;">
                 <p class="fs-2 fw-bold text-center">车次查询信息</p>
@@ -43,18 +43,18 @@ if (!isset($queryRes)) {
                 <div class="col w-50 h-100 p-3">
                     <div class="row w-100" style="height: 200px;">
                         <div class="row flex-column justify-content-center align-items-center w-100 ps-5">
-                            <div class="row justify-content-start">
-                                <p>Date: <?= $date ?></p>
+                            <div class="row justify-content-center">
+                                <p style="text-align: center">Date: <?= $date ?></p>
                             </div>
-                            <div class="row justify-content-start">
-                                <p>Time: <?= $time ?></p>
+                            <div class="row justify-content-center">
+                                <p style="text-align: center">Time: <?= $time ?></p>
                             </div>
-                            <div class="row justify-content-start">
-                                <p>起始城市: <?= $start_city ?> &nbsp; ~ &nbsp; 目的城市：<?= $end_city ?></p>
+                            <div class="row justify-content-center">
+                                <p style="text-align: center">起始城市: <?= $start_city ?> &nbsp; ~ &nbsp; 目的城市：<?= $end_city ?></p>
                             </div>
-                            <div class="row justify-content-start">
-                                <button type="submit" formmethod="post" formaction="userPostGenerateOrder" class="btn btn-primary w-50"
-                                        form="queryTrainByCityForm">Submit
+                            <div class="row justify-content-center" style="width: 300px">
+                                <button type="submit" formmethod="post" formaction="userPostGenerateOrder" class="btn btn-primary"
+                                        form="queryTrainByCityForm">提交车票选择
                                 </button>
                             </div>
                         </div>
@@ -66,38 +66,19 @@ if (!isset($queryRes)) {
             </div>
             <hr/>
             <div class="row w-100" style="height: 70%; overflow: scroll">
-                <table class="table-striped table-bordered border-secondary">
-                    <thead>
+                <table class="table table-striped table-bordered border-secondary align-middle">
+                    <thead class="table-dark">
                     <tr>
                         <th scope="col" class="text-center">车次编号</th>
+<!--                        <th scope="col" class="text-center">发车日期</th>-->
                         <th scope="col" class="text-center">起始站</th>
                         <th scope="col" class="text-center">目的站</th>
                         <th scope="col" class="text-center">发时</th>
                         <th scope="col" class="text-center">到时</th>
                         <th scope="col" class="text-center">历时</th>
-                        <th scope="col" class="text-center">里程</th>
-                        <th scope="col" class="text-center">换乘上半</th>
-                        <th scope="col" class="text-center">换乘下半</th>
+<!--                        <th scope="col" class="text-center">里程</th>-->
+                        <th scope="col" class="text-center">换乘上/下半</th>
                         <th scope="col" class="text-center">座位类型</th>
-                        <!--                    <th colspan="2"">-->
-                        <!--                    <div class="dropdown d-flex flex-row justify-content-center align-items-center">-->
-                        <!--                        <button class="btn btn-primary w-100" disabled="true"d id="seatTypeBtn" style="border-bottom-right-radius:0; border-top-right-radius: 0;">座位</button>-->
-                        <!--                        <button class="btn btn-primary dropdown-toggle dropdown-toggle-split" style="border-top-left-radius: 0; border-bottom-left-radius: 0" href="#" role="button" id="dropDownSeatTypeBtn" data-bs-toggle="dropdown" aria-expanded="false">-->
-                        <!--                            <span class="visually-hidden"></span>-->
-                        <!--                        </button>-->
-                        <!--                        <ul class="dropdown-menu">-->
-                        <!--                            <li><button class="dropdown-item" onclick="switchSeatToHardSeat();" id="hardSeatDpItem"">硬座</button></li>-->
-                        <!--                            <li><button class="dropdown-item" onclick="switchSeatToSoftSeat();" id="softSeatDpItem"">软座</button></li>-->
-                        <!--                            <li><button class="dropdown-item" onclick="switchSeatToHardBedTop();" id="hardBedTopDpItem"">硬卧上</button></li>-->
-                        <!--                            <li><button class="dropdown-item" onclick="switchSeatToHardBedMid();" id="hardBedMidDpItem"">硬卧中</button></li>-->
-                        <!--                            <li><button class="dropdown-item" onclick="switchSeatToHardBedDown();" id="hardBedDownDpItem"">硬卧下</button></li>-->
-                        <!--                            <li><button class="dropdown-item" onclick="switchSeatToSoftBedTop();" id="softBedTopDpItem"">软卧上</button></li>-->
-                        <!--                            <li><button class="dropdown-item" onclick="switchSeatToSoftBedDown();" id="softBedDownDpItem"">软卧下</button></li>-->
-                        <!--                        </ul>-->
-                        <!--                    </div>-->
-                        <!--                    </th>-->
-                        <!--                </tr>-->
-                        <!--                <tr>-->
                         <th scope="col" class="text-center">票价</th>
                         <th scope="col" class="text-center">余票</th>
                         <th scope="col" class="text-center">选择</th>
@@ -118,66 +99,30 @@ if (!isset($queryRes)) {
                     $duranceList = array_column($queryRes, 'durance');
                     $distanceList = array_column($queryRes, 'distance');
                     $seatPriceList = array_column($queryRes, 'seat_prices');
-                    $seatNumList = array_column($queryRes, 'seat_nums');
+                    $seatNumsList = array_column($queryRes, 'seat_nums');
                     $transferFirstList = array_column($queryRes, 'transfer_first');
                     $transferLateList = array_column($queryRes, 'transfer_late');
                     $seatTypeList = array("硬座", "软座", "硬卧上", "硬卧中", "硬卧下", "软卧上", "软卧下");
                     for ($i = 0; $i < count($trainNameList); $i++) {
                         $seatPriceListArray = explode(',', substr($seatPriceList[$i], 1, strlen($seatPriceList[$i]) - 2));
-                        $seatNumListArray = explode(',', substr($seatNumList[$i], 1, strlen($seatNumList[$i]) - 2));
+                        $seatNumsListArray = explode(',', substr($seatNumsList[$i], 1, strlen($seatNumsList[$i]) - 2));
                         for ($j = 0; $j < 7; $j++) {
-                            if ($seatNumListArray[$j] == 0) {
+                            if ($seatNumsListArray[$j] == 0) {
                                 continue;
                             }
                             if ($transferFirstList[$i] == 'f' && $transferLateList[$i] == 'f') {
                                 echo <<<END
                 <tr>
                     <td><a href="userQueryTrain?trainName={$trainNameList[$i]}&date={$date}">$trainNameList[$i]</a></td>
-                    <td>$startDateList[$i]</td>
-                    <td>$arriveDateList[$i]</td>
                     <td>$stationFromList[$i]</td>
                     <td>$stationToList[$i]</td>
                     <td>$leaveTimeList[$i]</td>
                     <td>$arriveTimeList[$i]</td>
                     <td>$duranceList[$i]</td>
-                    <td>$distanceList[$i]</td>
-                    <td>$transferFirstList[$i]</td>
-                    <td>$transferLateList[$i]</td>
+                    <td>-</td>
                     <td>$seatTypeList[$j]</td>
                     <td id="seat-type-{$j}">$seatPriceListArray[$j]</td>
-                    <td id="seat-type-{$j}"><a href="userGenerateOrder?trainId={$trainIdList[$i]}&trainName={$trainNameList[$i]}&stationFromId={$stationFromIdList[$i]}&stationFrom={$stationFromList[$i]}&stationToId={$stationToIdList[$i]}&stationTo={$stationToList[$i]}&seat_type={$j}&order_date={$startDateList[$i]}">$seatNumListArray[$j]</a></td>
-                    <td>
-                    <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="Yes" id="seat-type-{$i}-{$j}-check"  name="seat-type-{$i}-{$j}-check"  name="seat-type-{$i}-{$j}-check">
-                    <input type="hidden" disabled="true" value="$startDateList[$i]" name="seat-type-{$i}-{$j}-startDate">
-                    <input type="hidden" disabled="true" value="$trainNameList[$i]" name="seat-type-{$i}-{$j}-trainName">
-                    <input type="hidden" disabled="true" value="$trainIdList[$i]" name="seat-type-{$i}-{$j}-trainId">
-                    <input type="hidden" disabled="true" value="$stationFromIdList[$i]" name="seat-type-{$i}-{$j}-stationFromId">
-                    <input type="hidden" disabled="true" value="$stationFromList[$i]" name="seat-type-{$i}-{$j}-stationFrom">
-                    <input type="hidden" disabled="true" value="$stationToIdList[$i]" name="seat-type-{$i}-{$j}-stationToId">
-                    <input type="hidden" disabled="true" value="$stationToList[$i]" name="seat-type-{$i}-{$j}-stationTo">
-                    <input type="hidden" disabled="true" value="$j" name="seat-type-{$i}-{$j}-seat_type">
-                    <input type="hidden" disabled="true" value="$startDateList[$i]" name="seat-type-{$i}-{$j}-order_date">
-                    </div>
-                    </td>
-                </tr>
-END;
-                            }
-                            elseif ($transferFirstList[$i] == 'f' && $transferLateList[$i] == 't') {
-                                    echo <<<END
-                <tr>
-                    <td class="text-success"><a href="userQueryTrain?trainName={$trainNameList[$i]}&date={$date}">$trainNameList[$i]</a>></td>
-                    <td class="text-success">$stationFromList[$i]</td>
-                    <td class="text-success">$stationToList[$i]</td>
-                    <td class="text-success">$leaveTimeList[$i]</td>
-                    <td class="text-success">$arriveTimeList[$i]</td>
-                    <td class="text-success">$duranceList[$i]</td>
-                    <td class="text-success">$distanceList[$i]</td>
-                    <td class="text-success">$transferFirstList[$i]</td>
-                    <td class="text-success">$transferLateList[$i]</td>
-                    <td class="text-success">$seatTypeList[$j]</td>
-                    <td class="text-success" id="seat-type-{$j}">$seatPriceListArray[$j]</td>
-                    <td class="text-success" id="seat-type-{$j}"><a href="userGenerateOrder?trainId={$trainIdList[$i]}&trainName={$trainNameList[$i]}&stationFromId={$stationFromIdList[$i]}&stationFrom={$stationFromList[$i]}&stationToId={$stationToIdList[$i]}&stationTo={$stationToList[$i]}&seat_type={$j}&order_date={$date}">$seatNumListArray[$j]</a></td>
+                    <td id="seat-type-{$j}"><a href="userGenerateOrder?trainId={$trainIdList[$i]}&trainName={$trainNameList[$i]}&stationFromId={$stationFromIdList[$i]}&stationFrom={$stationFromList[$i]}&stationToId={$stationToIdList[$i]}&stationTo={$stationToList[$i]}&seat_type={$j}&order_date={$startDateList[$i]}">$seatNumsListArray[$j]</a></td>
                     <td>
                     <div class="form-check">
                     <input class="form-check-input" type="checkbox" value="Yes" id="seat-type-{$i}-{$j}-check"  name="seat-type-{$i}-{$j}-check"  name="seat-type-{$i}-{$j}-check">
@@ -204,12 +149,40 @@ END;
                     <td class="text-danger">$leaveTimeList[$i]</td>
                     <td class="text-danger">$arriveTimeList[$i]</td>
                     <td class="text-danger">$duranceList[$i]</td>
-                    <td class="text-danger">$distanceList[$i]</td>
-                    <td class="text-danger">$transferFirstList[$i]</td>
-                    <td class="text-danger">$transferLateList[$i]</td>
+                    <td class="text-danger">换乘上半</td>
                     <td class="text-danger">$seatTypeList[$j]</td>
                     <td class="text-danger" id="seat-type-{$j}">$seatPriceListArray[$j]</td>
-                    <td class="text-danger" id="seat-type-{$j}"><a href="userGenerateOrder?trainId={$trainIdList[$i]}&trainName={$trainNameList[$i]}&stationFromId={$stationFromIdList[$i]}&stationFrom={$stationFromList[$i]}&stationToId={$stationToIdList[$i]}&stationTo={$stationToList[$i]}&seat_type={$j}&order_date={$date}">$seatNumListArray[$j]</a></td>
+                    <td class="text-danger" id="seat-type-{$j}"><a href="userGenerateOrder?trainId={$trainIdList[$i]}&trainName={$trainNameList[$i]}&stationFromId={$stationFromIdList[$i]}&stationFrom={$stationFromList[$i]}&stationToId={$stationToIdList[$i]}&stationTo={$stationToList[$i]}&seat_type={$j}&order_date={$date}">$seatNumsListArray[$j]</a></td>
+                    <td>
+                    <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="Yes" id="seat-type-{$i}-{$j}-check"  name="seat-type-{$i}-{$j}-check"  name="seat-type-{$i}-{$j}-check">
+                    <input type="hidden" disabled="true" value="$startDateList[$i]" name="seat-type-{$i}-{$j}-startDate">
+                    <input type="hidden" disabled="true" value="$trainNameList[$i]" name="seat-type-{$i}-{$j}-trainName">
+                    <input type="hidden" disabled="true" value="$trainIdList[$i]" name="seat-type-{$i}-{$j}-trainId">
+                    <input type="hidden" disabled="true" value="$stationFromIdList[$i]" name="seat-type-{$i}-{$j}-stationFromId">
+                    <input type="hidden" disabled="true" value="$stationFromList[$i]" name="seat-type-{$i}-{$j}-stationFrom">
+                    <input type="hidden" disabled="true" value="$stationToIdList[$i]" name="seat-type-{$i}-{$j}-stationToId">
+                    <input type="hidden" disabled="true" value="$stationToList[$i]" name="seat-type-{$i}-{$j}-stationTo">
+                    <input type="hidden" disabled="true" value="$j" name="seat-type-{$i}-{$j}-seat_type">
+                    <input type="hidden" disabled="true" value="$startDateList[$i]" name="seat-type-{$i}-{$j}-order_date">
+                    </div>
+                    </td>
+                </tr>
+END;
+                            }
+                            elseif ($transferFirstList[$i] == 'f' && $transferLateList[$i] == 't') {
+                                echo <<<END
+                <tr>
+                    <td class="text-success"><a href="userQueryTrain?trainName={$trainNameList[$i]}&date={$date}">$trainNameList[$i]</a>></td>
+                    <td class="text-success">$stationFromList[$i]</td>
+                    <td class="text-success">$stationToList[$i]</td>
+                    <td class="text-success">$leaveTimeList[$i]</td>
+                    <td class="text-success">$arriveTimeList[$i]</td>
+                    <td class="text-success">$duranceList[$i]</td>
+                    <td class="text-success">换乘下半</td>
+                    <td class="text-success">$seatTypeList[$j]</td>
+                    <td class="text-success" id="seat-type-{$j}">$seatPriceListArray[$j]</td>
+                    <td class="text-success" id="seat-type-{$j}"><a href="userGenerateOrder?trainId={$trainIdList[$i]}&trainName={$trainNameList[$i]}&stationFromId={$stationFromIdList[$i]}&stationFrom={$stationFromList[$i]}&stationToId={$stationToIdList[$i]}&stationTo={$stationToList[$i]}&seat_type={$j}&order_date={$date}">$seatNumsListArray[$j]</a></td>
                     <td>
                     <div class="form-check">
                     <input class="form-check-input" type="checkbox" value="Yes" id="seat-type-{$i}-{$j}-check"  name="seat-type-{$i}-{$j}-check"  name="seat-type-{$i}-{$j}-check">

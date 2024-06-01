@@ -19,6 +19,16 @@
     background-color: #8a2be2;
 }
 
+.apple-navbar {
+    background-color: black;;
+    color: rgba(255, 255, 255, .8);
+}
+
+.apple-footer {
+    background-color: rgb(245, 245, 247);;
+    color: rgba(0, 0, 0, 0.56);
+}
+
 #toTopBtn {
     position: fixed;
     bottom: 100px;
@@ -29,7 +39,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(138, 43, 226, 0.8);
 }
 
 .js .cd-top--fade-out {
@@ -117,4 +126,40 @@ table.table .form-control.error {
 }
 table.table td .add {
     display: none;
+}
+
+.btn {
+    border-radius: 980px;
+}
+
+.form-control {
+    color: #494949;
+    text-overflow: ellipsis;
+    text-align: left;
+    border: 1px solid #86868b;
+    border-radius: 12px;
+}
+
+.apple-block {
+    background-color: #fffc;
+    border-color: #86868b;
+    color: #1d1d1f;
+    border-radius: 12px;
+    border-style: solid;
+    border-width: 1px;
+}
+
+.usermain-text-label {
+    width: 100%;
+    max-width: 100px;
+}
+
+.usermain-text-input {
+    width: 100%;
+    max-width: 200px;
+}
+
+.usermain-checkbox {
+    width: 100%;
+    max-width: 200px;
 }

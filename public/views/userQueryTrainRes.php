@@ -27,12 +27,12 @@ if (!isset($queryRes)) {
 
     <!-- free map api: OpenLayers -->
     <!-- Map css api link -->
-<link href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/css/ol.css"
+<link href="https://cdn.jsdelivr.net/npm/ol@v9.2.4/ol.css"
       rel="stylesheet"
       type="text/css">
 
 <!-- Map js api link -->
-    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/build/ol.js"
+    <script src="https://cdn.jsdelivr.net/npm/ol@v9.2.4/dist/ol.js"
             type="text/javascript"></script>
 
 <!-- File js link -->
@@ -40,7 +40,7 @@ if (!isset($queryRes)) {
 
 <div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0"
      style="top: 75px; bottom: 100px">
-    <div class="h-100 w-75 d-flex flex-column align-items-center justify-content-start bg-light p-5"
+    <div class="h-100 w-75 d-flex flex-column align-items-center justify-content-start apple-block p-5"
          style="--bs-bg-opacity: 0.8">
         <div class="row flex-row justify-content-center align-items-center w-100" style="height: 50px;">
             <p class="fs-2 fw-bold text-center">车次查询信息</p>
@@ -131,7 +131,7 @@ if (!isset($queryRes)) {
                     $duranceList = array_column($queryRes, 'durance');
                     $distanceList = array_column($queryRes, 'distance');
                     $seatPriceList = array_column($queryRes, 'seat_price');
-                    $seatNumList = array_column($queryRes, 'seat_num');
+                    $seatNumsList = array_column($queryRes, 'seat_num');
                     $seatTypeList = array("硬座", "软座", "硬卧上", "硬卧中", "硬卧下", "软卧上", "软卧下");
                                 echo <<<END
                 <tr>
@@ -149,9 +149,9 @@ if (!isset($queryRes)) {
 END;
                     for ($i = 1; $i < count($stationList); $i++) {
                         $seatPriceListArray = explode(',', substr($seatPriceList[$i], 1, strlen($seatPriceList[$i]) - 2));
-                        $seatNumListArray = explode(',', substr($seatNumList[$i], 1, strlen($seatNumList[$i]) - 2));
+                        $seatNumsListArray = explode(',', substr($seatNumsList[$i], 1, strlen($seatNumsList[$i]) - 2));
                         for ($j = 0; $j < 7; $j++) {
-                            if ($seatNumListArray[$j] == 0) {
+                            if ($seatNumsListArray[$j] == 0) {
                                 continue;
                             }
                                 echo <<<END
@@ -165,7 +165,7 @@ END;
                     <td>$distanceList[$i]</td>
                     <td>$seatTypeList[$j]</td>
                     <td id="seat-type-{$i}">$seatPriceListArray[$j]</td>
-                    <td id="seat-type-{$i}"><a href="userGenerateOrder?trainId={$trainIdList[0]}&trainName={$trainName}&stationFromId={$stationIdList[0]}&stationFrom={$stationList[0]}&stationToId={$stationIdList[$i]}&stationTo={$stationList[$i]}&seat_type={$j}&order_date={$date}">$seatNumListArray[$j]</a></td>
+                    <td id="seat-type-{$i}"><a href="userGenerateOrder?trainId={$trainIdList[0]}&trainName={$trainName}&stationFromId={$stationIdList[0]}&stationFrom={$stationList[0]}&stationToId={$stationIdList[$i]}&stationTo={$stationList[$i]}&seat_type={$j}&order_date={$date}">$seatNumsListArray[$j]</a></td>
                 </tr>
 END;
                             }
