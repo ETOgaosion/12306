@@ -90,7 +90,8 @@ class Route
 
         self::get('adminMain', 'AdminCtrl@adminQueryAll');
         self::any('adminRefreshInfo', 'AdminCtrl@adminRefreshOrders');
-        self::any('adminQueryUserInfo', 'AdminCtrl@adminQueryUser');
+        self::get('adminQueryUserInfo', 'AdminCtrl@adminQueryUser');
+        self::post('adminRefreshUserOrder', 'AdminCtrl@adminRefreshUserOrder');
     }
 
     public static function group(array $attributes, Closure $callback): void

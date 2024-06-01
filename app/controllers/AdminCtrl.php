@@ -60,4 +60,13 @@ class AdminCtrl
         self::adminQueryUserInfo($uname);
         self::adminQueryAll();
     }
+
+    public static function adminRefreshUserOrder(): void
+    {
+        UserOrder::removeOutDateOrder();
+        $uname = $_POST['userName'];
+        self::adminQueryUserOrders($uname);
+        self::adminQueryUserInfo($uname);
+        self::adminQueryAll();
+    }
 }
