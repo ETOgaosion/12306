@@ -89,7 +89,7 @@ class Route
         self::get('cancelOrder', 'UserInfoCtrl@cancelOrder');
 
         self::get('adminMain', 'AdminCtrl@adminQueryAll');
-        self::any('adminRefreshInfo', 'AdminCtrl@adminRefreshOrders');
+        self::post('adminRefreshOrders', 'AdminCtrl@adminRefreshOrders');
         self::get('adminQueryUserInfo', 'AdminCtrl@adminQueryUser');
         self::post('adminRefreshUserOrder', 'AdminCtrl@adminRefreshUserOrder');
     }

@@ -2,6 +2,12 @@
 
 use app\tools\Session;
 use app\controllers\ViewCtrl;
+use app\controllers\AdminCtrl;
+
+if (!isset($totalOrder)) {
+    AdminCtrl::adminQueryAll();
+    die();
+}
 
 ViewCtrl::includePageHeader(array('pageTitle' => "admin_Main", 'assetsDir' => "assets/", 'login' => true));
 $assetsDir = 'assets/';
@@ -79,23 +85,23 @@ if (!array_key_exists('adminQueryUserOrdersResArray', $_SESSION)) {
                         <tbody>
                         <tr>
                             <td>
-                                <form class="d-flex justify-content-center align-items-center" action="adminRefreshOrders" method="post">
+                                <div class="d-flex justify-content-center align-items-center">
                                     <button class="btn btn-success text-center"
                                             style="border-radius: 2rem; width: 100px; height: 100px">
                                         <?= $totalOrder ?>
                                     </button>
-                                </form>
+                                </div>
                             </td>
                             <td>
-                                <form class="d-flex justify-content-center align-items-center" action="adminRefreshOrders" method="post">
+                                <div class="d-flex justify-content-center align-items-center">
                                     <button class="btn btn-info text-center"
                                             style="border-radius: 2rem; width: 100px; height: 100px">
                                         <?= $totalPrice ?>
                                     </button>
-                                </form>
+                                </div>
                             </td>
                             <td>
-                                <form class="d-flex justify-content-center align-items-center" action="adminRefreshOrders" method="post">
+                                <div class="d-flex justify-content-center align-items-center">
                                     <button class="btn btn-danger text-dark text-center"
                                             style="border-radius: 2rem; width: 100%; height: 100px">
                                         <?php
@@ -110,7 +116,7 @@ if (!array_key_exists('adminQueryUserOrdersResArray', $_SESSION)) {
                                         }
                                         ?>
                                     </button>
-                                </form>
+                                </div>
                             </td>
                         </tr>
                         </tbody>
@@ -152,12 +158,6 @@ END;
                             <div class="col h-100 w-50 p-3">UserEmail: <?= $userEmail ?></div>
                             <div class="col h-100 w-50 p-3">UserTelNum: <?= $userTelNumber ?></div>
                         </div>
-                        <form class="row w-50 text-center p-2" style="height: 50px;" action="adminRefreshUserOrder" method="post">
-                            <input type="hidden" name="userName" value="<?= $userName ?>">
-                            <button class="btn btn-primary" style="border-radius: 1rem">
-                                User Orders
-                            </button>
-                        </form>
                         <div class="row w-100 position-absolute bottom-0 p-2" style="top:150px; overflow: scroll">
                             <table class="table table-striped table-bordered border-secondary">
                                 <thead>

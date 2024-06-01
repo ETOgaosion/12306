@@ -110,7 +110,7 @@ Now close the pgAdmin 4 and reopen it, you should input the password `123456` an
 
 #### Download PHP
 
-[Download Link](https://windows.php.net/downloads/releases/php-8.3.6-Win32-vs16-x64.zip), we use the thread safe one, extract it to `d:\php` (or any other path you like, we call the absolute path `$PHP_ROOT`, if we mention it later, replace it with your path)
+[Download Link](https://windows.php.net/downloads/releases/latest/php-8.3-Win32-vs16-x64-latest.zip), we use the thread safe one, extract it to `d:\php` (or any other path you like, we call the absolute path `$PHP_ROOT`, if we mention it later, replace it with your path)
 
 Copy the `php.ini-development` file to `php.ini` in `$PHP_ROOT` folder
 
