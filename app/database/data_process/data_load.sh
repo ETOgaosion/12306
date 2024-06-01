@@ -7,7 +7,7 @@ station_list_path=$path'/postprocess_data/station_list.csv'
 train_full_info_path=$path'/postprocess_data/train_full_info.csv'
 train_path=$path'/postprocess_data/train.csv'
 stt_path=$path'/postprocess_data/station_tickets.csv'
-if [ "$OSTYPE" == "msys" ]; then
+if [ "$OSTYPE" != "msys" ]; then
   path='d:\apache\htdocs\12306\app\database\data_process'
   city_path=$path'\postprocess_data\city.csv'
   station_list_path=$path'\postprocess_data\station_list.csv'

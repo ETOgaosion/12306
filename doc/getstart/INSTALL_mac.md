@@ -38,6 +38,6 @@ Same as Windows.
 
 ### Input data to database
 
-For mac's` data_load.sql`, please run `data_load.sh` in `data_process` folder to generate new one.
+For mac's` data_load_mac.sql`, please run `data_load.sh` in `data_process` folder to generate new one.
 
 The files and orders are same as windows.

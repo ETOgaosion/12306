@@ -52,5 +52,4 @@ Thumbs.db
 *.out
 
 node_modules
-app/database/data_process/data_load.sql
 

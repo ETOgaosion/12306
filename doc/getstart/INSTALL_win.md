@@ -230,7 +230,7 @@ python pre_process.py
 python main.py
 ```
 
-You should refresh data every day by:
+You should refresh data every 10 days by:
 
 ```bash
 python refresh_data.py
@@ -238,9 +238,13 @@ python refresh_data.py
 
 #### Input data into database
 
-Check whether the paths in `data_load.sql` match your project path, if not, modify them to the real `postprocess_data`.
+Now navigate to `app/database/data_process`. Check whether the paths in `data_load[_win/_mac].sql` match your project path, if not, modify them to the real `postprocess_data`. If windows users use the steps above to configure projects, you can run:
 
-If you use windows, Run these sql cmds one by one in cmd or pgAdmin:
+```bash
+psql -f data_load_win.sql -U postgres -d postgres
+```
+
+Then navigate to `app/database/sql`. If you use windows, Run these sql cmds one by one in cmd or pgAdmin:
 
 ```bash
 psql -f enums.sql -U postgres -d postgres
@@ -253,7 +257,7 @@ psql -f table_funcs.sql -U postgres -d postgres
 
 psql -f requirement_funcs.sql -U postgres -d postgres
 
-psql -f data_load.sql -U postgres -d postgres
+psql -f data_load_mac.sql -U postgres -d postgres
 ```
 
 #### Test Data Input
