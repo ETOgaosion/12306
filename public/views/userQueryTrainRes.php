@@ -70,7 +70,7 @@ if (!isset($queryRes)) {
         </div>
         <hr/>
         <div class="row w-100" style="height: 70%; overflow: scroll">
-            <table class="table-striped table-bordered border-secondary">
+            <table class="table table-striped table-bordered border-secondary">
                 <thead>
                 <tr>
                     <th scope="col" class="text-center">车站</th>

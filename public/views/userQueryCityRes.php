@@ -34,9 +34,9 @@ if (!isset($queryRes)) {
 
     <div class="d-flex align-items-center justify-content-center position-absolute start-0 end-0"
          style="top: 75px; bottom: 100px">
-        <form class="h-100 w-75 d-flex flex-column align-items-center justify-content-start apple-block p-5"
+        <form class="h-100 w-75 d-flex flex-column align-items-center justify-content-start apple-block p-2"
              style="--bs-bg-opacity: 0.8" method="post" action="userPostGenerateOrder" id="queryTrainByCityForm" name="queryTrainByCityForm">
-            <div class="row flex-row justify-content-center align-items-center w-100" style="height: 50px;">
+            <div class="row flex-row justify-content-center align-items-center w-100" style="height: 5%;">
                 <p class="fs-2 fw-bold text-center">车次查询信息</p>
             </div>
             <div class="row w-100" style="height: 25%">

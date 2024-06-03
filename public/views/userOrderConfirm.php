@@ -54,10 +54,10 @@ if (!isset($orderIdList)) {
         <div class="apple-block p-3 d-flex justify-content-center align-items-center"
              style="border-radius: 1rem; width: 60%; height: 80%">
             <div class="row w-100 h-100 justify-content-center align-items-center">
-                <div class="row w-100  p-1 flex-column justify-content-around align-items-center" style="height: 40%">
+                <div class="row w-50 p-1 flex-column justify-content-around align-items-center" style="height: 40%">
                     <div class="row w-100 justify-content-center align-items-center" style="height: 50px">
                         <p class="text-center fs-2">
-                            订单生成
+                            订单确认
                         </p>
                     </div>
                     <div class="row w-100 h-auto justify-content-center align-items-center">
@@ -79,6 +79,9 @@ if (!isset($orderIdList)) {
                         }
                         ?>
                     </div>
+                </div>
+                <div class="row w-50 p-1 flex-column justify-content-around align-items-center" style="height: 40%">
+                    <img src="<?= $assetsDir ?>media/images/payQRCode.jpg" alt="Alipay QR Code" style="max-height: 222px; height: auto; width: auto;">
                 </div>
                 <div class="row w-100 p-1 d-flex flex-column justify-content-start align-items-center"
                      style="height: 60%">

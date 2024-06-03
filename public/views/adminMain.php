@@ -150,15 +150,15 @@ END;
                         </table>
                     </div>
                     <div class="col-7 h-100 d-flex flex-column justify-content-start align-items-center position-relative">
-                        <div class="row w-100" style="height: 30px;">
+                        <div class="row w-100" style="height: 10%;">
                             <div class="col h-100 w-50 p-3">UserName: <?= $userName ?></div>
                             <div class="col h-100 w-50 p-3">UserRealName: <?= $userRealName ?></div>
                         </div>
-                        <div class="row w-100" style="height: 50px;">
+                        <div class="row w-100" style="height: 10%;">
                             <div class="col h-100 w-50 p-3">UserEmail: <?= $userEmail ?></div>
                             <div class="col h-100 w-50 p-3">UserTelNum: <?= $userTelNumber ?></div>
                         </div>
-                        <div class="row w-100 position-absolute bottom-0 p-2" style="top:150px; overflow: scroll">
+                        <div class="row w-100 position-absolute bottom-0 p-2" style="height: 80%; overflow: scroll">
                             <table class="table table-striped table-bordered border-secondary">
                                 <thead>
                                 <tr>

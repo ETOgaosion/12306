@@ -50,7 +50,7 @@ $assetsDir = 'assets/';
                                         aria-controls="h-pills-train" aria-selected="false">列车查询
                                 </button>
                             </div>
-                            <div class="flex-grow-4 tab-content col-8 w-100 p-3" id="h-pills-tabContent" style="height: 550px">
+                            <div class="flex-grow-4 tab-content col-8 w-100 p-3" id="h-pills-tabContent" style="height: 90%; max-height: 500px">
                                 <div class="tab-pane fade show active h-100" id="h-pills-city" role="tabpanel"
                                      aria-labelledby="h-pills-city-tab">
                                     <form class="h-100 d-flex flex-column justify-content-evenly align-items-center"
